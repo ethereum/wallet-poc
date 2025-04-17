@@ -6,14 +6,19 @@ import useTheme from '@common/hooks/useTheme'
 import useDappsControllerState from '@web/hooks/useDappsControllerState'
 import DappControl from '@web/modules/dapp-catalog/components/DappControl'
 import ManageDapp from '@web/modules/dapp-catalog/components/ManageDapp'
+import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'
+
+const { isPopup } = getUiType()
 
 const DAppFooter = () => {
   const { styles } = useTheme(getStyles)
   const { currentDapp } = useDappsControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
   const [hovered, setHovered] = useState(false)
+
+  if (!currentDapp || !isPopup) return null
 
   return (
     <View style={styles.footerContainer}>

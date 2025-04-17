@@ -64,7 +64,7 @@ const SignAccountOpScreen = () => {
     () =>
       signAccountOpState?.isInitialized &&
       !!signAccountOpState?.gasPrices &&
-      !signAccountOpState.estimation?.error,
+      !signAccountOpState.estimation.error,
     [
       signAccountOpState?.estimation?.error,
       signAccountOpState?.gasPrices,
@@ -91,7 +91,7 @@ const SignAccountOpScreen = () => {
     signAccountOpState?.status?.type === SigningStatus.Done
 
   useEffect(() => {
-    if (signAccountOpState?.estimationRetryError) {
+    if (signAccountOpState?.estimation.estimationRetryError) {
       setSlowRequest(false)
       return
     }
@@ -114,7 +114,7 @@ const SignAccountOpScreen = () => {
   }, [
     signAccountOpState?.isInitialized,
     signAccountOpState?.gasPrices,
-    signAccountOpState?.estimationRetryError
+    signAccountOpState?.estimation.estimationRetryError
   ])
 
   useEffect(() => {
@@ -351,27 +351,11 @@ const SignAccountOpScreen = () => {
     )
   }
 
-  const isInsufficientFundsForGas = useMemo(() => {
-    if (!signAccountOpState?.feeSpeeds || !signAccountOpState.selectedOption) {
-      return false
-    }
-
-    const keys = Object.keys(signAccountOpState.feeSpeeds)
-    if (!keys.length) return false
-
-    const speeds = signAccountOpState.feeSpeeds[keys[0]]
-    if (!Array.isArray(speeds)) return false
-
-    const { availableAmount } = signAccountOpState.selectedOption
-
-    return speeds.every((speed) => availableAmount < speed.amount)
-  }, [signAccountOpState])
-
   const isAddToCartDisabled = useMemo(() => {
     const readyToSign = signAccountOpState?.readyToSign
 
-    return isSignLoading || (!readyToSign && !isViewOnly && !isInsufficientFundsForGas)
-  }, [isInsufficientFundsForGas, isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
+    return isSignLoading || (!readyToSign && !isViewOnly)
+  }, [isSignLoading, isViewOnly, signAccountOpState?.readyToSign])
 
   const estimationFailed = signAccountOpState?.status?.type === SigningStatus.EstimationError
 
@@ -419,7 +403,9 @@ const SignAccountOpScreen = () => {
         </BottomSheet>
       )}
       <SafetyChecksOverlay
-        shouldBeVisible={!signAccountOpState?.estimation || !signAccountOpState?.isInitialized}
+        shouldBeVisible={
+          !signAccountOpState?.estimation.estimation || !signAccountOpState?.isInitialized
+        }
       />
       <TabLayoutContainer
         width="full"
@@ -538,6 +524,7 @@ const SignAccountOpScreen = () => {
               feePayerKeyType={feePayerKeyType}
               broadcastSignedAccountOpStatus={mainState.statuses.broadcastSignedAccountOp}
               signAccountOpStatusType={signAccountOpState?.status?.type}
+              shouldSignAuth={signAccountOpState && signAccountOpState.shouldSignAuth}
             />
           )}
 

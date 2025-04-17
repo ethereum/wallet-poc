@@ -38,6 +38,7 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     portfolio: { tokens, collections, pending, networkSimulatedAccountOp }
   } = useSelectedAccountControllerState()
   const [initialSimulationLoaded, setInitialSimulationLoaded] = useState(false)
+  const [shouldRespectIsLoading, setShouldRespectIsLoading] = useState(true)
   const { networks } = useNetworksControllerState()
 
   const pendingTokens = useMemo(() => {
@@ -112,10 +113,8 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     portfolioStatePending?.isLoading
   ])
 
-  const isReloading = useMemo(() => {
+  const haveCallsChanged = useMemo(() => {
     if (!network?.chainId || !initialSimulationLoaded) return false
-
-    if (!isEstimationComplete) return true
 
     const portfolioAccountOpCalls = networkSimulatedAccountOp[String(network.chainId)]?.calls
     const signAccountOpCalls = signAccountOpState?.accountOp.calls
@@ -131,20 +130,34 @@ const Simulation: FC<Props> = ({ network, isEstimationComplete, isViewOnly }) =>
     return portfolioAccountOpCalls?.length !== signAccountOpCalls?.length
   }, [
     initialSimulationLoaded,
-    isEstimationComplete,
     network?.chainId,
     networkSimulatedAccountOp,
     signAccountOpState?.accountOp.calls,
     simulationErrorMsg
   ])
 
+  useEffect(() => {
+    if (haveCallsChanged) setShouldRespectIsLoading(true)
+  }, [haveCallsChanged])
+
+  useEffect(() => {
+    if (!portfolioStatePending) return
+    if (!portfolioStatePending.isLoading) setShouldRespectIsLoading(false)
+  }, [portfolioStatePending])
+
+  const isReloading = useMemo(() => {
+    if (!network?.chainId || !initialSimulationLoaded) return false
+    if (!isEstimationComplete) return true
+    return false
+  }, [initialSimulationLoaded, isEstimationComplete, network?.chainId])
+
   const shouldShowLoader = useMemo(
     () =>
-      (!!portfolioStatePending?.isLoading && !initialSimulationLoaded) ||
+      (!!portfolioStatePending?.isLoading && shouldRespectIsLoading) ||
       isReloading ||
       !signAccountOpState?.isInitialized,
     [
-      initialSimulationLoaded,
+      shouldRespectIsLoading,
       isReloading,
       portfolioStatePending?.isLoading,
       signAccountOpState?.isInitialized

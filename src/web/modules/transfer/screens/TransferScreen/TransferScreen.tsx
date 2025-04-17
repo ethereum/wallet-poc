@@ -7,7 +7,6 @@ import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
 import { AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
-import { ENTRY_POINT_AUTHORIZATION_REQUEST_ID } from '@ambire-common/libs/userOperation/userOperation'
 import CartIcon from '@common/assets/svg/CartIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
@@ -207,18 +206,7 @@ const TransferScreen = () => {
         const firstAccountOpAction = actionsState.visibleActionsQueue
           .reverse()
           .find((a) => a.type === 'accountOp')
-        if (!firstAccountOpAction) {
-          const entryPointAction = actionsState.visibleActionsQueue.find(
-            (a) => a.id.toString() === ENTRY_POINT_AUTHORIZATION_REQUEST_ID
-          )
-          if (entryPointAction) {
-            dispatch({
-              type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
-              params: { actionId: ENTRY_POINT_AUTHORIZATION_REQUEST_ID }
-            })
-          }
-          return
-        }
+        if (!firstAccountOpAction) return
         dispatch({
           type: 'ACTIONS_CONTROLLER_SET_CURRENT_ACTION_BY_ID',
           params: { actionId: firstAccountOpAction?.id }

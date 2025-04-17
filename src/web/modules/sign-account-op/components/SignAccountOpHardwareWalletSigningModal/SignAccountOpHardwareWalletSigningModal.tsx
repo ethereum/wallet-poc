@@ -18,13 +18,18 @@ interface Props {
   feePayerKeyType?: Key['type']
   broadcastSignedAccountOpStatus: MainController['statuses']['broadcastSignedAccountOp']
   signAccountOpStatusType?: SigningStatus
+  shouldSignAuth: {
+    type: 'V2Deploy' | '7702'
+    text: string
+  } | null
 }
 
 const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
   signingKeyType,
   feePayerKeyType,
   broadcastSignedAccountOpStatus,
-  signAccountOpStatusType
+  signAccountOpStatusType,
+  shouldSignAuth
 }: Props) => {
   const { addToast } = useToast()
   const state = useSignAccountOpControllerState()
@@ -82,6 +87,14 @@ const SignAccountOpHardwareWalletSigningModal: React.FC<Props> = ({
           <Text weight="medium" fontSize={16}>
             {signedTransactionsCount} / {accountOp?.calls.length}{' '}
             {signedTransactionsCount === 1 ? 'transaction' : 'transactions'} signed
+          </Text>
+        </View>
+      ) : null}
+
+      {shouldSignAuth ? (
+        <View style={[flexbox.alignCenter, flexbox.justifyCenter, spacings.ptLg]}>
+          <Text weight="medium" fontSize={16}>
+            {shouldSignAuth.text}
           </Text>
         </View>
       ) : null}
