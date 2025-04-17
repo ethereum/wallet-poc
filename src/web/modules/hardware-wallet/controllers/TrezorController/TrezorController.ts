@@ -36,12 +36,12 @@ class TrezorController implements ExternalSignerController {
 
   constructor() {
     this.walletSDK.on('DEVICE_EVENT', (event: any) => {
-      if (event?.payload?.features?.model) {
-        this.deviceModel = event.payload.features.model
+      if (event?.payload?.name) {
+        this.deviceModel = event.payload.name.replace(/^Trezor\s*/, '').trim()
       }
-      // The device ID could be retrieved from both places
-      if (event?.payload?.features?.device_id || event?.payload?.id) {
-        this.deviceId = event.payload.features.device_id || event.payload.id
+
+      if (event?.payload?.id) {
+        this.deviceId = event.payload.id
       }
     })
 
