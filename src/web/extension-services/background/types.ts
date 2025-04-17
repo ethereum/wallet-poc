@@ -19,7 +19,8 @@ import { SelectedAccountController } from '@ambire-common/controllers/selectedAc
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+// Temporal modification of controllers
+import { TransferController } from '@temp/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
+import { AddressState, AddressStateOptional } from '@temp/domains'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { ToastOptions } from '@common/contexts/toastContext'
 
@@ -41,6 +41,7 @@ const useAddressInput = ({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
         isValidEns: !!addressState.ensAddress,
+        isValidInteropAddress: !!addressState.interopAddress,
         overwriteError,
         overwriteValidLabel
       }),
@@ -48,6 +49,7 @@ const useAddressInput = ({
       addressState.fieldValue,
       addressState.isDomainResolving,
       addressState.ensAddress,
+      addressState.interopAddress,
       overwriteError,
       overwriteValidLabel
     ]
@@ -91,6 +93,12 @@ const useAddressInput = ({
     [addToast, handleCacheResolvedDomain, fieldValue, setAddressState]
   )
 
+  const isInteropAddress = (address: string): boolean => {
+    // Format: <address>@<chain>#<checksum>
+    const pattern = /^0x[a-fA-F0-9]{40}@eip155:\d+#[a-fA-F0-9]+$/
+    return pattern.test(address)
+  }
+
   useEffect(() => {
     const { isError, message: latestMessage } = validation
     const { isError: debouncedIsError, message: debouncedMessage } = debouncedValidation
@@ -100,8 +108,9 @@ const useAddressInput = ({
     const shouldDebounce =
       // Both validations are errors
       isError === debouncedIsError &&
-      // There is no ENS address
+      // There is no ENS address or Interop address
       !addressState.ensAddress &&
+      !addressState.interopAddress &&
       // The message is not empty
       latestMessage
 
@@ -120,6 +129,7 @@ const useAddressInput = ({
     }
   }, [
     addressState.ensAddress,
+    addressState.interopAddress,
     debouncedValidation,
     debouncedValidation.isError,
     debouncedValidation.message,
@@ -128,6 +138,16 @@ const useAddressInput = ({
 
   useEffect(() => {
     const trimmedAddress = fieldValue.trim()
+
+    if (isInteropAddress(trimmedAddress)) {
+      setAddressState({
+        ensAddress: '',
+        interopAddress: trimmedAddress,
+        isDomainResolving: false
+      })
+      return
+    }
+
     const dotIndexInAddress = trimmedAddress.indexOf('.')
     // There is a dot and it is not the first or last character
     const canBeDomain =
@@ -138,6 +158,7 @@ const useAddressInput = ({
     if (!trimmedAddress || !canBeDomain) {
       setAddressState({
         ensAddress: '',
+        interopAddress: '',
         isDomainResolving: false
       })
       return
@@ -170,6 +191,7 @@ const useAddressInput = ({
   const reset = useCallback(() => {
     setAddressState({
       fieldValue: '',
+      interopAddress: '',
       ensAddress: '',
       isDomainResolving: false
     })

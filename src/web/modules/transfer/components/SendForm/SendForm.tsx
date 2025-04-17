@@ -295,6 +295,28 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
+      <View>
+        {!isTopUp && (
+          <Recipient
+            disabled={disableForm}
+            address={addressState.fieldValue}
+            setAddress={setAddressStateFieldValue}
+            validation={validation}
+            ensAddress={addressState.ensAddress}
+            addressValidationMsg={validation.message}
+            isRecipientHumanizerKnownTokenOrSmartContract={
+              isRecipientHumanizerKnownTokenOrSmartContract
+            }
+            isRecipientAddressUnknown={isRecipientAddressUnknown}
+            isRecipientDomainResolving={addressState.isDomainResolving}
+            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
+            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
+            isSWWarningVisible={isSWWarningVisible}
+            isSWWarningAgreed={isSWWarningAgreed}
+            selectedTokenSymbol={selectedToken?.symbol}
+          />
+        )}
+      </View>
       {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
         <View>
           <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
@@ -330,28 +352,6 @@ const SendForm = ({
         isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
-      <View>
-        {!isTopUp && (
-          <Recipient
-            disabled={disableForm}
-            address={addressState.fieldValue}
-            setAddress={setAddressStateFieldValue}
-            validation={validation}
-            ensAddress={addressState.ensAddress}
-            addressValidationMsg={validation.message}
-            isRecipientHumanizerKnownTokenOrSmartContract={
-              isRecipientHumanizerKnownTokenOrSmartContract
-            }
-            isRecipientAddressUnknown={isRecipientAddressUnknown}
-            isRecipientDomainResolving={addressState.isDomainResolving}
-            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
-            isSWWarningVisible={isSWWarningVisible}
-            isSWWarningAgreed={isSWWarningAgreed}
-            selectedTokenSymbol={selectedToken?.symbol}
-          />
-        )}
-      </View>
     </ScrollableWrapper>
   )
 }

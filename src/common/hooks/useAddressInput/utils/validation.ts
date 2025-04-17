@@ -6,6 +6,7 @@ type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
   isValidEns: boolean
+  isValidInteropAddress: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
 }
@@ -14,6 +15,7 @@ const getAddressInputValidation = ({
   address,
   isRecipientDomainResolving,
   isValidEns,
+  isValidInteropAddress,
   overwriteError,
   overwriteValidLabel
 }: AddressInputValidation): {
@@ -47,6 +49,14 @@ const getAddressInputValidation = ({
       isError: false
     }
   }
+
+  if (isValidInteropAddress) {
+    return {
+      message: 'Valid Interop address',
+      isError: false
+    }
+  }
+
   if (isValidEns) {
     return {
       message: 'Valid Ethereum Name Services® domain',
@@ -69,7 +79,7 @@ const getAddressInputValidation = ({
   }
   if (address && !isValidAddress(address)) {
     return {
-      message: 'Please enter a valid address or ENS domain',
+      message: 'Please enter a valid address, ENS domain or Interop address',
       isError: true
     }
   }
