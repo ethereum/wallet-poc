@@ -74,10 +74,10 @@ jobs:
 
       - name: Puppeteer Tests 🧑‍🔬
         env:
-          IS_TESTING: 'true'
+          IS_TESTING: "true"
           E2E_DEBUG: ${{ vars.E2E_DEBUG }}
           # Its value is based on the above Display server configuration
-          DISPLAY: ':99.0'
+          DISPLAY: ":99.0"
           RELAYER_URL: ${{ vars.RELAYER_URL }}
           VELCRO_URL: ${{ vars.VELCRO_URL }}
           SOCKET_API_KEY: ${{ vars.SOCKET_API_KEY }}
@@ -116,7 +116,7 @@ jobs:
           SA_PASSPHRASE: ${{ secrets.SA_PASSPHRASE }}
           DEFAULT_INVITATION_CODE_DEV: ${{ vars.DEFAULT_INVITATION_CODE_DEV }}
           SEED_24_WORDS: ${{ secrets.SEED_24_WORDS }}
-          SHOULD_RUN_TREZOR_TESTS: 'true'
+          SHOULD_RUN_TREZOR_TESTS: "true"
 
         run: yarn run test:e2e:web
 
