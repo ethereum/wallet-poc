@@ -20,8 +20,8 @@ export type AddressFormat = 'hex' | 'base58' | 'base64'
  */
 export interface ParsedInteroperableAddress {
   version: string
-  chainIdLength: number
-  chainId: string
+  chainReferenceLength: number
+  chainReference: string
   chainType: string
   addressLength: number
   address: string

@@ -71,7 +71,7 @@ export function payloadToHuman(address: string, format: AddressFormat = 'hex'): 
   const parsedAddress = parseInteropAddress(address, format)
 
   // 2. Format the chain part
-  const chainPart = formatChain(parsedAddress.chainNamespace, parsedAddress.chainId)
+  const chainPart = formatChain(parsedAddress.chainNamespace, parsedAddress.chainReference)
 
   // 3. Format the address part
   const addressPart = formatAddress(parsedAddress.chainNamespace, parsedAddress.address)

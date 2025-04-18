@@ -1,8 +1,8 @@
-import { AddressData, formatInteropAddress } from './formatInteropAddress'
-import { humanToInteropAddress } from './humanToInteropAddress'
-import { parseInteropAddress } from './parseInteropAddress'
-import { payloadToHuman } from './payloadToHuman'
-import { ParsedInteroperableAddress, AddressFormat } from './types'
+import { AddressData, formatInteropAddress } from '../formatInteropAddress'
+import { humanToInteropAddress } from '../humanToInteropAddress'
+import { parseInteropAddress } from '../parseInteropAddress'
+import { payloadToHuman } from '../payloadToHuman'
+import { ParsedInteroperableAddress, AddressFormat } from '../types'
 
 describe('ERC-7930 Utilities', () => {
   afterEach(() => {
@@ -82,8 +82,8 @@ describe('ERC-7930 Utilities', () => {
       const expected: ParsedInteroperableAddress = {
         version: '0x0001',
         chainType: '0x0000',
-        chainIdLength: 1,
-        chainId: '0x01',
+        chainReferenceLength: 1,
+        chainReference: '0x01',
         addressLength: 20,
         address: '0x1234567890abcdef1234567890abcdef12345678',
         chainNamespace: 'eip155'
@@ -99,8 +99,8 @@ describe('ERC-7930 Utilities', () => {
       const expected: ParsedInteroperableAddress = {
         version: '0x0001',
         chainType: '0x0002',
-        chainIdLength: 32,
-        chainId: '0x3473476a4d573173556e487a5378477370756870714c4478367769796a4e745a',
+        chainReferenceLength: 32,
+        chainReference: '0x3473476a4d573173556e487a5378477370756870714c4478367769796a4e745a',
         addressLength: 32,
         address: '0xc147b7b30db9c3724f12db3be1f948790050a005c23bb1b755f0a3b72c1f2523',
         chainNamespace: 'solana' // Assuming CHAIN_NAMESPACES maps 0002 -> solana
@@ -120,8 +120,8 @@ describe('ERC-7930 Utilities', () => {
       const expected: ParsedInteroperableAddress = {
         version: '0x0001',
         chainType: '0x0000',
-        chainIdLength: 1,
-        chainId: '0x01',
+        chainReferenceLength: 1,
+        chainReference: '0x01',
         addressLength: 20,
         address: '0x1234567890abcdef1234567890abcdef12345678',
         chainNamespace: 'eip155'

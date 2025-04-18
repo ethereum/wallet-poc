@@ -70,9 +70,11 @@ export function parseInteropAddress(
   const chainIdLengthNumber = parseInt(chainIdLength, 16)
   offset += 1
 
-  // Parse chainId
-  const chainId = fromBytes(bytes.slice(offset, offset + chainIdLengthNumber), 'hex')
-  offset += chainIdLengthNumber
+  let chainId = ''
+  if (chainIdLengthNumber > 0) {
+    chainId = fromBytes(bytes.slice(offset, offset + chainIdLengthNumber), 'hex')
+    offset += chainIdLengthNumber
+  }
 
   // Parse addressLength (1 byte)
   const addressLength = fromBytes(bytes.slice(offset, offset + 1), 'hex')
@@ -84,11 +86,11 @@ export function parseInteropAddress(
 
   return {
     version,
-    chainIdLength: parseInt(chainIdLength, 16),
-    chainId,
+    chainReferenceLength: chainIdLengthNumber,
+    chainReference: chainId,
     chainType,
     addressLength: parseInt(addressLength, 16),
     address,
-    chainNamespace: CHAIN_NAMESPACES[chainType.slice(2)] || chainType
+    chainNamespace: CHAIN_NAMESPACES[chainType.slice(2)]
   }
 }
