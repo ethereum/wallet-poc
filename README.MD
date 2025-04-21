@@ -1,4 +1,4 @@
-# Ambire Wallet
+# Experimental Interoperable Ambire Wallet
 
 <div align="center">
   <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
@@ -23,250 +23,155 @@
   </p>
 </div>
 
-## Environment Setup
+---
 
-Built in a hybrid approach (with React Native and React Native Web) so that in a single codebase we can support building cross-browser extensions, mobile apps and web apps.
+## Features
 
-This project is built with Expo's bare workflow, allowing us to extend the default Vanilla React Native with additional expo modules in the form of installable expo libraries.
+- **ERC-7930 Support:** Implements interoperable addresses. See the [Technical Design Document](docs/erc-7930-implementation.md) for details.
+- **Smart Account Wallet:** Leverage the power of account abstraction for enhanced security and usability.
+- **Cross-Platform:** Built with React Native Web for cross-browser extensions, mobile apps (future), and web apps from a single codebase.
+- **EIP-7702 Ready:** Prepared for the next generation of Ethereum account standards.
+- **Cross-Chain Focus:** Designed for seamless interaction across multiple blockchain networks.
+- **Integrated Tools:** Includes Benzin (transaction explorer) and Ambire Legends (gamified testing app).
 
-More about the environment setup and prerequisites [here](https://reactnative.dev/docs/environment-setup).
+## Getting Started
 
-## Install
+### Prerequisites
 
-Install all dependencies:
+- Node.js (check `.nvmrc` for recommended version)
+- Yarn (v1.x)
+- Git
+- Familiarity with [React Native development environment setup](https://reactnative.dev/docs/environment-setup).
+
+### Installation
+
+1.  **Clone the repository:**
+
+    ```bash
+    git clone https://github.com/AmbireTech/ambire-wallet.git # Replace with actual repo URL if different
+    cd ambire-wallet
+    ```
+
+2.  **Install dependencies:**
+
+    ```bash
+    yarn install
+    ```
+
+3.  **Initialize and update submodules (ambire-common):**
+
+    ```bash
+    git submodule init
+    git submodule update
+    ```
+
+4.  **Set up environment variables:**
+    Create a `.env` file in the root directory by copying `.env-sample`:
+    ```bash
+    cp .env-sample .env
+    ```
+    Fill in the necessary variables in your `.env` file.
+
+### Editor Setup
+
+Ensure your code editor has plugins that support the following configuration files for linting, formatting, and import sorting:
+
+- `.editorconfig`
+- `.prettierrc`
+- `tsconfig.json`
+- `eslintrc.js`
+- `import-sorter.json`
+
+## Development
+
+### Running the Browser Extension (Webkit)
+
+Start the development server with hot-reloading for Webkit browsers (Chrome, Brave, etc.):
 
 ```bash
-yarn install
+yarn web:webkit
 ```
 
-Install the [ambire-common](https://github.com/AmbireTech/ambire-common) submodule, a common ground for the Ambire apps, run:
+Then, load the unpacked extension from the `build/webkit-dev` directory:
 
-```bash
-git submodule init
-git submodule update
-```
+- **Chrome/Brave/Edge:** Go to `chrome://extensions/`, enable "Developer mode", click "Load unpacked", and select the `build/webkit-dev` folder.
+- **Other Browsers:** Follow their specific instructions for loading unpacked extensions.
 
-## Environment Variables
+## Building for Production
 
-Create ".env" file in the root directory and fill in all variables, see ".env-sample" for a reference.
+### Browser Extensions
 
-## Editor Config
-
-Make sure your code editor has plugins that support the following configuration files: `.editorconfig`, `.prettierrc`, `tsconfig.json`, `eslintrc.js`, [`import-sorter.json`](https://github.com/SoominHan/import-sorter).
-
-## Browser Extensions
-
-### Development-optimized Builds
-
-- Start the browser extension for webkit browsers (tested mostly on Chrome and Brave):
-
-  ```bash
-  yarn web:webkit
-  ```
-
-  Then follow the instructions to load an unpacked extension [here](https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world#load-unpacked).
-
-- Start the browser extension for gecko browsers (tested mostly on Firefox):
-
-  ```bash
-  yarn web:gecko
-  ```
-
-  Then follow the instructions to temporarily install an extension in Firefox [here](https://extensionworkshop.com/documentation/develop/temporary-installation-in-firefox/).
-
-- Start the browser extension for the Safari browser:
-
-  ```bash
-  yarn web:safari
-  ```
-
-  Two new folders will be created:
-
-  - build/safari-dev (dev build folder)
-  - safari-extension/wallet-dev (Xcode project)
-
-  then in the Safari browser:
-
-  - Developer -> Developer settings...
-  - Check the “Allow unsigned extensions” option. (Note: This setting may not persist after Safari is restarted.)​
-  - Then the extension should be automatically added and pinned in the browser.
-
-  NOTE: You can manage the available extensions from: Safari -> Settings... -> Extensions
-
-  NOTE: The development script for Safari relies on the fswatch tool to automatically reload the Safari build when the development server is reloaded. If fswatch is not already installed on your system, you can install it using Homebrew with the following command:
-
-  ```bash
-  brew install fswatch
-  ```
-
-### Production-optimized Builds
-
-- For webkit browsers:
+- **Build for Webkit:**
+  Creates a production-optimized build.
 
   ```bash
   yarn build:web:webkit
   ```
 
-  And find the resulting build in the "build/webkit-prod" folder.
+  Output directory: `build/webkit-prod`
 
-- For gecko browsers:
-
-  ```bash
-  yarn build:web:gecko
-  ```
-
-  And find the resulting build in the "build/gecko-prod" folder.
-
-- For the Safari browser:
-
-  ```bash
-  yarn build:web:safari
-  ```
-
-  Two new folders will be created:
-
-  - "build/safari-prod" (production build folder)
-  - "safari-extension/wallet" (the Xcode project)
-
-  Then, in xCode manually do (TODO: automate these steps, it turned out to be a huge challenge):
-
-  - Delete "walletTests" and "walletUITests" targets.
-  - For both targets (macOS and extension): Signing & Capabilities: Team: "Ambire Tech Ltd", Signing Certificate: Development
-  - For both targets (macOS and extension): General - Identity - Version: X.X (should match the version in the app.json file, example: `4.36`) and Build: X (integer, bump up on every next build submitted to the App Store Connect, example: `3`)
-  - For the macOS target: General - App Category: "Utilities"
-  - For the extension target: General - Identity - Bundle Identifier: `com.ambire.app.wallet.extension`
-
-### Extract Source Maps
-
-The production-optimized builds come with source maps files included. When preparing a production build for a browser store release, run the following commands to extract the source maps in separate directories:
-
-- For the webkit build:
+- **Export Source Maps (Webkit):**
+  Extracts source maps into a separate directory (`build/webkit-prod-source-maps`) and removes them from the main build directory. This is useful for store submissions while keeping source maps for debugging.
 
   ```bash
   yarn export:web:webkit:sourcemaps
   ```
 
-  As a result, build/webkit-prod will no longer include the source map files (as before). Instead, a new folder, build/webkit-prod-source-maps, will be created to hold only the source maps. This folder should also be included in the GitHub release tag we create.
+- **Prepare Store-Ready Builds:**
+  Automates the process of building, cleaning source maps, and zipping the extensions for store submission.
+  ```bash
+  yarn build:extensions
+  ```
+  Find the zipped builds (`ambire-extension-<VERSION>-<TYPE>.zip`) in the `build` folder.
 
-- For the gecko build:
+## Related Tools
+
+### Benzin (Transaction Explorer)
+
+Ambire's human-readable transaction explorer for ERC-4337 and contract interactions.
+
+- **Run in Development:**
 
   ```bash
-  yarn export:web:gecko:sourcemaps
+  yarn web:benzin
   ```
 
-  Same as for the webkit build, but for the gecko build.
+  Output directory: `build/benzin-dev`
 
-- For the Safari build: not implemented yet.
+- **Build for Production:**
+  ```bash
+  yarn build:web:benzin
+  ```
+  Output directory: `build/benzin-prod`
 
-For more details, including how to trace /deminify a production reported error, see [#3191](https://github.com/AmbireTech/ambire-app/pull/3191).
+### Ambire Legends (Gamified Testing App)
 
-### Store-prepared Builds
+A Web3 app designed to test Ambire browser extensions through an on-chain adventure. [Read more](https://legends.ambire.com/).
 
-Automates the steps before every extension extension store release that could be otherwise done manually:
+- **Run in Development:**
 
-- Makes webkit and gecko extension production builds
-- Exports source maps to "clean" the builds (and to prepare for upload those source maps in the GitHub release)
-- Zips the "clean" builds (stores accept zips only) and the source maps
+  ```bash
+  yarn web:legends
+  ```
 
-```bash
-yarn build:extensions
-```
+  Output directory: `build/legends-dev`
 
-And find the resulting zips in the "build" folder as `ambire-extension-<VERSION>-<TYPE>.zip`
+- **Build for Production:**
+  ```bash
+  yarn build:web:legends
+  ```
+  Output directory: `build/legends-prod`
 
-## Mobile Apps
+## 🤝 Contributing
 
-The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
+Interoperable Wallet was built with ❤️ by [Wonderland](https://wonderland.xyz).
 
-## Benzin
+Wonderland is a team of top Web3 researchers, developers, and operators who believe that the future needs to be open-source, permissionless, and decentralized.
 
-Ambire's transaction explorer, that makes human readable ERC-4337 transactions and contract interactions.
+### How to Contribute
 
-Comes not only as integrated module in the Ambire extension(s), but as a standalone web app also.
-
-### Development-optimized Build
-
-```bash
-yarn web:benzin
-```
-
-And find the resulting build in the "build/benzin-dev" folder.
-
-### Production-optimized Build
-
-```bash
-yarn build:web:benzin
-```
-
-And find the resulting build in the "build/benzin-prod" folder.
-
-## Ambire Legends
-
-Ambire Legends is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://legends.ambire.com/).
-
-### Development-optimized Build
-
-```bash
-yarn web:legends
-```
-
-And find the resulting build in the "build/legends-dev" folder.
-
-```bash
-yarn build:web:legends
-```
-
-And find the resulting build in the "build/legends-prod" folder.
-
-## Others
-
-### Browser Extensions E2E Tests
-
-#### Configuration
-
-The best approach here is to follow `.github/workflows/tests.yml`. It contains all the necessary instructions for CI, which are also applicable locally. Make sure to:
-
-- Set all necessary .env variables (marked as end-to-end tests configuration).
-- See [#1409](https://github.com/AmbireTech/ambire-app/pull/1409) for more details.
-
-#### Running against production
-
-To build the webkit production version of the extension and run the E2E tests against the /webkit-prod folder, run:
-
-```bash
-yarn run test:e2e:web
-```
-
-#### Running against development
-
-For debugging, to use the hot-reloaded webpack dev webkit build and to allow running individual tests easily run:
-
-```bash
-yarn test:e2e:web:dev
-```
-
-When debugging or writing a new test, it is easier to use this command, as the project is hot-reloaded with every change you make to the codebase (e.g., adding a new selector or debugging a state), eliminating the need for a complete production build (as before). Additionally, you can run tests for a single or multiple test files.
-
-Here's how to run the tests for a single test file:
-
-```json
-{
-  "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/basic_account/ba_transactions.test.js"
-}
-```
-
-If you are fixing a failing CI test and want to mimic CI at 100%, you should configure the display server:
-
-First, run `Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &`, then set the `DISPLAY` variable with `export DISPLAY=:99.0`. By doing this, when Jest & Puppeteer are running, they will use the newly created virtual display instead of your local display. If you want to switch back to your local display, you should run export `DISPLAY=:0`.
-
-See [#2438](https://github.com/AmbireTech/ambire-app/pull/2438) for more details.
-
-### Translations (Beta)
-
-To scan the project for translation labels and to update translations JSON files, run:
-
-```bash
-yarn translations:scan
-```
-
-PS: Secondary languages not implemented / translated / fully tested yet.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit your changes using conventional commits
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
