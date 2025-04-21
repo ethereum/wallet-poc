@@ -2,7 +2,7 @@ import React, { useCallback } from 'react'
 import isEqual from 'react-fast-compare'
 import { Pressable, View } from 'react-native'
 
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { TransferController } from '@temp/transfer'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import FlipIcon from '@common/assets/svg/FlipIcon'
 import NumberInput from '@common/components/NumberInput'

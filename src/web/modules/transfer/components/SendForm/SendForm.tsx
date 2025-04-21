@@ -10,6 +10,8 @@ import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatte
 import { useTranslation } from '@common/config/localization'
 import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import { getTokenId } from '@web/utils/token'
+import { getChainFromHumanAddress } from '@erc7930/index'
+
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
@@ -74,23 +76,15 @@ const SendForm = ({
 
   const tokensByChainId = useMemo(() => {
     if (addressState.interopAddress) {
-      const trimmedAddress = addressState.interopAddress
-      const chainAndChecksum = trimmedAddress.split('@')[1]
-      const raw = chainAndChecksum.split('#')[0]
+      const chain = getChainFromHumanAddress(addressState.interopAddress)
 
-      // TODO: this is a hack
-      const chainIdMap = {
-        'eip155:1': 1,
-        'eip155:10': 10,
-        'eip155:11155111': 11155111
+      if (chain?.chainReference) {
+        const filteredTokensByChainId = tokens.filter(
+          (chainToken) => Number(chainToken.chainId) === Number(chain.chainReference)
+        )
+
+        return filteredTokensByChainId
       }
-
-      const chainId = chainIdMap[raw as keyof typeof chainIdMap]
-
-      const filteredTokensByChainId = tokens.filter(
-        (chainToken) => Number(chainToken.chainId) === chainId
-      )
-      return filteredTokensByChainId
     }
 
     return tokens

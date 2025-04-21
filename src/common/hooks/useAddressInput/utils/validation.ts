@@ -1,4 +1,5 @@
 import { getAddress } from 'ethers'
+import { validateAddressFormat } from '@erc7930/index'
 
 import { isValidAddress } from '@ambire-common/services/address'
 
@@ -51,6 +52,15 @@ const getAddressInputValidation = ({
   }
 
   if (isValidInteropAddress) {
+    const { isValid } = validateAddressFormat(address)
+
+    if (!isValid) {
+      return {
+        message: 'Invalid Interop address format',
+        isError: true
+      }
+    }
+
     return {
       message: 'Valid Interop address',
       isError: false

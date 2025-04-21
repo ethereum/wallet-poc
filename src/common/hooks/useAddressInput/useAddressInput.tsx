@@ -93,9 +93,9 @@ const useAddressInput = ({
     [addToast, handleCacheResolvedDomain, fieldValue, setAddressState]
   )
 
-  const isInteropAddress = (address: string): boolean => {
-    // Format: <address>@<chain>#<checksum>
-    const pattern = /^0x[a-fA-F0-9]{40}@eip155:\d+#[a-fA-F0-9]+$/
+  const canBeInteropAddress = (address: string): boolean => {
+    // Format: <address>@<namespace>:<chainId>#<checksum>
+    const pattern = /^0x[a-fA-F0-9]{40}@[^:#]+:[^#]+#[a-fA-F0-9]+$/
     return pattern.test(address)
   }
 
@@ -139,10 +139,13 @@ const useAddressInput = ({
   useEffect(() => {
     const trimmedAddress = fieldValue.trim()
 
-    if (isInteropAddress(trimmedAddress)) {
+    // This logic should be refactored in the future
+    // Interop address could have ens address
+    // Workaround to avoid breaking the transfer build => addy.split('@')[0]
+    if (canBeInteropAddress(trimmedAddress)) {
       setAddressState({
         ensAddress: '',
-        interopAddress: trimmedAddress,
+        interopAddress: trimmedAddress.split('@')[0],
         isDomainResolving: false
       })
       return

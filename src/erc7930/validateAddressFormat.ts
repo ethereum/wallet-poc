@@ -1,5 +1,6 @@
 import { parseInteropAddress } from './parseInteropAddress'
 import { AddressFormatResult, AddressFormatType } from './types'
+import { validateChecksum } from './validateChecksum'
 
 /**
  * Validates and identifies the format of an address string.
@@ -69,8 +70,11 @@ export function validateAddressFormat(address: string): AddressFormatResult {
   // Both account and chain parts are optional
   const INTEROP_HUMAN_REGEX = /^([a-zA-Z0-9]*)@([a-zA-Z0-9]*:?[a-zA-Z0-9]*)?#([A-F0-9]{8})$/
   const interopHumanMatch = trimmedAddress.match(INTEROP_HUMAN_REGEX)
-  if (interopHumanMatch) {
+  const isValidChecksum = validateChecksum(trimmedAddress)
+
+  if (interopHumanMatch && isValidChecksum) {
     const [, accountPart, chainPart] = interopHumanMatch
+
     // If chainPart has a colon, extract namespace, otherwise use empty string
     const chainNamespace = chainPart && chainPart.includes(':') ? chainPart.split(':')[0] : ''
     const chainReference = chainPart && chainPart.includes(':') ? chainPart.split(':')[1] : ''
