@@ -1,29 +1,11 @@
-# Experimental Interoperable Ambire Wallet
+> **⚠️ Experimental Wallet Warning ⚠️**
+>
+> This wallet is highly experimental and under active development.
+> **DO NOT USE IT FOR PRODUCTION PURPOSES OR TO STORE REAL FUNDS.**
+> Use only test funds for evaluation and feedback.
+> The developers assume NO responsibility for any loss of funds.
 
-<div align="center">
-  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
-    <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
-  </a>
-
-  <p>
-    The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
-    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
-      <strong>Download Extension for Webkit Browsers 🔥</strong>
-    </a>
-    <br />
-    <em>(Chrome, Brave, Opera, Edge, Arc)</em>
-    <br /><br />
-    💌 Request Invite Code:
-    <a href="https://discord.com/invite/Ambire" target="_blank">Discord</a> |
-    <a href="https://t.me/AmbireOfficial" target="_blank">Telegram</a>
-    <br />
-    🐞
-    <a href="https://github.com/AmbireTech/extension/issues">Report a Bug</a> ·
-    <a href="https://forum.ambire.com/" target="_blank">Request Features</a>
-  </p>
-</div>
-
----
+# Experimental Interoperable Wallet
 
 ## Features
 
