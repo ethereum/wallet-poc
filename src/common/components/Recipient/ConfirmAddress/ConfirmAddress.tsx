@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react'
 import { View } from 'react-native'
 
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+import { TransferController } from '@temp/transfer'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import Checkbox from '@common/components/Checkbox'
 import Text from '@common/components/Text'
