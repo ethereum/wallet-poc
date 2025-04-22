@@ -41,7 +41,7 @@ const useAddressInput = ({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
         isValidEns: !!addressState.ensAddress,
-        isValidInteropAddress: !!addressState.interopAddress,
+        isInteropAddress: !!addressState.interopAddress,
         overwriteError,
         overwriteValidLabel
       }),

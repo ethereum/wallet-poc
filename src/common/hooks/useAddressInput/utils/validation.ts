@@ -1,13 +1,12 @@
 import { getAddress } from 'ethers'
 import { validateAddressFormat } from '@erc7930/index'
-
 import { isValidAddress } from '@ambire-common/services/address'
 
 type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
   isValidEns: boolean
-  isValidInteropAddress: boolean
+  isInteropAddress: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
 }
@@ -16,7 +15,7 @@ const getAddressInputValidation = ({
   address,
   isRecipientDomainResolving,
   isValidEns,
-  isValidInteropAddress,
+  isInteropAddress,
   overwriteError,
   overwriteValidLabel
 }: AddressInputValidation): {
@@ -51,7 +50,7 @@ const getAddressInputValidation = ({
     }
   }
 
-  if (isValidInteropAddress) {
+  if (isInteropAddress) {
     const { isValid } = validateAddressFormat(address)
 
     if (!isValid) {
