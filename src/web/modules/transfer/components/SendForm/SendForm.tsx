@@ -363,7 +363,7 @@ const SendForm = ({
           label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           options={options}
           value={tokenSelectValue}
-          disabled={disableForm}
+          disabled={disableForm || validation.isError}
           containerStyle={styles.tokenSelect}
           testID="tokens-select"
         />
@@ -379,7 +379,7 @@ const SendForm = ({
         amountFieldMode={amountFieldMode}
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
+        disabled={disableForm || amountSelectDisabled || validation.isError}
         isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
