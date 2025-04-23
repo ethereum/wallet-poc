@@ -90,6 +90,19 @@ const SendForm = ({
     return tokens
   }, [addressState.interopAddress, addressState.fieldValue, tokens])
 
+  const selectedNetwork = useMemo(() => {
+    if (addressState.interopAddress) {
+      const chain = getChainFromHumanAddress(addressState.fieldValue)
+      if (!chain) {
+        return
+      }
+
+      return networks.find((network) => network.chainId === BigInt(chain.chainReference))
+    }
+
+    return null
+  }, [addressState.interopAddress, addressState.fieldValue, networks])
+
   const {
     value: tokenSelectValue,
     options,
@@ -316,6 +329,7 @@ const SendForm = ({
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
+            selectedNetwork={selectedNetwork}
             address={addressState.fieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}

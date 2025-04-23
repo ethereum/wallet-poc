@@ -12,6 +12,8 @@ interface Style {
   plTy: ViewStyle
   button: ViewStyle
   bottomLabel: TextStyle
+  chainLogo: ViewStyle
+  icon: ViewStyle
 }
 
 const getStyles = (theme: ThemeProps) =>
@@ -28,6 +30,15 @@ const getStyles = (theme: ThemeProps) =>
     button: getInputStyles(theme).button,
     bottomLabel: {
       fontSize: 12
+    },
+    chainLogo: {
+      ...flexbox.directionRow,
+      ...flexbox.justifyEnd,
+      ...flexbox.alignCenter
+    },
+    icon: {
+      backgroundColor: theme.secondaryBackground,
+      marginRight: -10
     }
   })
 

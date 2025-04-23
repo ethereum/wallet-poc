@@ -11,7 +11,7 @@ const getStyles = () =>
   StyleSheet.create<Style>({
     panel: {
       maxHeight: '100%',
-      maxWidth: 640,
+      maxWidth: 680,
       width: '100%',
       marginHorizontal: 'auto'
     },
