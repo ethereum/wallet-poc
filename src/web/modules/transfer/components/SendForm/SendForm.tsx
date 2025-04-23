@@ -90,6 +90,19 @@ const SendForm = ({
     return tokens
   }, [addressState.interopAddress, addressState.fieldValue, tokens])
 
+  const selectedNetwork = useMemo(() => {
+    if (addressState.interopAddress) {
+      const chain = getChainFromHumanAddress(addressState.fieldValue)
+      if (!chain) {
+        return
+      }
+
+      return networks.find((network) => network.chainId === BigInt(chain.chainReference))
+    }
+
+    return null
+  }, [addressState.interopAddress, addressState.fieldValue, networks])
+
   const {
     value: tokenSelectValue,
     options,
@@ -316,6 +329,7 @@ const SendForm = ({
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
+            selectedNetwork={selectedNetwork}
             address={addressState.fieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}
@@ -349,7 +363,7 @@ const SendForm = ({
           label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
           options={options}
           value={tokenSelectValue}
-          disabled={disableForm}
+          disabled={disableForm || validation.isError}
           containerStyle={styles.tokenSelect}
           testID="tokens-select"
         />
@@ -365,7 +379,7 @@ const SendForm = ({
         amountFieldMode={amountFieldMode}
         maxAmountInFiat={maxAmountInFiat}
         switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
+        disabled={disableForm || amountSelectDisabled || validation.isError}
         isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
         isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
       />
