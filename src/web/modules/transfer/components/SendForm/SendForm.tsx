@@ -1,30 +1,31 @@
 import { formatUnits, ZeroAddress } from 'ethers'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { View } from 'react-native'
-
 import { estimateEOA } from '@ambire-common/libs/estimate/estimateEOA'
 import { getGasPriceRecommendations } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { convertTokenPriceToBigInt } from '@ambire-common/utils/numbers/formatters'
+import { useTranslation } from '@common/config/localization'
+import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
+import { getTokenId } from '@web/utils/token'
+import { getChainFromHumanAddress } from '@erc7930/index'
+
 import InputSendToken from '@common/components/InputSendToken'
 import Recipient from '@common/components/Recipient'
 import ScrollableWrapper from '@common/components/ScrollableWrapper'
 import Select from '@common/components/Select'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import Text from '@common/components/Text'
-import { useTranslation } from '@common/config/localization'
 import useAddressInput from '@common/hooks/useAddressInput'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import useRoute from '@common/hooks/useRoute'
 import spacings from '@common/styles/spacings'
-import { getInfoFromSearch } from '@web/contexts/transferControllerStateContext'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
-import { getTokenId } from '@web/utils/token'
 
 import styles from './styles'
 
@@ -73,12 +74,41 @@ const SendForm = ({
 
   const selectedTokenFromUrl = useMemo(() => getInfoFromSearch(search), [search])
 
+  const tokensByChainId = useMemo(() => {
+    if (addressState.interopAddress) {
+      const chain = getChainFromHumanAddress(addressState.fieldValue)
+
+      if (chain?.chainReference) {
+        const filteredTokensByChainId = tokens.filter(
+          (chainToken) => Number(chainToken.chainId) === Number(chain.chainReference)
+        )
+
+        return filteredTokensByChainId
+      }
+    }
+
+    return tokens
+  }, [addressState.interopAddress, addressState.fieldValue, tokens])
+
+  const selectedNetwork = useMemo(() => {
+    if (addressState.interopAddress) {
+      const chain = getChainFromHumanAddress(addressState.fieldValue)
+      if (!chain) {
+        return
+      }
+
+      return networks.find((network) => network.chainId === BigInt(chain.chainReference))
+    }
+
+    return null
+  }, [addressState.interopAddress, addressState.fieldValue, networks])
+
   const {
     value: tokenSelectValue,
     options,
     amountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens,
+    tokens: tokensByChainId,
     token: selectedToken ? getTokenId(selectedToken, networks) : '',
     networks,
     isToToken: false
@@ -295,45 +325,11 @@ const SendForm = ({
     <ScrollableWrapper
       contentContainerStyle={[styles.container, isTopUp ? styles.topUpContainer : {}]}
     >
-      {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
-        <View>
-          <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
-            {!portfolio?.isReadyToVisualize
-              ? t('Loading tokens...')
-              : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-          </Text>
-          <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
-        </View>
-      ) : (
-        <Select
-          setValue={({ value }) => handleChangeToken(value as string)}
-          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
-          options={options}
-          value={tokenSelectValue}
-          disabled={disableForm}
-          containerStyle={styles.tokenSelect}
-          testID="tokens-select"
-        />
-      )}
-      <InputSendToken
-        amount={amount}
-        onAmountChange={setAmount}
-        selectedTokenSymbol={selectedToken?.symbol || ''}
-        errorMessage={amountErrorMessage}
-        setMaxAmount={setMaxAmount}
-        maxAmount={maxAmount}
-        amountInFiat={amountInFiat}
-        amountFieldMode={amountFieldMode}
-        maxAmountInFiat={maxAmountInFiat}
-        switchAmountFieldMode={switchAmountFieldMode}
-        disabled={disableForm || amountSelectDisabled}
-        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
-        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
-      />
       <View>
         {!isTopUp && (
           <Recipient
             disabled={disableForm}
+            selectedNetwork={selectedNetwork}
             address={addressState.fieldValue}
             setAddress={setAddressStateFieldValue}
             validation={validation}
@@ -352,6 +348,41 @@ const SendForm = ({
           />
         )}
       </View>
+      {(!state.selectedToken && tokens.length) || !portfolio?.isReadyToVisualize ? (
+        <View>
+          <Text appearance="secondaryText" fontSize={14} weight="regular" style={spacings.mbMi}>
+            {!portfolio?.isReadyToVisualize
+              ? t('Loading tokens...')
+              : t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
+          </Text>
+          <SkeletonLoader width="100%" height={50} style={spacings.mbLg} />
+        </View>
+      ) : (
+        <Select
+          setValue={({ value }) => handleChangeToken(value as string)}
+          label={t(`Select ${isTopUp ? 'Gas Tank ' : ''}Token`)}
+          options={options}
+          value={tokenSelectValue}
+          disabled={disableForm || validation.isError}
+          containerStyle={styles.tokenSelect}
+          testID="tokens-select"
+        />
+      )}
+      <InputSendToken
+        amount={amount}
+        onAmountChange={setAmount}
+        selectedTokenSymbol={selectedToken?.symbol || ''}
+        errorMessage={amountErrorMessage}
+        setMaxAmount={setMaxAmount}
+        maxAmount={maxAmount}
+        amountInFiat={amountInFiat}
+        amountFieldMode={amountFieldMode}
+        maxAmountInFiat={maxAmountInFiat}
+        switchAmountFieldMode={switchAmountFieldMode}
+        disabled={disableForm || amountSelectDisabled || validation.isError}
+        isLoading={!portfolio?.isReadyToVisualize || !isMaxAmountEnabled}
+        isSwitchAmountFieldModeDisabled={selectedToken?.priceIn.length === 0}
+      />
     </ScrollableWrapper>
   )
 }

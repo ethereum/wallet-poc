@@ -1,11 +1,12 @@
 import { getAddress } from 'ethers'
-
+import { validateAddressFormat } from '@erc7930/index'
 import { isValidAddress } from '@ambire-common/services/address'
 
 type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
   isValidEns: boolean
+  isInteropAddress: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
 }
@@ -14,6 +15,7 @@ const getAddressInputValidation = ({
   address,
   isRecipientDomainResolving,
   isValidEns,
+  isInteropAddress,
   overwriteError,
   overwriteValidLabel
 }: AddressInputValidation): {
@@ -47,6 +49,23 @@ const getAddressInputValidation = ({
       isError: false
     }
   }
+
+  if (isInteropAddress) {
+    const { isValid } = validateAddressFormat(address)
+
+    if (!isValid) {
+      return {
+        message: 'Invalid Interop address format',
+        isError: true
+      }
+    }
+
+    return {
+      message: 'Valid Interop address',
+      isError: false
+    }
+  }
+
   if (isValidEns) {
     return {
       message: 'Valid Ethereum Name Services® domain',
@@ -69,7 +88,7 @@ const getAddressInputValidation = ({
   }
   if (address && !isValidAddress(address)) {
     return {
-      message: 'Please enter a valid address or ENS domain',
+      message: 'Please enter a valid address, ENS domain or Interop address',
       isError: true
     }
   }

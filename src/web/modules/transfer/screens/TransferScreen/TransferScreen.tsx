@@ -5,7 +5,7 @@ import { useModalize } from 'react-native-modalize'
 
 import { FEE_COLLECTOR } from '@ambire-common/consts/addresses'
 import { ActionExecutionType } from '@ambire-common/controllers/actions/actions'
-import { AddressStateOptional } from '@ambire-common/interfaces/domains'
+import { AddressStateOptional } from '@temp/domains'
 import { isSmartAccount as getIsSmartAccount } from '@ambire-common/libs/account/account'
 import CartIcon from '@common/assets/svg/CartIcon'
 import InfoIcon from '@common/assets/svg/InfoIcon'

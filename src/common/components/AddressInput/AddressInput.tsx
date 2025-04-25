@@ -3,10 +3,11 @@ import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Keyboard, TouchableOpacity, View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
+import { Network } from '@ambire-common/interfaces/network'
 
 import shortenAddress from '@ambire-common/utils/shortenAddress'
 import CopyIcon from '@common/assets/svg/CopyIcon'
-import EnsIcon from '@common/assets/svg/EnsIcon'
+// import EnsIcon from '@common/assets/svg/EnsIcon'
 import ScanIcon from '@common/assets/svg/ScanIcon'
 import Input, { InputProps } from '@common/components/Input'
 import Text from '@common/components/Text'
@@ -22,6 +23,7 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import BottomSheet from '../BottomSheet'
 import QRCodeScanner from '../QRCodeScanner'
 import getStyles from './styles'
+import NetworkIcon from '../NetworkIcon'
 
 export interface AddressValidation {
   isError: boolean
@@ -32,6 +34,7 @@ interface Props extends InputProps {
   ensAddress: string
   isRecipientDomainResolving: boolean
   validation: AddressValidation
+  selectedNetwork?: Network | null
   label?: string
 }
 
@@ -44,6 +47,7 @@ const AddressInput: React.FC<Props> = ({
   containerStyle = {},
   placeholder,
   childrenBeforeButtons,
+  selectedNetwork,
   ...rest
 }) => {
   const { t } = useTranslation()
@@ -98,7 +102,7 @@ const AddressInput: React.FC<Props> = ({
         validLabel={!isError && !isValidationInDomainResolvingState ? message : ''}
         error={isError ? message : ''}
         isValid={!isError && !isValidationInDomainResolvingState}
-        placeholder={placeholder || t('Address / ENS')}
+        placeholder={placeholder || t('Address / ENS / Interop address')}
         bottomLabelStyle={styles.bottomLabel}
         info={isValidationInDomainResolvingState ? t('Resolving domain...') : ''}
         childrenBeforeButtons={
@@ -134,12 +138,23 @@ const AddressInput: React.FC<Props> = ({
                 />
               </AnimatedPressable>
             ) : null}
-            <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}>
-              {childrenBeforeButtons}
-              <View style={styles.plTy}>
-                <EnsIcon isActive={!!ensAddress} />
+            {/* Icons removed */}
+            {/* <View style={[styles.domainIcons, rest.button ? spacings.pr0 : spacings.pr]}> */}
+            {/*   {childrenBeforeButtons} */}
+            {/*   <View style={styles.plTy}> */}
+            {/*     <EnsIcon isActive={!!ensAddress} /> */}
+            {/*   </View> */}
+            {/* </View> */}
+
+            {selectedNetwork && (
+              <View style={styles.chainLogo}>
+                <NetworkIcon
+                  style={styles.icon}
+                  id={selectedNetwork.chainId.toString()}
+                  benzinNetwork={selectedNetwork}
+                />
               </View>
-            </View>
+            )}
             {!isWeb && (
               <TouchableOpacity style={spacings.prTy} onPress={handleOnButtonPress}>
                 <ScanIcon isFilled={false} />
@@ -148,6 +163,7 @@ const AddressInput: React.FC<Props> = ({
           </>
         }
       />
+
       {!isWeb && (
         <BottomSheet id="add-token" sheetRef={sheetRef} closeBottomSheet={closeBottomSheet}>
           <Title style={textStyles.center}>{t('Scan recipient QR code')}</Title>

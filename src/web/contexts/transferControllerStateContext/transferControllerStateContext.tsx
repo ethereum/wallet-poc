@@ -2,7 +2,8 @@ import React, { createContext, useCallback, useEffect, useMemo, useRef, useState
 import { View } from 'react-native'
 
 import humanizerInfo from '@ambire-common/consts/humanizer/humanizerInfo.json'
-import { TransferController } from '@ambire-common/controllers/transfer/transfer'
+// Temporal modification of controllers
+import { TransferController } from '@temp/transfer'
 import { HumanizerMeta } from '@ambire-common/libs/humanizer/interfaces'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { getTokenAmount } from '@ambire-common/libs/portfolio/helpers'

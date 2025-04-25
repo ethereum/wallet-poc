@@ -1,8 +1,13 @@
 import { DomainsController } from '@ambire-common/controllers/domains/domains'
-import { AddressState } from '@ambire-common/interfaces/domains'
+import { AddressState } from '@temp/domains'
 
 const getAddressFromAddressState = (addressState: AddressState) => {
-  return (addressState.ensAddress || addressState.fieldValue || '').trim()
+  return (
+    addressState.ensAddress ||
+    addressState.interopAddress ||
+    addressState.fieldValue ||
+    ''
+  ).trim()
 }
 
 const findAccountDomainFromPartialDomain = (

@@ -1,6 +1,7 @@
-name: 'Setup environment'
+name: "Setup environment"
+description: "Setup the environment for the project"
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Git submodules init
       run: git submodule init
@@ -13,7 +14,7 @@ runs:
     - name: Install Node.js ⚙️
       uses: actions/setup-node@v4
       with:
-        node-version-file: '.nvmrc'
+        node-version-file: ".nvmrc"
 
     - name: Get Yarn Cache Directory Path
       id: yarn-cache-dir-path

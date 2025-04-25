@@ -11,7 +11,9 @@ module.exports = function (api) {
     '@mobile': './src/mobile',
     '@web': './src/web',
     '@benzin': './src/benzin',
-    '@legends': './src/legends'
+    '@legends': './src/legends',
+    '@temp': './src/temp',
+    '@erc7930': './src/erc7930'
   }
 
   const config = {
