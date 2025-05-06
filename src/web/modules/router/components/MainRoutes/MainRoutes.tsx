@@ -54,6 +54,7 @@ import TransactionHistorySettingsScreen from '@web/modules/settings/screens/Tran
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen'
+import IntentScreen from '@web/modules/intent/screens/IntentScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
@@ -176,6 +177,7 @@ const MainRoutes = () => {
             }
           />
           <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
+          <Route path={WEB_ROUTES.intent} element={<IntentScreen />} />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
           <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
           <Route path={WEB_ROUTES.switchAccount} element={<SwitchAccountScreen />} />
