@@ -22,17 +22,17 @@ import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
-import BatchAdded from '../../components/BatchModal/BatchAdded'
-import Buttons from '../../components/Buttons'
-import TrackProgress from '../../components/Estimation/TrackProgress'
-import FromToken from '../../components/FromToken'
-import PriceImpactWarningModal from '../../components/PriceImpactWarningModal'
-import RouteInfo from '../../components/RouteInfo'
-import ToToken from '../../components/ToToken'
+import BatchAdded from '../components/BatchModal/BatchAdded'
+import Buttons from '../components/Buttons'
+import TrackProgress from '../components/Estimation/TrackProgress'
+import FromToken from '../components/FromToken'
+import PriceImpactWarningModal from '../components/PriceImpactWarningModal'
+import RouteInfo from '../components/RouteInfo'
+import ToToken from '../components/ToToken'
 
 const { isTab, isActionWindow } = getUiType()
 
-const SwapAndBridgeScreen = () => {
+const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
   const {
@@ -237,4 +237,4 @@ const SwapAndBridgeScreen = () => {
   )
 }
 
-export default React.memo(SwapAndBridgeScreen)
+export default React.memo(IntentScreen)
