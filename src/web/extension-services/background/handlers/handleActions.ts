@@ -561,6 +561,29 @@ export const handleActions = async (
       break
     }
 
+    case 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
+      const transactionType = params.transactionType
+
+      if (transactionType === 'intent') {
+        // eslint-disable-next-line no-console
+        return console.log('buildIntentUserRequest', params)
+      }
+
+      if (transactionType === 'swapAndBridge') {
+        return await mainCtrl.buildSwapAndBridgeUserRequest()
+      }
+
+      if (transactionType === 'transfer') {
+        return await mainCtrl.buildTransferUserRequest(
+          params.amount,
+          params.recipientAddress,
+          params.selectedToken,
+          params.actionExecutionType
+        )
+      }
+      break
+    }
+
     default:
       // eslint-disable-next-line no-console
       return console.error(

@@ -667,6 +667,12 @@ type OpenExtensionPopupAction = {
   type: 'OPEN_EXTENSION_POPUP'
 }
 
+type MainControllerBuildTransactionUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
+  // TODO: use the correct type
+  params: any
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -794,3 +800,4 @@ export type Action =
   | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
+  | MainControllerBuildTransactionUserRequest
