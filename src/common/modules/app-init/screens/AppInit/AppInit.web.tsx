@@ -43,6 +43,7 @@ import { ProvidersControllerStateProvider } from '@web/contexts/providersControl
 import { SelectedAccountControllerStateProvider } from '@web/contexts/selectedAccountControllerStateContext'
 import { SignMessageControllerStateProvider } from '@web/contexts/signMessageControllerStateContext'
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
+import { TransactionControllerStateProvider } from '@web/contexts/transactionControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
 
 const Router = isExtension ? HashRouter : BrowserRouter
@@ -84,22 +85,24 @@ const AppInit = () => {
                                                             <SwapAndBridgeControllerStateProvider>
                                                               <ControllersStateLoadedProvider>
                                                                 <LoaderProvider>
-                                                                  <StorageProvider>
-                                                                    <KeyboardProvider>
-                                                                      <NetInfoProvider>
-                                                                        <AuthProvider>
-                                                                          <OnboardingNavigationProvider>
-                                                                            <BiometricsProvider>
-                                                                              <PrivateModeProvider>
-                                                                                <AppRouter />
-                                                                              </PrivateModeProvider>
-                                                                              <PortalHost name="global" />
-                                                                            </BiometricsProvider>
-                                                                          </OnboardingNavigationProvider>
-                                                                        </AuthProvider>
-                                                                      </NetInfoProvider>
-                                                                    </KeyboardProvider>
-                                                                  </StorageProvider>
+                                                                  <TransactionControllerStateProvider>
+                                                                    <StorageProvider>
+                                                                      <KeyboardProvider>
+                                                                        <NetInfoProvider>
+                                                                          <AuthProvider>
+                                                                            <OnboardingNavigationProvider>
+                                                                              <BiometricsProvider>
+                                                                                <PrivateModeProvider>
+                                                                                  <AppRouter />
+                                                                                </PrivateModeProvider>
+                                                                                <PortalHost name="global" />
+                                                                              </BiometricsProvider>
+                                                                            </OnboardingNavigationProvider>
+                                                                          </AuthProvider>
+                                                                        </NetInfoProvider>
+                                                                      </KeyboardProvider>
+                                                                    </StorageProvider>
+                                                                  </TransactionControllerStateProvider>
                                                                 </LoaderProvider>
                                                               </ControllersStateLoadedProvider>
                                                             </SwapAndBridgeControllerStateProvider>

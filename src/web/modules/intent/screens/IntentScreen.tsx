@@ -29,12 +29,14 @@ import FromToken from '../components/FromToken'
 import PriceImpactWarningModal from '../components/PriceImpactWarningModal'
 import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
+import useTransactionForm from '../hooks/useTransactionForm'
 
 const { isTab, isActionWindow } = getUiType()
 
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
+  const { handleSubmitForm } = useTransactionForm()
   const {
     sessionId,
     fromAmountValue,
@@ -42,7 +44,6 @@ const IntentScreen = () => {
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,
-    handleSubmitForm,
     highPriceImpactOrSlippageWarning,
     priceImpactModalRef,
     closePriceImpactModal,
