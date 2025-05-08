@@ -23,6 +23,7 @@ import useSignMessageControllerState from '@web/hooks/useSignMessageControllerSt
 import useStorageControllerState from '@web/hooks/useStorageControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import { getUiType } from '@web/utils/uiType'
 
 const ControllersStateLoadedContext = createContext<{
@@ -61,6 +62,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
   const extensionUpdateControllerState = useExtensionUpdateControllerState()
   const featureFlagsControllerState = useFeatureFlagsControllerState()
+  const transactionManagerControllerState = useTransactionControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
@@ -136,6 +138,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(swapAndBridgeControllerState).length,
     [swapAndBridgeControllerState]
   )
+  const hasTransactionManagerState: boolean = useMemo(
+    () => !!Object.keys(transactionManagerControllerState).length,
+    [transactionManagerControllerState]
+  )
   const hasExtensionUpdateState: boolean = useMemo(
     () => !!Object.keys(extensionUpdateControllerState).length,
     [extensionUpdateControllerState]
@@ -175,7 +181,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasInviteState &&
       hasSwapAndBridgeState &&
       hasExtensionUpdateState &&
-      hasFeatureFlagsControllerState
+      hasFeatureFlagsControllerState &&
+      hasTransactionManagerState
     ) {
       clearTimeout(timeout)
       if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
@@ -207,6 +214,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasSwapAndBridgeState,
     hasExtensionUpdateState,
     hasFeatureFlagsControllerState,
+    hasTransactionManagerState,
     dispatch
   ])
 

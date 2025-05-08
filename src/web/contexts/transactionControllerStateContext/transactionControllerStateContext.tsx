@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-shadow */
 import React, { createContext, useEffect } from 'react'
 
-import { TransactionManager } from '@ambire-common/controllers/transaction/transactionManager'
+import { TransactionManagerController } from '@ambire-common/controllers/transaction/transactionManager'
 import useDeepMemo from '@common/hooks/useDeepMemo'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useControllerState from '@web/hooks/useControllerState'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 
-const TransactionControllerStateContext = createContext<TransactionManager>(
-  {} as TransactionManager
+const TransactionControllerStateContext = createContext<TransactionManagerController>(
+  {} as TransactionManagerController
 )
 
 const TransactionControllerStateProvider: React.FC<any> = ({ children }) => {

@@ -20,7 +20,7 @@ import { SignAccountOpController } from '@ambire-common/controllers/signAccountO
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
 import { StorageController } from '@ambire-common/controllers/storage/storage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
-import { TransactionManager } from '@ambire-common/controllers/transaction/transactionManager'
+import { TransactionManagerController } from '@ambire-common/controllers/transaction/transactionManager'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
@@ -53,7 +53,7 @@ export const controllersNestedInMainMapping = {
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
   // - value is the type of the controller
-  transactionManager: TransactionManager
+  transactionManager: TransactionManagerController
 }
 export const controllersMapping = {
   main: MainController,

@@ -685,6 +685,20 @@ type MainControllerBuildTransactionUserRequest = {
   params: any
 }
 
+type TransactionControllerUpdateFormAction = {
+  type: 'TRANSACTION_CONTROLLER_UPDATE_FORM'
+  params: {
+    fromAmount?: string
+    fromAmountInFiat?: string
+    fromAmountFieldMode?: 'fiat' | 'token'
+    fromChainId?: bigint | number
+    fromSelectedToken?: TokenResult | null
+    toChainId?: bigint | number
+    toSelectedToken?: SwapAndBridgeToToken | null
+    routePriority?: 'output' | 'time'
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -814,3 +828,4 @@ export type Action =
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | MainControllerBuildTransactionUserRequest
+  | TransactionControllerUpdateFormAction
