@@ -83,9 +83,9 @@ const AppInit = () => {
                                                         <DomainsControllerStateProvider>
                                                           <AddressBookControllerStateProvider>
                                                             <SwapAndBridgeControllerStateProvider>
-                                                              <ControllersStateLoadedProvider>
-                                                                <LoaderProvider>
-                                                                  <TransactionControllerStateProvider>
+                                                              <TransactionControllerStateProvider>
+                                                                <ControllersStateLoadedProvider>
+                                                                  <LoaderProvider>
                                                                     <StorageProvider>
                                                                       <KeyboardProvider>
                                                                         <NetInfoProvider>
@@ -102,9 +102,9 @@ const AppInit = () => {
                                                                         </NetInfoProvider>
                                                                       </KeyboardProvider>
                                                                     </StorageProvider>
-                                                                  </TransactionControllerStateProvider>
-                                                                </LoaderProvider>
-                                                              </ControllersStateLoadedProvider>
+                                                                  </LoaderProvider>
+                                                                </ControllersStateLoadedProvider>
+                                                              </TransactionControllerStateProvider>
                                                             </SwapAndBridgeControllerStateProvider>
                                                           </AddressBookControllerStateProvider>
                                                         </DomainsControllerStateProvider>

@@ -595,6 +595,9 @@ export const handleActions = async (
       break
     }
 
+    case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
+      return mainCtrl.transactionManager.formState.update(params)
+
     default:
       // eslint-disable-next-line no-console
       return console.error(
