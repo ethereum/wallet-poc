@@ -83,7 +83,8 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button
           text={t('Proceed')}
-          disabled={isNotReadyToProceed || !!oneClickDisabledReason}
+          // TODO: remove the disabled once the intent is implemented
+          // disabled={isNotReadyToProceed || !!oneClickDisabledReason}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}
           onPress={() => handleSubmitForm(true)}
