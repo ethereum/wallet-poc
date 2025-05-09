@@ -36,12 +36,17 @@ const { isTab, isActionWindow } = getUiType()
 const IntentScreen = () => {
   const { t } = useTranslation()
   const { navigate } = useNavigation()
-  const { handleSubmitForm, onFromAmountChange, fromAmountValue } = useTransactionForm()
   const {
-    sessionId,
+    handleSubmitForm,
+    onFromAmountChange,
+    fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
-    fromTokenAmountSelectDisabled,
+    fromTokenAmountSelectDisabled
+  } = useTransactionForm()
+
+  const {
+    sessionId,
     highPriceImpactOrSlippageWarning,
     priceImpactModalRef,
     closePriceImpactModal,
