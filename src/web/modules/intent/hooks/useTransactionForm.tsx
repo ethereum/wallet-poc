@@ -23,7 +23,8 @@ const useTransactionForm = () => {
     toChainId,
     fromSelectedToken,
     portfolioTokenList,
-    supportedChainIds
+    supportedChainIds,
+    addressState
   } = formState
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -118,7 +119,8 @@ const useTransactionForm = () => {
     toChainId,
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
-    fromTokenValue
+    fromTokenValue,
+    addressState
   }
 }
 
