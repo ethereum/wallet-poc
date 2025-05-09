@@ -66,7 +66,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const handleSetToNetworkValue = useCallback(
     (networkOption: SelectValue) => {
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: {
           toChainId: networks.filter((n) => String(n.chainId) === networkOption.value)[0].chainId
         }
@@ -178,7 +178,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       setIsAutoSelectRouteDisabled(false)
 
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { toSelectedToken: tokenToSelect }
       })
     },

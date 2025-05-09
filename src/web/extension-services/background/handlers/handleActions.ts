@@ -598,6 +598,9 @@ export const handleActions = async (
     case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transactionManager.formState.update(params)
 
+    case 'TRANSACTION_CONTROLLER_INIT_FORM':
+      return mainCtrl.transactionManager.formState.initForm(params.sessionId)
+
     default:
       // eslint-disable-next-line no-console
       return console.error(

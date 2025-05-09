@@ -63,7 +63,7 @@ const FromToken: FC<Props> = ({
       }
 
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
       })
     },
@@ -72,14 +72,14 @@ const FromToken: FC<Props> = ({
 
   const handleSetMaxFromAmount = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+      type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
       params: { fromAmount: maxFromAmount, fromAmountFieldMode: 'token' }
     })
   }, [maxFromAmount, dispatch])
 
   const handleSwitchFromAmountFieldMode = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
+      type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
       params: { fromAmountFieldMode: fromAmountFieldMode === 'token' ? 'fiat' : 'token' }
     })
   }, [fromAmountFieldMode, dispatch])
