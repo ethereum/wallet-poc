@@ -1,15 +1,54 @@
+import { getTokenId } from '@web/utils/token'
+import { getUiType } from '@web/utils/uiType'
+import { nanoid } from 'nanoid'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
 import useBackgroundService from '@web/hooks/useBackgroundService'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
-import { useCallback, useEffect, useState } from 'react'
+import useNavigation from '@common/hooks/useNavigation'
+
+type SessionId = ReturnType<typeof nanoid>
 
 const useTransactionForm = () => {
+  const { isPopup, isActionWindow } = getUiType()
   const { formState } = useTransactionControllerState()
-  const { fromAmount, fromAmountFieldMode, fromAmountInFiat, fromChainId, toChainId } = formState
+  const { setSearchParams } = useNavigation()
+  const {
+    fromAmount,
+    fromAmountFieldMode,
+    fromAmountInFiat,
+    fromChainId,
+    toChainId,
+    fromSelectedToken,
+    portfolioTokenList,
+    supportedChainIds
+  } = formState
   const { dispatch } = useBackgroundService()
+  const { networks } = useNetworksControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
+  const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
+  const sessionId = useMemo(() => {
+    if (isPopup) return 'popup'
+    if (isActionWindow) return 'action-window'
+
+    return nanoid()
+  }, []) // purposely, so it is unique per hook lifetime
+
+  const {
+    options: fromTokenOptions,
+    value: fromTokenValue,
+    amountSelectDisabled: fromTokenAmountSelectDisabled
+  } = useGetTokenSelectProps({
+    tokens: portfolioTokenList,
+    token: fromSelectedToken ? getTokenId(fromSelectedToken, networks) : '',
+    isLoading: false, // TODO: from the manager
+    networks,
+    supportedChainIds
+  })
 
   const handleSubmitForm = useCallback(() => {
     dispatch({
@@ -56,6 +95,18 @@ const useTransactionForm = () => {
     }
   }, [fromAmountInFiat, fromAmountValue, prevFromAmountInFiat, fromAmountFieldMode])
 
+  useEffect(() => {
+    // Init each session only once after the cleanup
+    if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
+
+    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    sessionIdsRequestedToBeInit.current.push(sessionId)
+    setSearchParams((prev) => {
+      prev.set('sessionId', sessionId)
+      return prev
+    })
+  }, [])
+
   return {
     handleSubmitForm,
     onFromAmountChange,
@@ -64,7 +115,10 @@ const useTransactionForm = () => {
     fromAmount,
     fromAmountInFiat,
     fromChainId,
-    toChainId
+    toChainId,
+    fromTokenAmountSelectDisabled,
+    fromTokenOptions,
+    fromTokenValue
   }
 }
 

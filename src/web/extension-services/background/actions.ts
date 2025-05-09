@@ -699,6 +699,13 @@ type TransactionControllerUpdateFormAction = {
   }
 }
 
+type TransactionControllerInitFormAction = {
+  type: 'TRANSACTION_CONTROLLER_INIT_FORM'
+  params: {
+    sessionId: string
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -829,3 +836,4 @@ export type Action =
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
   | MainControllerBuildTransactionUserRequest
   | TransactionControllerUpdateFormAction
+  | TransactionControllerInitFormAction
