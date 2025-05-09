@@ -490,30 +490,39 @@ export class ProviderController {
 
     const receipts = []
     if (isUserOp) {
-      receipts.push(await bundler.getReceipt(identifiedBy.identifier, network))
-      if (!receipts.length) {
+      const userOpReceipt = await bundler
+        .getReceipt(identifiedBy.identifier, network)
+        .catch(() => null)
+      if (!userOpReceipt) {
         return {
           status: getPendingStatus(version)
         }
       }
+
+      receipts.push(userOpReceipt)
     } else if (!isMultipleTxn) {
-      receipts.push(await provider.getTransactionReceipt(txnId))
-      if (!receipts.length) {
+      const txnReceipt = await provider.getTransactionReceipt(txnId).catch(() => null)
+      if (!txnReceipt) {
         return {
           status: getPendingStatus(version)
         }
       }
+
+      receipts.push(txnReceipt)
     } else {
       const txnIds = identifiedBy.identifier.split('-')
-      receipts.push(
-        ...(await Promise.all(txnIds.map((oneTxnId) => provider.getTransactionReceipt(oneTxnId))))
+      const txnReceipts = await Promise.all(
+        txnIds.map((oneTxnId) => provider.getTransactionReceipt(oneTxnId).catch(() => null))
       )
+      const foundTxnReceipts = txnReceipts.filter((r) => r)
 
-      if (!receipts.length || receipts.length < txnIds.length) {
+      if (!foundTxnReceipts.length || foundTxnReceipts.length < txnIds.length) {
         return {
           status: getPendingStatus(version)
         }
       }
+
+      receipts.push(...foundTxnReceipts)
     }
 
     return {

@@ -15,6 +15,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useStorageControllerState from '@web/hooks/useStorageControllerState'
 import Account from '@web/modules/account-select/components/Account'
 import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 import { SettingsRoutesContext } from '@web/modules/settings/contexts/SettingsRoutesContext'
@@ -23,6 +24,7 @@ import ManageRecoveryPhrase from '@web/modules/settings/ManageRecoveryPhrase'
 const RecoveryPhraseSettingsScreen = () => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { statuses } = useStorageControllerState()
   const { accounts } = useAccountsControllerState()
   const { seeds, keys } = useKeystoreControllerState()
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
@@ -105,14 +107,17 @@ const RecoveryPhraseSettingsScreen = () => {
             />
           )
         })}
-        {!associatedAccounts.length && item.id !== 'legacy-saved-seed' && (
+        {!associatedAccounts.length && (
           <Text
             fontSize={14}
             weight="medium"
             appearance="secondaryText"
             style={[spacings.mvM, text.center]}
           >
-            {t('No accounts added from this seed.')}
+            {item.id === 'legacy-saved-seed' &&
+            statuses.associateAccountKeysWithLegacySavedSeedMigration !== 'INITIAL'
+              ? t('Linking accounts to this recovery phrase. This may take a moment...')
+              : t('No accounts added from this seed.')}
           </Text>
         )}
       </Panel>

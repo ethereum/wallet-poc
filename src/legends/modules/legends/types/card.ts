@@ -78,7 +78,7 @@ export enum CardGroupNameMapping {
   'gas-tank' = 'Gas Tank',
   'transactions' = 'Transactions',
   'seasonal' = 'Seasonal',
-  'mini-game' = 'Mini Game'
+  'mini-game' = 'Daily Quests'
 }
 
 export interface CardFromResponse {

@@ -17,11 +17,13 @@ import useAccountPickerControllerState from '@web/hooks/useAccountPickerControll
 import useAccountsControllerState from '@web/hooks/useAccountsControllerState'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
+import useStorageControllerState from '@web/hooks/useStorageControllerState'
 import Account from '@web/modules/account-select/components/Account'
 
 const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
   const { t } = useTranslation()
   const { theme } = useTheme()
+  const { statuses } = useStorageControllerState()
   const { accounts } = useAccountsControllerState()
   const { seeds, keys } = useKeystoreControllerState()
   const { dispatch } = useBackgroundService()
@@ -81,14 +83,17 @@ const SavedSeedPhrases = ({ handleClose }: { handleClose: () => void }) => {
             />
           )
         })}
-        {!seedAccounts.length && item.id !== 'legacy-saved-seed' && (
+        {!seedAccounts.length && (
           <Text
             fontSize={14}
             weight="medium"
             appearance="secondaryText"
             style={[spacings.mvM, text.center]}
           >
-            {t('No accounts added from this seed.')}
+            {item.id === 'legacy-saved-seed' &&
+            statuses.associateAccountKeysWithLegacySavedSeedMigration !== 'INITIAL'
+              ? t('Linking accounts to this recovery phrase. This may take a moment...')
+              : t('No accounts added from this seed.')}
           </Text>
         )}
         <View style={spacings.ptMd}>

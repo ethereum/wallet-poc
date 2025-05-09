@@ -11,12 +11,12 @@ import styles from './Legends.module.scss'
 
 const GROUP_SORT = [
   CardGroup.MiniGame,
-  CardGroup.Show,
-  CardGroup.Supporter,
-  CardGroup.GasTank,
-  CardGroup.SwapAndBridge,
+  CardGroup.Seasonal,
   CardGroup.Transactions,
-  CardGroup.Seasonal
+  CardGroup.SwapAndBridge,
+  CardGroup.GasTank,
+  CardGroup.Supporter,
+  CardGroup.Show
 ]
 
 const Legends = () => {

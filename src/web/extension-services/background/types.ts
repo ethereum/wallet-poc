@@ -18,6 +18,7 @@ import { ProvidersController } from '@ambire-common/controllers/providers/provid
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { StorageController } from '@ambire-common/controllers/storage/storage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { TransactionManagerController } from '@ambire-common/controllers/transaction/transactionManager'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
@@ -26,6 +27,7 @@ import { ExtensionUpdateController } from '@web/extension-services/background/co
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
+  storage: StorageController,
   providers: ProvidersController,
   networks: NetworksController,
   accounts: AccountsController,

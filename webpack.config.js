@@ -231,7 +231,7 @@ module.exports = async function (env, argv) {
   if (isExtension) {
     console.log('Building extension with relayer:', process.env.RELAYER_URL)
     if (process.env.IS_TESTING !== 'true') {
-      validateEnvVariables({ ...process.env }, process.env.APP_ENV)
+      validateEnvVariables(process.env.APP_ENV)
     }
     const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
     const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)

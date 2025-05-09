@@ -49,7 +49,7 @@ const Feedback = () => {
       if (!connectedAccount) throw new Error('No connected account')
       if (!surveyCode) throw new Error('No survey code')
       setIsInProgress(true)
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 

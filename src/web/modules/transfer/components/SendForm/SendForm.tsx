@@ -23,13 +23,10 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useTransferControllerState from '@web/hooks/useTransferControllerState'
 import { getTokenId } from '@web/utils/token'
-import { getUiType } from '@web/utils/uiType'
 
 import styles from './styles'
 
 const ONE_MINUTE = 60 * 1000
-
-const { isPopup } = getUiType()
 
 const SendForm = ({
   addressInputState,
@@ -327,7 +324,6 @@ const SendForm = ({
             isSWWarningAgreed={isSWWarningAgreed}
             selectedTokenSymbol={selectedToken?.symbol}
             recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
-            menuPosition={isPopup ? 'top' : undefined}
           />
         )}
       </View>

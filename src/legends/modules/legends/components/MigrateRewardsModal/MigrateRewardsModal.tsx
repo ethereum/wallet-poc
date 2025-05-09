@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { BrowserProvider, Contract, formatUnits, Interface } from 'ethers'
+import { BrowserProvider, Contract, formatUnits, Interface, JsonRpcProvider } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 
@@ -45,17 +45,11 @@ const X_WALLET_TOKEN = '0x47Cd7E91C3CBaAF266369fe8518345fc4FC12935'
 const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
   isOpen,
   handleClose,
-  action,
-  meta,
-  card
+  action
 }) => {
-  const { character } = useCharacterContext()
-  const { claimableRewards, xWalletClaimableBalance } = usePortfolioControllerState()
+  const { xWalletClaimableBalance } = usePortfolioControllerState()
   const { sendCalls, getCallsStatus, chainId } = useErc5792()
   const { onComplete } = useCardActionContext()
-  const formatXp = (xp: number) => {
-    return xp && xp.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ')
-  }
 
   const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
@@ -71,27 +65,18 @@ const MigrateRewardsModal: React.FC<MigrateRewardsModalProps> = ({
 
   useEffect(() => {
     if (!connectedAccount) return
-    const provider = new BrowserProvider(window.ambire)
-    const walletContract = new Contract(X_WALLET_TOKEN, walletIface, provider)
-    // @TODO use the pending $WALLET balance in the future
-    switchNetwork(ETHEREUM_CHAIN_ID)
-      .then(() =>
-        walletContract
-          .balanceOf(connectedAccount)
-          .then(setWalletBalance)
-          .catch((e) => {
-            console.error(e)
-            addToast('Failed to get $WALLET token balance', { type: 'error' })
-          })
-      )
+    const ethereumProvider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
+    const walletContract = new Contract(X_WALLET_TOKEN, walletIface, ethereumProvider)
+    walletContract
+      .balanceOf(connectedAccount)
+      .then(setWalletBalance)
       .catch((e) => {
         console.error(e)
-        addToast('Failed to switch network to Ethereum', { type: 'error' })
+        addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
   }, [connectedAccount, addToast, switchNetwork])
 
-  console.log('walletBalance', walletBalance)
   // Close Modal on ESC
   useEscModal(isOpen, closeModal)
 

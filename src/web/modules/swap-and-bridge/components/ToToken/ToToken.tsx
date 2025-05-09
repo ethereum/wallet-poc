@@ -231,6 +231,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           options={toNetworksOptions}
           size="sm"
           value={getToNetworkSelectValue}
+          mode="bottomSheet"
+          bottomSheetTitle={t('Receive token network')}
           selectStyle={{
             backgroundColor: '#54597A14',
             borderWidth: 0

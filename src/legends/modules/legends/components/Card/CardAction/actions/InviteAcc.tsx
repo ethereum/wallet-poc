@@ -5,6 +5,7 @@ import useAddressInput from '@common/hooks/useAddressInput'
 import useStandaloneAddressInput from '@common/hooks/useStandaloneAddressInput'
 import AddressInput from '@legends/components/AddressInput'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useToast from '@legends/hooks/useToast'
 import { useCardActionContext } from '@legends/modules/legends/components/ActionModal'
@@ -107,7 +108,7 @@ const InviteAcc: FC<Props> = ({
 
   const onButtonClick = async () => {
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
       setIsInProgress(true)
       const txnId = await inviteEOA()
       onComplete(txnId)
