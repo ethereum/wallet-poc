@@ -4,7 +4,6 @@ import { Image, Pressable, View } from 'react-native'
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import image from '@common/assets/images/cashEarned.png'
 import Button from '@common/components/Button'
 import Text from '@common/components/Text'
@@ -14,8 +13,9 @@ import useToast from '@common/hooks/useToast'
 import spacings from '@common/styles/spacings'
 import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
+import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
 import { createTab } from '@web/extension-services/background/webapi/tab'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import ConfettiAnimation from '../../ConfettiAnimation'
 import BackdropWithHole from './BackdropWithHole'
@@ -37,12 +37,13 @@ const CongratsFirstCashbackModal = ({ onPress, position, portfolio, account }: P
   const { t } = useTranslation()
   const { theme, styles } = useTheme(getStyles)
   const { addToast } = useToast()
+  const { networks } = useNetworksControllerState()
 
   const isSA = useMemo(() => isSmartAccount(account), [account])
 
-  const cashbackInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, isSA, 'cashback'),
-    [account, isSA, portfolio]
+  const cashbackGasTankDetails = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, isSA, networks, 'cashback'),
+    [account, isSA, networks, portfolio]
   )
 
   return position ? (
@@ -71,7 +72,11 @@ const CongratsFirstCashbackModal = ({ onPress, position, portfolio, account }: P
                 {t('Wo-hoo')}
               </Text>
               <Text fontSize={14} weight="medium" style={spacings.mbSm}>
-                {t(`Your first cashback of ${formatDecimals(cashbackInUsd, 'price')} has landed!`)}
+                {t(
+                  `Your first cashback of ${cashbackGasTankDetails.balanceFormatted} ${
+                    cashbackGasTankDetails.token?.symbol || ''
+                  } has landed!`
+                )}
               </Text>
             </View>
             <Trans>

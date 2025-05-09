@@ -1,10 +1,9 @@
-import React, { FC, ReactElement, useCallback, useEffect, useRef, useState } from 'react'
+import React, { FC, ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, TextStyle, View } from 'react-native'
 
 import KebabMenuIcon from '@common/assets/svg/KebabMenuIcon'
 import Text from '@common/components/Text'
 import { isWeb } from '@common/config/env'
-import usePrevious from '@common/hooks/usePrevious'
 import useTheme from '@common/hooks/useTheme'
 import useWindowSize from '@common/hooks/useWindowSize'
 import colors from '@common/styles/colors'
@@ -14,27 +13,42 @@ import getStyles from './styles'
 
 interface Props {
   data: Array<{ label: string; value: string; style?: TextStyle }>
+  externalPosition?: { x: number; y: number }
+  setExternalPosition?: React.Dispatch<React.SetStateAction<{ x: number; y: number }>>
   onSelect: (item: { label: string; value: string }) => void
 }
 
-const Dropdown: FC<Props> = ({ data, onSelect }) => {
+const Dropdown: FC<Props> = ({ data, externalPosition, setExternalPosition, onSelect }) => {
   const DropdownButton: any = useRef()
-  const [visible, setVisible] = useState(false)
   const { styles } = useTheme(getStyles)
   const dropdownButtonRef = useRef(null)
   const { width: windowWidth } = useWindowSize()
   const modalRef: any = useRef(null)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
-  const prevVisible = usePrevious(visible)
+  const [internalPosition, setInternalPosition] = useState({ x: 0, y: 0 })
+
+  const position = useMemo(
+    () => externalPosition || internalPosition,
+    [internalPosition, externalPosition]
+  )
+  const setPosition = useCallback(
+    (pos: { x: number; y: number }) => {
+      if (setExternalPosition) {
+        setExternalPosition(pos)
+      } else {
+        setInternalPosition(pos)
+      }
+    },
+    [setExternalPosition]
+  )
 
   // close menu on click outside
   useEffect(() => {
     if (!isWeb) return
     function handleClickOutside(event: MouseEvent) {
-      if (!visible) return
+      if (position.x === 0 && position.y === 0) return
 
       if (modalRef.current && !modalRef.current?.contains(event.target)) {
-        setVisible(false)
+        setPosition({ x: 0, y: 0 })
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -42,27 +56,25 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
       if (!isWeb) return
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [visible])
+  }, [setPosition, position])
 
-  useEffect(() => {
-    if (!prevVisible && !!visible) {
+  const toggleDropdown = useCallback((): void => {
+    if (position.x === 0 && position.y === 0) {
       // @ts-ignore
       DropdownButton.current.measure((fx, fy, w, h, px, py) => {
         setPosition({ x: px, y: py })
       })
+    } else {
+      setPosition({ x: 0, y: 0 })
     }
-  }, [prevVisible, visible])
-
-  const toggleDropdown = useCallback((): void => {
-    setVisible((p) => !p)
-  }, [])
+  }, [position, setPosition])
 
   const onItemPress = useCallback(
     (item: any): void => {
       onSelect(item)
-      setVisible(false)
+      setPosition({ x: 0, y: 0 })
     },
-    [onSelect]
+    [onSelect, setPosition]
   )
 
   const renderItem = ({ item }: any): ReactElement<any, any> => (
@@ -86,7 +98,7 @@ const Dropdown: FC<Props> = ({ data, onSelect }) => {
           </View>
         </Pressable>
       </View>
-      {!!visible && (
+      {!!position.x && !!position.y && (
         <Portal hostName="global">
           <View
             style={[

@@ -3,6 +3,8 @@ import React from 'react'
 import Modal from '@legends/components/Modal'
 import Spinner from '@legends/components/Spinner'
 import Stacked from '@legends/components/Stacked'
+import { LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID } from '@legends/constants/networks'
+import { Networks } from '@legends/modules/legends/types'
 
 import styles from './CharacterLoadingModal.module.scss'
 
@@ -33,11 +35,13 @@ const CharacterLoadingModal: React.FC<CharacterLoadingModalProps> = ({
         <div>
           <p className={styles.title}>Welcome to Ambire Rewards</p>
           <p className={styles.description}>
-            Remember, every transaction made with this Smart Account on Ethereum, Base, Optimism,
-            Arbitrum, and Scroll earns you XP, regardless of the app you’re using.
+            Remember, every transaction made with this account on our eligible networks earns you
+            XP, regardless of the app you are using.
           </p>
           <div className={styles.stackedWrapper}>
-            <Stacked chains={['1', '8453', '42161', '534352', '10']} />
+            <Stacked
+              chains={LEGENDS_SUPPORTED_NETWORKS_BY_CHAIN_ID.map((n) => n.toString() as Networks)}
+            />{' '}
           </div>
           <button onClick={onButtonClick} type="button" className={styles.button}>
             Continue

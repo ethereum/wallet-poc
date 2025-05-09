@@ -134,7 +134,10 @@ const BottomSheet: React.FC<Props> = ({
       {/* from losing track of its subtree during React reconciliation and re-renders. */}
       {/* Without this, the backdrop stays, but Modalize could disappear */}
       {/* without even triggering `onClose` or (this) component unmount */}
-      <View key={`portal-host-${id}`} style={styles.portalHost}>
+      <View
+        key={`portal-host-${id}`}
+        style={[styles.portalHost, customZIndex ? { zIndex: customZIndex } : {}]}
+      >
         {!!isBackdropVisible && (
           <Backdrop
             isVisible={isBackdropVisible}
@@ -163,13 +166,7 @@ const BottomSheet: React.FC<Props> = ({
             isPopup && isModal ? { height: '100%' } : {},
             style
           ]}
-          rootStyle={[
-            styles.root,
-            isPopup && isModal ? spacings.phSm : {},
-            {
-              zIndex: customZIndex || styles.root.zIndex
-            }
-          ]}
+          rootStyle={[isPopup && isModal ? spacings.phSm : {}]}
           handleStyle={[
             styles.dragger,
             isModal

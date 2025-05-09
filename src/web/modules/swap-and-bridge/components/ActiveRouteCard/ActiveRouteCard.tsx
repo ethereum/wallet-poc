@@ -14,6 +14,7 @@ import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
 
+import MoreDetails from './MoreDetails'
 import getStyles from './styles'
 
 const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRoute }) => {
@@ -156,7 +157,13 @@ const ActiveRouteCard = ({ activeRoute }: { activeRoute: SwapAndBridgeActiveRout
               {activeRoute.error}
             </Text>
           )}
+          {activeRoute.routeStatus === 'in-progress' && activeRoute.userTxHash && (
+            <MoreDetails activeRoute={activeRoute} />
+          )}
         </View>
+      )}
+      {activeRoute.routeStatus === 'completed' && activeRoute.userTxHash && (
+        <MoreDetails activeRoute={activeRoute} style={spacings.mtSm} />
       )}
     </Panel>
   )

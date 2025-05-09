@@ -73,7 +73,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   const unlockWheel = useCallback(async () => {
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new ethers.BrowserProvider(window.ambire)
       const signer = await provider.getSigner()
@@ -232,7 +232,9 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
             }`}
             onClick={onButtonClick}
           >
-            {nonConnectedAcc ? 'Switch to a smart account to unlock Rewards quests' : buttonLabel}
+            {nonConnectedAcc
+              ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+              : buttonLabel}
           </button>
         </div>
       </div>

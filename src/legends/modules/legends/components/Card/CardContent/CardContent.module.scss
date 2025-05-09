@@ -52,6 +52,11 @@
   &.disabled .overlay {
     background-color: #191a1f80;
   }
+  &.disabled {
+    .contentAndAction {
+      opacity: 0.5;
+    }
+  }
 
   .overlay {
     box-sizing: border-box;
@@ -75,6 +80,17 @@
       font-weight: 400;
       color: $mainText;
       line-height: 100%;
+    }
+
+    .disabledIcon {
+      path:first-child {
+        fill: $red-400;
+        stroke: $red-400;
+      }
+  
+      path:nth-child(2) {
+        fill: $neutral-700;
+      }
     }
 
     .overlayText {
@@ -154,11 +170,11 @@
         }
 
         .rewardFrequencyWeekly {
-          background-color: $blue-800;
+          background-color: $blue-700;
         }
 
-        .rewardFrequencyOne-time {
-          background-color: $blue-700;
+        .rewardFrequencyOneTime {
+          background-color: $blue-800;
         }
 
         .streak {

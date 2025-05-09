@@ -1,18 +1,17 @@
-import React, { FC, useCallback, useState } from 'react'
+import React, { FC, useCallback } from 'react'
 import { Modalize } from 'react-native-modalize'
 
 import { Account } from '@ambire-common/interfaces/account'
-import { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import BottomSheet from '@common/components/BottomSheet'
+import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 
-import AccountKeyDetails from './AccountKeyDetails'
 import AccountKeys from './AccountKeys'
 
 interface Props {
   sheetRef: React.RefObject<Modalize>
   closeBottomSheet: () => void
-  account: Account
+  account: Account | null
   openAddAccountBottomSheet?: () => void
   showExportImport?: boolean
 }
@@ -24,35 +23,27 @@ const AccountKeysBottomSheet: FC<Props> = ({
   openAddAccountBottomSheet,
   showExportImport = false
 }) => {
-  const [currentKeyDetails, setCurrentKeyDetails] = useState<AccountKeyType | null>(null)
-
-  const closeCurrentKeyDetails = useCallback(() => setCurrentKeyDetails(null), [])
-
-  const closeBottomSheetWrapped = useCallback(() => {
-    closeCurrentKeyDetails()
-    closeBottomSheet()
-  }, [closeBottomSheet, closeCurrentKeyDetails])
-
   const handleOpenAccountBottomSheet = useCallback(() => {
-    closeBottomSheetWrapped()
+    closeBottomSheet()
     openAddAccountBottomSheet && openAddAccountBottomSheet()
-  }, [closeBottomSheetWrapped, openAddAccountBottomSheet])
+  }, [closeBottomSheet, openAddAccountBottomSheet])
 
   return (
-    <BottomSheet id="account-keys" sheetRef={sheetRef} closeBottomSheet={closeBottomSheetWrapped}>
-      {!currentKeyDetails ? (
+    <BottomSheet
+      id="account-keys-bottom-sheet"
+      sheetRef={sheetRef}
+      closeBottomSheet={closeBottomSheet}
+      backgroundColor="primaryBackground"
+      scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+      isScrollEnabled={false}
+      containerInnerWrapperStyles={{ flex: 1 }}
+      style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
+    >
+      {!!account && (
         <AccountKeys
-          setCurrentKeyDetails={setCurrentKeyDetails}
           account={account}
           openAddAccountBottomSheet={handleOpenAccountBottomSheet}
-          keyIconColor={iconColors.black}
-          showExportImport={showExportImport}
-        />
-      ) : (
-        <AccountKeyDetails
-          details={currentKeyDetails}
-          closeDetails={closeCurrentKeyDetails}
-          account={account}
+          closeBottomSheet={closeBottomSheet}
           keyIconColor={iconColors.black}
           showExportImport={showExportImport}
         />

@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
-import { BrowserProvider, Contract, Interface } from 'ethers'
+import { BrowserProvider, Contract, Interface, JsonRpcProvider } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
+import { STK_WALLET, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
@@ -20,6 +20,8 @@ const walletIface = new Interface([
   'function balanceOf(address) view returns (uint256)'
 ])
 
+const stkWalletIface = new Interface(['function enter(uint256 amount) external'])
+
 const StakeWallet = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isInProgress, setIsInProgress] = useState(false)
@@ -35,25 +37,18 @@ const StakeWallet = () => {
 
   useEffect(() => {
     if (!connectedAccount) return
-    const provider = new BrowserProvider(window.ambire)
-    const walletContract = new Contract(WALLET_TOKEN, walletIface, provider)
+    const ethereumProvider = new JsonRpcProvider('https://invictus.ambire.com/ethereum')
+    const walletContract = new Contract(WALLET_TOKEN, walletIface, ethereumProvider)
     // @TODO use the pending $WALLET balance in the future
-    switchNetwork(ETHEREUM_CHAIN_ID)
-      .then(() =>
-        walletContract
-          .balanceOf(connectedAccount)
-          .then(setWalletBalance)
-          .catch((e) => {
-            console.error(e)
-            addToast('Failed to get $WALLET token balance', { type: 'error' })
-          })
-      )
+    walletContract
+      .balanceOf(connectedAccount)
+      .then(setWalletBalance)
       .catch((e) => {
         console.error(e)
-        addToast('Failed to switch network to Ethereum', { type: 'error' })
+        addToast('Failed to get $WALLET token balance', { type: 'error' })
       })
       .finally(() => setIsLoading(false))
-  }, [connectedAccount, addToast, switchNetwork])
+  }, [connectedAccount, addToast])
 
   const stakeWallet = useCallback(async () => {
     try {
@@ -66,19 +61,17 @@ const StakeWallet = () => {
 
       const useSponsorship = false
 
-      const xWalletIface = new Interface(['function enter(uint)'])
-
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
         [
           {
             to: WALLET_TOKEN,
-            data: walletIface.encodeFunctionData('approve', [WALLET_STAKING_ADDR, walletBalance])
+            data: walletIface.encodeFunctionData('approve', [STK_WALLET, walletBalance])
           },
           {
-            to: WALLET_STAKING_ADDR,
-            data: xWalletIface.encodeFunctionData('enter', [walletBalance])
+            to: STK_WALLET,
+            data: stkWalletIface.encodeFunctionData('enter', [walletBalance])
           }
         ],
         useSponsorship
@@ -114,16 +107,12 @@ const StakeWallet = () => {
         })
         .catch((e) => {
           console.error(e)
-          addToast(
-            'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-            { type: 'error' }
-          )
         })
       return
     }
-    await switchNetwork()
+    await switchNetwork(ETHEREUM_CHAIN_ID)
     await stakeWallet()
-  }, [switchNetwork, stakeWallet, walletBalance, addToast])
+  }, [switchNetwork, stakeWallet, walletBalance])
 
   return (
     <CardActionWrapper
@@ -132,7 +121,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Rewards quests'
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isLoading
           ? 'Loading...'
           : !walletBalance

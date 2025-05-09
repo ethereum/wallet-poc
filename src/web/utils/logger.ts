@@ -7,8 +7,8 @@ import {
 
 logger.setDefaultLevel(
   process.env.APP_ENV === 'production'
-    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD
-    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV
+    ? BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_PROD || 'warn'
+    : BROWSER_EXTENSION_DEFAULT_LOG_LEVEL_DEV || 'trace'
 )
 
 export const logInfoWithPrefix = (event: any, ...args: any) => {

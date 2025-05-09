@@ -1,0 +1,126 @@
+@import '@legends/styles/base.scss';
+
+.backdrop {
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: $backdrop;
+  backdrop-filter: blur(0.5rem);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.wrapper {
+  position: relative;
+  width: 34.875rem;
+  height: 34.6875rem;
+
+  background-size: cover;
+  background-color: $neutral-700;
+  border-radius: $tertiaryBorderRadius;
+  border: 0.25rem solid transparent;
+  background-clip: padding-box, border-box;
+  background-origin: padding-box, border-box;
+  background-image: linear-gradient($secondaryBackground, $secondaryBackground), 
+                    linear-gradient(152.35deg, rgba(207, 162, 255, 0.6) 9.38%, rgba(78, 25, 168, 0.6) 96.89%);
+
+  .backgroundEffect {
+    position: absolute;
+    right: 9em;
+    top: 4em;
+    z-index: 0;
+    background-repeat: no-repeat;
+    background-size: contain;
+    width: 17.25rem;
+    height: 12.5rem;
+    opacity: 0.5;
+  }
+
+  .closeButton {
+    font-size: inherit;
+    margin-right: .5625rem;
+    margin-top: 0.813em;
+    margin-left: auto;
+    display: block;
+    width: 2em;
+    height: 2em;
+
+    svg {
+      width: 2em;
+      height: 2em;
+    }
+  }
+
+  .contentWrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 2rem;
+
+    .content {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    .title {
+      font-size: 2.5rem;
+      font-weight: 400;
+      line-height: 1;
+      margin: 0 auto;
+      color: $whiteText;
+      margin-bottom: 1.5625rem;
+    }
+
+    .rewardsCoverImg {
+      align-self: center;
+      width: 7.75rem;
+      height: 7.25rem;
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+
+    .sectionTitle {
+      font-size: .875rem;
+      line-height: 1.5rem;
+      // text-align: center;
+      color: $secondaryText;
+      margin-bottom: .125rem;
+    }
+
+    .sectionContent {
+      border: 1px solid #6A6F8633;
+      padding: 1rem;
+      width: 13rem;
+      border-radius: .5rem;
+      align-self: center;
+      text-align: center;
+      margin-bottom: 1.5rem;
+
+      
+      .usdValue {
+        font-size: 1rem;
+        color: #8E98A8;
+      }
+    }
+  }
+    .button {
+      @include primary-button;
+      position: absolute;
+      bottom: 2.5em;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 31.25rem;
+      width: max-content;
+      height: 4.25rem;
+      font-size: 1.25rem; 
+      font-weight: 400;
+    }
+  }
+}

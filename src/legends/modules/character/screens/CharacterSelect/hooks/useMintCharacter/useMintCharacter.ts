@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import LegendsNFT from '@contracts/compiled/LegendsNFTImplementation.json'
 import { LEGENDS_NFT_ADDRESS } from '@env'
 import { RETRY_OR_SUPPORT_MESSAGE } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useCharacterContext from '@legends/hooks/useCharacterContext'
 import useErc5792 from '@legends/hooks/useErc5792'
@@ -149,7 +150,7 @@ const useMintCharacter = () => {
   const mintCharacter = useCallback(
     async (type: number) => {
       try {
-        await switchNetwork()
+        await switchNetwork(BASE_CHAIN_ID)
         setIsMinting(true)
         setLoadingMessage(CharacterLoadingMessage.Signing)
 

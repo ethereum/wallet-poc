@@ -30,7 +30,7 @@ const SettingsRoutesProvider = () => {
   const { maxWidthSize } = useWindowSize()
   const isScreenXxl = maxWidthSize('xxl')
   const isScreenXl = maxWidthSize('xl')
-  const panelPaddings = getPanelPaddings(maxWidthSize, false)
+  const panelPaddings = getPanelPaddings(maxWidthSize, 'large')
   const { pathname } = useRoute()
   const [currentSettingsPage, setCurrentSettingsPage] = useState<string | undefined>()
 
@@ -39,6 +39,7 @@ const SettingsRoutesProvider = () => {
       pathname?.includes(ROUTES.signedMessages) ||
       pathname?.includes(ROUTES.transactions) ||
       pathname?.includes(ROUTES.addressBook) ||
+      pathname?.includes(ROUTES.recoveryPhrasesSettings) ||
       pathname?.includes(ROUTES.accountsSettings) ||
       pathname?.includes(ROUTES.networksSettings) ||
       pathname?.includes(ROUTES.manageTokens)

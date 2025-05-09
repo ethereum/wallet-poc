@@ -1,0 +1,10 @@
+# dotenv environment variables file
+.env
+.env.*
+
+# iOS local certificates & credentials
+ios/certs/*
+# Android local keystores & credentials
+android/keystores/*
+# EAS build credentials
+credentials.json

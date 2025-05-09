@@ -1,11 +1,12 @@
-import React, { useCallback, useState } from 'react'
+import React, { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Pressable, View } from 'react-native'
+import { View } from 'react-native'
 import { useModalize } from 'react-native-modalize'
 
 import AddCircularIcon from '@common/assets/svg/AddCircularIcon'
 import AddFromCurrentRecoveryPhraseIcon from '@common/assets/svg/AddFromCurrentRecoveryPhraseIcon'
 import HWIcon from '@common/assets/svg/HWIcon'
+import ImportAccountIcon from '@common/assets/svg/ImportAccountIcon'
 import ImportJsonIcon from '@common/assets/svg/ImportJsonIcon'
 import LatticeMiniIcon from '@common/assets/svg/LatticeMiniIcon'
 import LedgerMiniIcon from '@common/assets/svg/LedgerMiniIcon'
@@ -16,7 +17,6 @@ import ViewOnlyIcon from '@common/assets/svg/ViewOnlyIcon'
 import BottomSheet from '@common/components/BottomSheet'
 import Option from '@common/components/Option'
 import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
-import Text from '@common/components/Text'
 import useTheme from '@common/hooks/useTheme'
 import useOnboardingNavigation from '@common/modules/auth/hooks/useOnboardingNavigation'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
@@ -27,26 +27,84 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import SavedSeedPhrases from '@web/modules/account-select/components/SavedSeedPhrases'
 
+import ExpandableOptionSection from './ExpandableOptionSection'
 import getStyles from './styles'
 
 const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
   const { t } = useTranslation()
   const { styles } = useTheme(getStyles)
   const { dispatch } = useBackgroundService()
-  const [isHwOptionExpanded, setIsHwOptionExpanded] = useState(false)
   const { goToNextRoute, setTriggeredHwWalletFlow } = useOnboardingNavigation()
-  const toggleHwOptions = useCallback(() => {
-    setIsHwOptionExpanded((p) => !p)
-  }, [])
   const { seeds } = useKeystoreControllerState()
 
   const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
+
+  const optionsHW = useMemo(() => {
+    return [
+      {
+        key: 'trezor',
+        text: t('Trezor'),
+        icon: TrezorMiniIcon,
+        onPress: () => {
+          setTriggeredHwWalletFlow('trezor')
+          dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
+        },
+        testID: 'trezor-option'
+      },
+      {
+        key: 'ledger',
+        text: t('Ledger'),
+        icon: LedgerMiniIcon,
+        onPress: () => {
+          goToNextRoute(WEB_ROUTES.ledgerConnect)
+        },
+        testID: 'ledger-option'
+      },
+
+      {
+        key: 'lattice',
+        text: t('GridPlus'),
+        icon: LatticeMiniIcon,
+        onPress: () => {
+          setTriggeredHwWalletFlow('lattice')
+          dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
+        },
+        testID: 'lattice-option'
+      }
+    ]
+  }, [dispatch, goToNextRoute, setTriggeredHwWalletFlow, t])
+
+  const optionsImportAccount = useMemo(() => {
+    return [
+      {
+        key: 'recovery-phrase',
+        text: t('Recovery phrase'),
+        icon: SeedPhraseIcon,
+        onPress: () => goToNextRoute(WEB_ROUTES.importSeedPhrase),
+        testID: 'import-recovery-phrase'
+      },
+      {
+        key: 'private-key',
+        text: t('Private key'),
+        icon: PrivateKeyIcon,
+        onPress: () => goToNextRoute(WEB_ROUTES.importPrivateKey),
+        testID: 'import-private-key'
+      },
+      {
+        key: 'json-backup-file',
+        text: t('JSON backup file'),
+        icon: ImportJsonIcon,
+        onPress: () => goToNextRoute(WEB_ROUTES.importSmartAccountJson),
+        testID: 'import-json-backup-file'
+      }
+    ]
+  }, [goToNextRoute, t])
 
   return (
     <>
       <View style={spacings.ptSm}>
         <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
-          <PanelBackButton onPress={handleClose} style={spacings.mr} />
+          <PanelBackButton onPress={handleClose} style={spacings.mrSm} />
           <PanelTitle title={t('Add an account')} style={text.left} />
         </View>
         <View style={styles.optionsWrapper}>
@@ -66,90 +124,24 @@ const AddAccount = ({ handleClose }: { handleClose: () => void }) => {
           />
         </View>
         <View style={styles.optionsWrapper}>
-          <Option
-            text={t('Import recovery phrase')}
-            icon={SeedPhraseIcon}
-            iconProps={{ width: 30, height: 30 }}
-            onPress={() => goToNextRoute(WEB_ROUTES.importSeedPhrase)}
-            testID="import-recovery-phrase"
-          />
-          <Option
-            text={t('Import private key')}
-            icon={PrivateKeyIcon}
-            iconProps={{ width: 30, height: 30 }}
-            onPress={() => goToNextRoute(WEB_ROUTES.importPrivateKey)}
-            testID="import-private-key"
-          />
-          <Option
-            text={t('Import JSON backup file')}
-            icon={ImportJsonIcon}
-            iconProps={{ width: 30, height: 30 }}
-            onPress={() => goToNextRoute(WEB_ROUTES.importSmartAccountJson)}
-            testID="import-json-backup-file"
+          <ExpandableOptionSection
+            dropdownText={t('Import an account')}
+            dropdownIcon={ImportAccountIcon}
+            dropdownTestID="import-account"
+            options={optionsImportAccount}
           />
         </View>
         <View style={styles.optionsWrapper}>
-          <Option
-            text={t('Connect a hardware wallet')}
-            icon={HWIcon}
-            iconProps={{ width: 30, height: 30 }}
-            onPress={toggleHwOptions}
-            testID="connect-hardware-wallet"
-            status={isHwOptionExpanded ? 'expanded' : 'collapsed'}
-          >
-            {isHwOptionExpanded && (
-              <View style={styles.hwOptionsContainer}>
-                <View style={styles.hwOptionWrapper}>
-                  <Pressable
-                    style={({ hovered }: any) => [
-                      styles.hwOption,
-                      hovered && styles.hwOptionHovered
-                    ]}
-                    onPress={() => {
-                      setTriggeredHwWalletFlow('trezor')
-                      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_TREZOR' })
-                    }}
-                  >
-                    <TrezorMiniIcon width={44} height={44} />
-                    <Text fontSize={14} weight="medium" style={spacings.mtMi} numberOfLines={1}>
-                      Trezor
-                    </Text>
-                  </Pressable>
-                </View>
-                <View style={styles.hwOptionWrapper}>
-                  <Pressable
-                    style={({ hovered }: any) => [
-                      styles.hwOption,
-                      hovered && styles.hwOptionHovered
-                    ]}
-                    onPress={() => goToNextRoute(WEB_ROUTES.ledgerConnect)}
-                  >
-                    <LedgerMiniIcon width={44} height={44} />
-                    <Text fontSize={14} weight="medium" style={spacings.mtMi} numberOfLines={1}>
-                      Ledger
-                    </Text>
-                  </Pressable>
-                </View>
-                <View style={styles.hwOptionWrapper}>
-                  <Pressable
-                    style={({ hovered }: any) => [
-                      styles.hwOption,
-                      hovered && styles.hwOptionHovered
-                    ]}
-                    onPress={() => {
-                      setTriggeredHwWalletFlow('lattice')
-                      dispatch({ type: 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_LATTICE' })
-                    }}
-                  >
-                    <LatticeMiniIcon width={44} height={44} />
-                    <Text fontSize={14} weight="medium" style={spacings.mtMi} numberOfLines={1}>
-                      GridPlus
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
-          </Option>
+          <ExpandableOptionSection
+            dropdownText={t('Connect a hardware wallet')}
+            dropdownIcon={HWIcon}
+            dropdownTestID="connect-hardware-wallet"
+            options={optionsHW}
+            icons={optionsHW.map(({ key, icon: Icon }) => ({
+              key,
+              component: Icon
+            }))}
+          />
         </View>
         <View>
           <Option

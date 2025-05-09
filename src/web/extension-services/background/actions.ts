@@ -405,6 +405,14 @@ type KeystoreControllerAddTempSeedAction = {
   type: 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED'
   params: Omit<KeystoreSeed, 'id' | 'label'>
 }
+type KeystoreControllerUpdateSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_UPDATE_SEED'
+  params: {
+    id: KeystoreSeed['id']
+    label?: KeystoreSeed['label']
+    hdPathTemplate?: KeystoreSeed['hdPathTemplate']
+  }
+}
 type KeystoreControllerUnlockWithSecretAction = {
   type: 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET'
   params: { secretId: string; secret: string }
@@ -420,12 +428,13 @@ type KeystoreControllerChangePasswordFromRecoveryAction = {
   type: 'KEYSTORE_CONTROLLER_CHANGE_PASSWORD_FROM_RECOVERY'
   params: { newSecret: string; extraEntropy: string }
 }
-type KeystoreControllerSendPrivateKeyOverChannel = {
-  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL'
+type KeystoreControllerSendPrivateKeyToUiAction = {
+  type: 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI'
   params: { keyAddr: string }
 }
-type KeystoreControllerDeleteSavedSeed = {
-  type: 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED'
+type KeystoreControllerDeleteSeedAction = {
+  type: 'KEYSTORE_CONTROLLER_DELETE_SEED'
+  params: { id: string }
 }
 type KeystoreControllerSendSeedToUiAction = {
   type: 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI'
@@ -499,7 +508,10 @@ type DappsControllerRemoveDappAction = {
 
 type SwapAndBridgeControllerInitAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM'
-  params: { sessionId: string }
+  params: {
+    sessionId: string
+    preselectedFromToken?: Pick<TokenResult, 'address' | 'chainId'>
+  }
 }
 type SwapAndBridgeControllerUserProceededAction = {
   type: 'SWAP_AND_BRIDGE_CONTROLLER_HAS_USER_PROCEEDED'
@@ -667,6 +679,33 @@ type OpenExtensionPopupAction = {
   type: 'OPEN_EXTENSION_POPUP'
 }
 
+type MainControllerBuildTransactionUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
+  // TODO: use the correct type
+  params: any
+}
+
+type TransactionControllerUpdateFormAction = {
+  type: 'TRANSACTION_CONTROLLER_UPDATE_FORM'
+  params: {
+    fromAmount?: string
+    fromAmountInFiat?: string
+    fromAmountFieldMode?: 'fiat' | 'token'
+    fromChainId?: bigint | number
+    fromSelectedToken?: TokenResult | null
+    toChainId?: bigint | number
+    toSelectedToken?: SwapAndBridgeToToken | null
+    routePriority?: 'output' | 'time'
+  }
+}
+
+type TransactionControllerInitFormAction = {
+  type: 'TRANSACTION_CONTROLLER_INIT_FORM'
+  params: {
+    sessionId: string
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -731,11 +770,12 @@ export type Action =
   | PortfolioControllerUpdateConfettiToShown
   | KeystoreControllerAddSecretAction
   | KeystoreControllerAddTempSeedAction
+  | KeystoreControllerUpdateSeedAction
   | KeystoreControllerUnlockWithSecretAction
   | KeystoreControllerResetErrorStateAction
   | KeystoreControllerChangePasswordAction
   | KeystoreControllerChangePasswordFromRecoveryAction
-  | KeystoreControllerSendPrivateKeyOverChannel
+  | KeystoreControllerSendPrivateKeyToUiAction
   | EmailVaultControllerGetInfoAction
   | EmailVaultControllerUploadKeystoreSecretAction
   | EmailVaultControllerCancelConfirmationAction
@@ -782,7 +822,7 @@ export type Action =
   | KeystoreControllerSendSeedToUiAction
   | KeystoreControllerSendTempSeedToUiAction
   | MainControllerActivityHideBanner
-  | KeystoreControllerDeleteSavedSeed
+  | KeystoreControllerDeleteSeedAction
   | PhishingControllerGetIsBlacklistedAndSendToUiAction
   | ExtensionUpdateControllerApplyUpdate
   | OpenExtensionPopupAction
@@ -794,3 +834,6 @@ export type Action =
   | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
+  | MainControllerBuildTransactionUserRequest
+  | TransactionControllerUpdateFormAction
+  | TransactionControllerInitFormAction

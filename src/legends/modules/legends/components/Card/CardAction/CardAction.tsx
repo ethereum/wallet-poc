@@ -1,7 +1,6 @@
 import React, { FC, useCallback } from 'react'
 
 import useAccountContext from '@legends/hooks/useAccountContext'
-import useToast from '@legends/hooks/useToast'
 import CardActionButton from '@legends/modules/legends/components/Card/CardAction/actions/CardActionButton'
 import { CARD_PREDEFINED_ID } from '@legends/modules/legends/constants'
 import { CardAction, CardActionType, CardFromResponse } from '@legends/modules/legends/types'
@@ -13,10 +12,10 @@ export type CardActionComponentProps = {
   action: CardAction
   buttonText: string
   meta: CardFromResponse['meta']
+  id: CardFromResponse['id']
 }
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
-  const { addToast } = useToast()
   const { connectedAccount, v1Account } = useAccountContext()
   const disabledButton = Boolean(!connectedAccount || v1Account)
 
@@ -28,13 +27,10 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
         method: 'open-wallet-route',
         params: { route: action.route }
       })
-    } catch {
-      addToast(
-        'This action is not supported in the current extension version. It’s available in version 4.44.1. Please update!',
-        { type: 'error' }
-      )
+    } catch (e) {
+      console.error(e)
     }
-  }, [action, addToast])
+  }, [action])
 
   if (action.type === CardActionType.predefined) {
     if (action.predefinedId === CARD_PREDEFINED_ID.inviteAccount) {
@@ -67,7 +63,9 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
     return (
       <CardActionButton
         buttonText={
-          disabledButton ? 'Switch to a smart account to unlock Rewards quests' : 'Proceed'
+          disabledButton
+            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+            : 'Proceed'
         }
         onButtonClick={() => {
           window.open(action.link, '_blank')
@@ -82,7 +80,9 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
     return (
       <CardActionButton
         buttonText={
-          disabledButton ? 'Switch to a smart account to unlock Rewards quests' : 'Proceed'
+          disabledButton
+            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+            : 'Proceed'
         }
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""

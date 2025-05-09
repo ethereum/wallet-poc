@@ -275,7 +275,9 @@ export const handleActions = async (
     }
 
     case 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM':
-      return await mainCtrl.swapAndBridge.initForm(params.sessionId)
+      return await mainCtrl.swapAndBridge.initForm(params.sessionId, {
+        preselectedFromToken: params.preselectedFromToken
+      })
     case 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN':
       return mainCtrl.swapAndBridge.unloadScreen(params.sessionId, params.forceUnload)
     case 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM':
@@ -409,6 +411,8 @@ export const handleActions = async (
       )
     case 'KEYSTORE_CONTROLLER_ADD_TEMP_SEED':
       return await mainCtrl.keystore.addTempSeed(params)
+    case 'KEYSTORE_CONTROLLER_UPDATE_SEED':
+      return await mainCtrl.keystore.updateSeed(params)
     case 'KEYSTORE_CONTROLLER_UNLOCK_WITH_SECRET':
       return await mainCtrl.keystore.unlockWithSecret(params.secretId, params.secret)
     case 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE':
@@ -427,14 +431,14 @@ export const handleActions = async (
         undefined,
         params.extraEntropy
       )
-    case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_OVER_CHANNEL':
+    case 'KEYSTORE_CONTROLLER_SEND_PRIVATE_KEY_TO_UI':
       return await mainCtrl.keystore.sendPrivateKeyToUi(params.keyAddr)
     case 'KEYSTORE_CONTROLLER_SEND_SEED_TO_UI':
       return await mainCtrl.keystore.sendSeedToUi(params.id)
     case 'KEYSTORE_CONTROLLER_SEND_TEMP_SEED_TO_UI':
       return await mainCtrl.keystore.sendTempSeedToUi()
-    case 'KEYSTORE_CONTROLLER_DELETE_SAVED_SEED':
-      return await mainCtrl.keystore.deleteSavedSeed()
+    case 'KEYSTORE_CONTROLLER_DELETE_SEED':
+      return await mainCtrl.keystore.deleteSeed(params.id)
 
     case 'EMAIL_VAULT_CONTROLLER_GET_INFO':
       return await mainCtrl.emailVault.getEmailVaultInfo(params.email)
@@ -560,6 +564,42 @@ export const handleActions = async (
       }
       break
     }
+
+    case 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
+      const transactionType = params.transactionType
+
+      if (transactionType === 'intent') {
+        // eslint-disable-next-line no-console
+        console.log('buildIntentUserRequest', params)
+
+        // TODO: remove this once the intent is implemented
+        const amount = '1'
+        const recipientAddress = '0x0000000000000000000000000000000000000000'
+        const selectedToken = mainCtrl.swapAndBridge.fromSelectedToken as any
+
+        return mainCtrl.buildIntentUserRequest(amount, recipientAddress, selectedToken)
+      }
+
+      if (transactionType === 'swapAndBridge') {
+        return await mainCtrl.buildSwapAndBridgeUserRequest()
+      }
+
+      if (transactionType === 'transfer') {
+        return await mainCtrl.buildTransferUserRequest(
+          params.amount,
+          params.recipientAddress,
+          params.selectedToken,
+          params.actionExecutionType
+        )
+      }
+      break
+    }
+
+    case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
+      return mainCtrl.transactionManager.formState.update(params)
+
+    case 'TRANSACTION_CONTROLLER_INIT_FORM':
+      return mainCtrl.transactionManager.formState.initForm(params.sessionId)
 
     default:
       // eslint-disable-next-line no-console

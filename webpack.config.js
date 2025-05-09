@@ -52,10 +52,9 @@ module.exports = async function (env, argv) {
       })
       manifest.icons = devBuildIcons
     }
-    // Shorter for Safari on purpose (up to 100 characters allowed), all others allow up to 132 characters
-    manifest.description = isSafari
-      ? 'Hybrid account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
-      : 'Secure and easy-to-use hybrid account abstraction wallet that supports EOAs and Smart Accounts on Ethereum and EVM chains.'
+    // Note: Safari allows up to 100 characters, all others allow up to 132 characters
+    manifest.description =
+      'Fast & secure Web3 wallet to supercharge your account on Ethereum and EVM networks.'
 
     // Maintain the same versioning between the web extension and the mobile app
     manifest.version = appJSON.expo.version
@@ -232,7 +231,7 @@ module.exports = async function (env, argv) {
   if (isExtension) {
     console.log('Building extension with relayer:', process.env.RELAYER_URL)
     if (process.env.IS_TESTING !== 'true') {
-      validateEnvVariables({ ...process.env }, process.env.APP_ENV)
+      validateEnvVariables(process.env.APP_ENV)
     }
     const locations = env.locations || (await (0, expoEnv.getPathsAsync)(env.projectRoot))
     const templatePath = (fileName = '') => path.join(__dirname, './src/web', fileName)

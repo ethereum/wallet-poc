@@ -36,8 +36,6 @@
 
   @include breakpoint-down-from(medium-desktop) {
     margin-left: 3rem;
-    // margin-right: 3rem;
-    // width: calc(100% - 6rem);
   }
 }
 
@@ -70,6 +68,10 @@
 
   &:hover .rewardsBadge::after {
     opacity: 1;
+  }
+
+  &.active {
+    cursor: pointer;
   }
 }
 

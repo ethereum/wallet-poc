@@ -10,7 +10,9 @@ const createTab = async (url: string): Promise<number | undefined> => {
     return tab
   }
   try {
-    const allTabs = ((await browser.tabs.query({})) || []).filter(
+    const window = await browser.windows.getCurrent() // search existing Ambire tabs only for the current window
+    const queryParams = window ? { windowId: window.id } : {}
+    const allTabs = ((await browser.tabs.query(queryParams)) || []).filter(
       (t) => !t.url.includes('action-window.html')
     )
     const base = browser.runtime.getURL('/')
@@ -63,7 +65,11 @@ export const openInTab = async (url, needClose = true): Promise<Tabs.Tab> => {
 
 const routeableSearchParams = ['flow', 'goBack']
 
-const openInternalPageInTab = async (route?: string, searchParams = {}) => {
+const openInternalPageInTab = async (
+  route?: string,
+  searchParams = {},
+  needClose?: boolean = true
+) => {
   const searchToParams = searchParams
     ? `${Object.keys(searchParams)
         .map((key) =>
@@ -74,7 +80,8 @@ const openInternalPageInTab = async (route?: string, searchParams = {}) => {
     : ''
 
   await openInTab(
-    `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`
+    `./tab.html${route ? `#/${route}${searchToParams !== '' ? `?${searchToParams}` : ''}` : ''}`,
+    needClose
   )
 }
 

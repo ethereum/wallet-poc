@@ -1,32 +1,50 @@
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { TextInput, View } from 'react-native'
 
 import { isValidPassword } from '@ambire-common/services/validations'
+import wait from '@ambire-common/utils/wait'
 import Button from '@common/components/Button'
 import InputPassword from '@common/components/InputPassword'
-import Text from '@common/components/Text'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import { useTranslation } from '@common/config/localization'
 import useNavigation from '@common/hooks/useNavigation'
-import useTheme from '@common/hooks/useTheme'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import flexbox from '@common/styles/utils/flexbox'
+import textStyles from '@common/styles/utils/text'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
-import SettingsPageHeader from '@web/modules/settings/components/SettingsPageHeader'
 
 interface Props {
   onPasswordConfirmed: () => void
+  onBackButtonPress: () => void
   text: string
 }
 
-const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed, text }) => {
+const PasswordConfirmation: React.FC<Props> = ({
+  onPasswordConfirmed,
+  onBackButtonPress,
+  text
+}) => {
   const { t } = useTranslation()
   const { dispatch } = useBackgroundService()
   const keystoreState = useKeystoreControllerState()
-  const { theme } = useTheme()
-
+  const inputRef = useRef<TextInput | null>(null)
   const { navigate } = useNavigation()
+
+  const setInputRef = useCallback((ref: TextInput | null) => {
+    if (ref) inputRef.current = ref
+  }, [])
+
+  useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    ;(async () => {
+      await wait(600)
+
+      inputRef.current?.focus()
+    })()
+  }, [])
 
   // this shouldn't happen
   // if the user doesn't have a keystore password set, navigate him to set it
@@ -83,26 +101,27 @@ const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed, text }) =>
   }, [errors.password, passwordFieldValue.length, t])
 
   return (
-    <View style={{ maxWidth: 440 }}>
-      <SettingsPageHeader title="Confirm password" />
-      <Text fontSize={14} color={theme.secondaryText}>
-        {t(text)}
-      </Text>
+    <View style={flexbox.flex1}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+        <PanelBackButton onPress={onBackButtonPress} style={spacings.mrSm} />
+        <PanelTitle title={t('Confirm extension password')} style={textStyles.left} />
+      </View>
       <Controller
         control={control}
         rules={{ validate: isValidPassword }}
         render={({ field: { onChange, onBlur, value } }) => (
           <InputPassword
+            setInputRef={setInputRef}
             testID="passphrase-field"
             onBlur={onBlur}
-            placeholder={t('Enter Your Password')}
-            autoFocus
+            placeholder={t('Enter password')}
             onChangeText={(val: string) => {
               onChange(val)
               if (keystoreState.errorMessage) {
                 dispatch({ type: 'KEYSTORE_CONTROLLER_RESET_ERROR_STATE' })
               }
             }}
+            label={text}
             isValid={isValidPassword(value)}
             value={value}
             onSubmitEditing={handleSubmit((data) => handleUnlock(data))}
@@ -111,15 +130,18 @@ const PasswordConfirmation: React.FC<Props> = ({ onPasswordConfirmed, text }) =>
         )}
         name="password"
       />
-      <Button
-        testID="button-submit"
-        style={{ width: 342, ...spacings.mbLg }}
-        disabled={keystoreState.statuses.unlockWithSecret !== 'INITIAL' || !isValid}
-        text={
-          keystoreState.statuses.unlockWithSecret === 'LOADING' ? t('Submitting...') : t('Submit')
-        }
-        onPress={handleSubmit((data) => handleUnlock(data))}
-      />
+      <View style={[flexbox.alignCenter, flexbox.flex1, flexbox.justifyEnd]}>
+        <Button
+          testID="button-submit"
+          disabled={keystoreState.statuses.unlockWithSecret !== 'INITIAL' || !isValid}
+          text={
+            keystoreState.statuses.unlockWithSecret === 'LOADING' ? t('Submitting...') : t('Submit')
+          }
+          size="large"
+          hasBottomSpacing={false}
+          onPress={handleSubmit((data) => handleUnlock(data))}
+        />
+      </View>
     </View>
   )
 }

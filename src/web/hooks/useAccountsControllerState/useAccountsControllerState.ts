@@ -7,7 +7,7 @@ export default function useAccountsControllerState() {
 
   if (!context) {
     throw new Error(
-      'useAccountsControllerState must be used within a AccountsControllerStateProvider'
+      'useAccountsControllerState must be used within an AccountsControllerStateProvider'
     )
   }
 

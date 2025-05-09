@@ -54,7 +54,7 @@ const RouteInfo: FC<Props> = ({
           </Text>
         </View>
       )}
-      {formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
+      {swapSignErrors.length === 0 && formStatus === SwapAndBridgeFormStatus.NoRoutesFound && (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <WarningIcon width={14} height={14} color={theme.warningDecorative} />
           <Text fontSize={14} weight="medium" appearance="warningText" style={spacings.mlMi}>
@@ -87,7 +87,12 @@ const RouteInfo: FC<Props> = ({
                     weight="medium"
                     style={spacings.mlLg}
                   >
-                    {t('Time: ~')} {formatTime(quote?.selectedRoute?.serviceTime)}
+                    {t('Time: {{time}}', {
+                      time:
+                        quote?.selectedRoute.fromChainId !== quote?.selectedRoute.toChainId
+                          ? `~ ${formatTime(quote?.selectedRoute?.serviceTime)}`
+                          : 'instant'
+                    })}
                   </Text>
                 ) : null}
               </View>

@@ -63,8 +63,9 @@ const NetworkBadge: FC<Props> = ({
         {!renderNetworkName ? networkName : renderNetworkName(networkName)}
       </Text>
       <NetworkIcon
+        key={network?.chainId.toString() || networkName}
         style={{ backgroundColor: 'transparent' }}
-        id={network?.chainId.toString() || ''}
+        id={network?.chainId.toString() || networkName}
         size={iconSize}
       />
     </View>

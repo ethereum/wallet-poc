@@ -1,34 +1,33 @@
-import React, { Dispatch, FC, SetStateAction } from 'react'
+import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { View } from 'react-native'
+import { ScrollView, View } from 'react-native'
 
 import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
 import { Account } from '@ambire-common/interfaces/account'
 import { isAmbireV1LinkedAccount } from '@ambire-common/libs/account/account'
 import AccountKey, { AccountKeyType } from '@common/components/AccountKey/AccountKey'
 import Alert from '@common/components/Alert'
-import Text from '@common/components/Text'
-import useTheme from '@common/hooks/useTheme'
+import { PanelBackButton, PanelTitle } from '@common/components/Panel/Panel'
 import spacings from '@common/styles/spacings'
-import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import flexbox from '@common/styles/utils/flexbox'
+import text from '@common/styles/utils/text'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 
 interface Props {
-  setCurrentKeyDetails: Dispatch<SetStateAction<AccountKeyType | null>>
   account: Account
   openAddAccountBottomSheet?: () => void
+  closeBottomSheet: () => void
   keyIconColor?: string
   showExportImport?: boolean
 }
 
 const AccountKeys: FC<Props> = ({
-  setCurrentKeyDetails,
   account,
   openAddAccountBottomSheet,
+  closeBottomSheet,
   keyIconColor,
   showExportImport
 }) => {
-  const { theme } = useTheme()
   const { t } = useTranslation()
 
   const { keys } = useKeystoreControllerState()
@@ -61,28 +60,27 @@ const AccountKeys: FC<Props> = ({
     }))
   ]
 
+  const withAlert = useMemo(
+    () => associatedKeys.length > 1 && isAmbireV1LinkedAccount(account.creation?.factoryAddr),
+    [account.creation?.factoryAddr, associatedKeys.length]
+  )
+
   return (
-    <>
-      <Text fontSize={18} weight="medium" style={spacings.mbSm}>
-        {t('Account keys')}
-      </Text>
-      <View
-        style={[
-          {
-            backgroundColor: theme.primaryBackground,
-            borderRadius: BORDER_RADIUS_PRIMARY,
-            overflow: 'hidden',
-            ...spacings.mbMd
-          }
-        ]}
+    <View style={{ maxHeight: 384, flex: 1 }}>
+      <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbLg]}>
+        <PanelBackButton onPress={closeBottomSheet} style={spacings.mrSm} />
+        <PanelTitle
+          title={t('{{accName}} keys', { accName: account.preferences.label })}
+          style={text.left}
+        />
+      </View>
+      <ScrollView
+        style={[!!withAlert && spacings.mb, flexbox.flex1]}
+        contentContainerStyle={{ flexGrow: 1 }}
       >
         {accountKeys.map(({ type, addr, label, isImported, meta, dedicatedToOneSA }, index) => {
           const isLast = index === accountKeys.length - 1
           const accountKeyProps = { label, addr, type, isLast, isImported }
-
-          const handleOnKeyDetailsPress = () => {
-            setCurrentKeyDetails({ type, addr, label, isImported, meta, dedicatedToOneSA })
-          }
 
           return (
             <AccountKey
@@ -91,7 +89,6 @@ const AccountKeys: FC<Props> = ({
               dedicatedToOneSA={dedicatedToOneSA}
               showCopyAddr={!dedicatedToOneSA}
               {...accountKeyProps}
-              handleOnKeyDetailsPress={handleOnKeyDetailsPress}
               account={account}
               openAddAccountBottomSheet={openAddAccountBottomSheet}
               keyIconColor={keyIconColor}
@@ -99,17 +96,19 @@ const AccountKeys: FC<Props> = ({
             />
           )
         })}
-      </View>
-      {associatedKeys.length > 1 && isAmbireV1LinkedAccount(account.creation?.factoryAddr) && (
+      </ScrollView>
+      {!!withAlert && (
         <Alert
+          withIcon={false}
           title={t('Some keys may no longer be signers of this account')}
           text={t(
             'The listed keys are based on historical data from the blockchain and may no longer be signers of this account.'
           )}
+          size="sm"
           type="info"
         />
       )}
-    </>
+    </View>
   )
 }
 

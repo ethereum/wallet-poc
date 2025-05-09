@@ -6,7 +6,9 @@ const CARD_PREDEFINED_ID = {
   staking: 'staking',
   referral: 'referral',
   chest: 'chest',
-  feedback: 'feedback'
+  feedback: 'feedback',
+  claimRewards: 'claim-rewards',
+  migrateToStk: 'migrate-to-stk'
 }
 
 const MAX_INVITATIONS = 2

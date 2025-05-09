@@ -7,7 +7,6 @@ import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import { TAB_CONTENT_WIDTH } from '@web/constants/spacings'
 
 interface Style {
-  root: ViewStyle
   bottomSheet: ViewStyle
   modal: ViewStyle
   portalHost: ViewStyle
@@ -19,11 +18,6 @@ export const BOTTOM_SHEET_Z_INDEX = 900
 
 const getStyles = (theme: ThemeProps) =>
   StyleSheet.create<Style>({
-    root: {
-      // Lower number than the toasts' zIndex
-      zIndex: BOTTOM_SHEET_Z_INDEX,
-      elevation: 19
-    },
     bottomSheet: {
       borderTopStartRadius: BORDER_RADIUS_PRIMARY,
       borderTopEndRadius: BORDER_RADIUS_PRIMARY,
@@ -55,7 +49,10 @@ const getStyles = (theme: ThemeProps) =>
     portalHost: {
       ...StyleSheet.absoluteFillObject,
       // @ts-ignore prop is supported by react-native-web, but missing in types
-      pointerEvents: 'none'
+      pointerEvents: 'none',
+      // Lower number than the toasts' zIndex
+      zIndex: BOTTOM_SHEET_Z_INDEX,
+      elevation: 19
     }
   })
 

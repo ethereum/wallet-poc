@@ -3,7 +3,6 @@ import { View } from 'react-native'
 
 import { Account } from '@ambire-common/interfaces/account'
 import { SelectedAccountPortfolio } from '@ambire-common/interfaces/selectedAccount'
-import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
 import GasTankIcon from '@common/assets/svg/GasTankIcon'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
@@ -12,8 +11,9 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
-import { calculateGasTankBalance } from '@common/utils/calculateGasTankBalance'
+import { getGasTankTokenDetails } from '@common/utils/getGasTankTokenDetails'
 import { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
+import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 
 import { NEUTRAL_BACKGROUND_HOVERED } from '../../screens/styles'
 
@@ -29,15 +29,16 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
   const { t } = useTranslation()
   const buttonRef = useRef(null)
   const { theme } = useTheme()
+  const { networks } = useNetworksControllerState()
 
   const [bindGasTankBtnAim, removeTankBtnStyle] = useCustomHover({
     property: 'backgroundColor',
     values: { from: NEUTRAL_BACKGROUND_HOVERED, to: '#14183380' } // TODO: Remove hardcoded hex
   })
 
-  const gasTankTotalBalanceInUsd = useMemo(
-    () => calculateGasTankBalance(portfolio, account, hasGasTank, 'usd'),
-    [account, hasGasTank, portfolio]
+  const totalBalanceGasTankDetails = useMemo(
+    () => getGasTankTokenDetails(portfolio, account, hasGasTank, networks, 'amount'),
+    [account, hasGasTank, networks, portfolio]
   )
 
   useEffect(() => {
@@ -76,7 +77,7 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
           ...spacings.phTy,
           ...common.borderRadiusPrimary,
           ...removeTankBtnStyle,
-          ...(gasTankTotalBalanceInUsd === 0 && {
+          ...(!totalBalanceGasTankDetails.balanceFormatted && {
             borderWidth: 1,
             borderColor: theme.primaryLight
           }),
@@ -87,10 +88,12 @@ const GasTankButton = ({ onPress, onPosition, portfolio, account, hasGasTank }: 
       >
         <GasTankIcon width={20} color="white" />
         {hasGasTank ? (
-          gasTankTotalBalanceInUsd !== 0 ? (
+          totalBalanceGasTankDetails.balanceFormatted ? (
             <>
               <Text style={[spacings.mlTy]} color="white" weight="number_bold" fontSize={12}>
-                {formatDecimals(gasTankTotalBalanceInUsd, 'value')}
+                {`${totalBalanceGasTankDetails.balanceFormatted} ${
+                  totalBalanceGasTankDetails.token?.symbol || ''
+                }`}
               </Text>
               <Text style={[spacings.mlTy, { opacity: 0.57 }]} fontSize={12} color="white">
                 {t('on Gas Tank')}

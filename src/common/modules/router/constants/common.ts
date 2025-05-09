@@ -16,6 +16,7 @@ const WEB_ROUTES = {
   dashboard: 'dashboard',
   earn: 'earn',
   transfer: 'transfer',
+  intent: 'intent',
   topUpGasTank: 'top-up-gas-tank',
   signAccountOp: 'sign-account-op',
   transactions: 'transactions',
@@ -45,8 +46,6 @@ const WEB_ROUTES = {
   settingsAbout: 'settings/about',
   networksSettings: 'settings/networks',
   accountsSettings: 'settings/accounts',
-  basicToSmartSettingsScreen: 'settings/accounts/basic-to-smart',
-  exportKey: 'settings/accounts/exportKey',
   devicePasswordSet: 'settings/device-password-set',
   devicePasswordChange: 'settings/device-password-change',
   devicePasswordRecovery: 'settings/device-password-recovery',
@@ -61,7 +60,7 @@ const WEB_ROUTES = {
   ledgerConnect: 'ledger-connect',
   benzin: 'benzin',
   swapAndBridge: 'swap-and-bridge',
-  savedSeed: 'saved-seed',
+  recoveryPhrasesSettings: 'settings/recovery-phrases',
   securityAndPrivacy: 'settings/security-and-privacy',
   onboardingCompleted: 'wallet-setup-completed'
 }
@@ -84,4 +83,4 @@ const ONBOARDING_WEB_ROUTES = [
   WEB_ROUTES.onboardingCompleted
 ] as const
 
-export { ROUTES, MOBILE_ROUTES, WEB_ROUTES, ONBOARDING_WEB_ROUTES }
+export { MOBILE_ROUTES, ONBOARDING_WEB_ROUTES, ROUTES, WEB_ROUTES }

@@ -40,15 +40,13 @@ import { SettingsRoutesProvider } from '@web/modules/settings/contexts/SettingsR
 import AboutSettingsScreen from '@web/modules/settings/screens/AboutSettingsScreen'
 import AccountsSettingsScreen from '@web/modules/settings/screens/AccountsSettingsScreen'
 import AddressBookSettingsScreen from '@web/modules/settings/screens/AddressBookSettingsScreen'
-import BasicToSmartSettingsScreen from '@web/modules/settings/screens/BasicToSmartSettingsScreen'
 import DevicePasswordChangeSettingsScreen from '@web/modules/settings/screens/DevicePasswordChangeSettingsScreen'
 import DevicePasswordRecoverySettingsScreen from '@web/modules/settings/screens/DevicePasswordRecoverySettingsScreen'
 import DevicePasswordSetSettingsScreen from '@web/modules/settings/screens/DevicePasswordSetSettingsScreen'
-import ExportKeyScreen from '@web/modules/settings/screens/ExportKeyScreen'
 import GeneralSettingsScreen from '@web/modules/settings/screens/GeneralSettingsScreen'
 import ManageTokensSettingsScreen from '@web/modules/settings/screens/ManageTokensSettingsScreen'
 import NetworksSettingsScreen from '@web/modules/settings/screens/NetworksSettingsScreen/NetworksSettingsScreen'
-import SavedSeedScreen from '@web/modules/settings/screens/SavedSeedScreen'
+import RecoveryPhrasesSettingsScreen from '@web/modules/settings/screens/RecoveryPhrasesSettingsScreen'
 import SecurityAndPrivacyScreen from '@web/modules/settings/screens/SecurityAndPrivacyScreen'
 import SignedMessageHistorySettingsScreen from '@web/modules/settings/screens/SignedMessageHistorySettingsScreen'
 import TermsSettingsScreen from '@web/modules/settings/screens/TermsSettingsScreen'
@@ -56,6 +54,7 @@ import TransactionHistorySettingsScreen from '@web/modules/settings/screens/Tran
 import SignAccountOpScreen from '@web/modules/sign-account-op/screens/SignAccountOpScreen'
 import SignMessageScreen from '@web/modules/sign-message/screens/SignMessageScreen'
 import SwapAndBridgeScreen from '@web/modules/swap-and-bridge/screens/SwapAndBridgeScreen'
+import IntentScreen from '@web/modules/intent/screens/IntentScreen'
 import TransferScreen from '@web/modules/transfer/screens/TransferScreen'
 import ViewOnlyAccountAdderScreen from '@web/modules/view-only-account-adder/ViewOnlyAccountAdderScreen'
 
@@ -118,11 +117,9 @@ const MainRoutes = () => {
               <Route path={WEB_ROUTES.securityAndPrivacy} element={<SecurityAndPrivacyScreen />} />
               <Route path={WEB_ROUTES.accountsSettings} element={<AccountsSettingsScreen />} />
               <Route
-                path={WEB_ROUTES.basicToSmartSettingsScreen}
-                element={<BasicToSmartSettingsScreen />}
+                path={WEB_ROUTES.recoveryPhrasesSettings}
+                element={<RecoveryPhrasesSettingsScreen />}
               />
-              <Route path={WEB_ROUTES.exportKey} element={<ExportKeyScreen />} />
-              <Route path={WEB_ROUTES.savedSeed} element={<SavedSeedScreen />} />
               <Route path={WEB_ROUTES.networksSettings} element={<NetworksSettingsScreen />} />
               <Route
                 path={WEB_ROUTES.transactions}
@@ -180,6 +177,7 @@ const MainRoutes = () => {
             }
           />
           <Route path={WEB_ROUTES.swapAndBridge} element={<SwapAndBridgeScreen />} />
+          <Route path={WEB_ROUTES.intent} element={<IntentScreen />} />
           <Route path={WEB_ROUTES.signMessage} element={<SignMessageScreen />} />
           <Route path={WEB_ROUTES.benzin} element={<BenzinScreen />} />
           <Route path={WEB_ROUTES.switchAccount} element={<SwitchAccountScreen />} />

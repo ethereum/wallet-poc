@@ -158,8 +158,7 @@ const Recipient: React.FC<Props> = ({
   isSWWarningVisible,
   isSWWarningAgreed,
   selectedTokenSymbol,
-  recipientMenuClosedAutomaticallyRef,
-  menuPosition
+  recipientMenuClosedAutomaticallyRef
 }) => {
   const { account } = useSelectedAccountControllerState()
   const actualAddress = ensAddress || address
@@ -351,7 +350,7 @@ const Recipient: React.FC<Props> = ({
         renderSectionHeader={renderSectionHeader}
         renderSelectedOption={renderSelectedOption}
         emptyListPlaceholderText={t('No contacts found')}
-        menuPosition={menuPosition}
+        menuPosition="bottom"
       />
       <View style={styles.inputBottom}>
         <ConfirmAddress

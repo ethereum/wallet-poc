@@ -49,7 +49,7 @@ const Feedback = () => {
       if (!connectedAccount) throw new Error('No connected account')
       if (!surveyCode) throw new Error('No survey code')
       setIsInProgress(true)
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner(connectedAccount)
 
@@ -106,7 +106,7 @@ const Feedback = () => {
       disabled={disabledButton || (isFeedbackFormOpen && !surveyCode)}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Rewards quests'
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isFeedbackFormOpen
           ? 'Claim xp'
           : 'Open feedback form'

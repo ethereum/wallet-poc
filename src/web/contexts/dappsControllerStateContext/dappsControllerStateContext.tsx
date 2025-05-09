@@ -30,11 +30,16 @@ const DappsControllerStateProvider: React.FC<any> = ({ children }) => {
     // @ts-ignore
     const currentSession = newState.dappSessions?.[`${tab.id}-${domain}`] || {}
 
-    const dapp = newState.dapps.find((d) => d.url === currentSession.origin)
+    const dapp = newState.dapps.find((d) => d.url === currentSession.origin || d.url === domain)
 
     if (dapp) {
       setCurrentDapp(dapp)
-    } else if (currentSession.name && currentSession.origin && isValidURL(currentSession.origin)) {
+    } else if (
+      currentSession.name &&
+      currentSession.origin &&
+      isValidURL(currentSession.origin) &&
+      currentSession.isWeb3App
+    ) {
       setCurrentDapp({
         url: currentSession.origin,
         name: currentSession.name,

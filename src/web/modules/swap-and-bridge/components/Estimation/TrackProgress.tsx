@@ -20,7 +20,6 @@ import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
-import formatTime from '@common/utils/formatTime'
 import { TabLayoutContainer, TabLayoutWrapperMainContent } from '@web/components/TabLayoutWrapper'
 import { getTabLayoutPadding } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { openInTab } from '@web/extension-services/background/webapi/tab'
@@ -28,6 +27,9 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
+import formatTime from '@common/utils/formatTime'
+import { formatUnits } from 'ethers'
 import RouteStepsToken from '../RouteStepsToken'
 import BackgroundShapes from './BackgroundShapes'
 
@@ -151,46 +153,89 @@ const TrackProgress: FC<Props> = ({ handleClose }) => {
                   />
                 </View>
                 {!!fromAsset && !!toAsset && (
-                  <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mb2Xl]}>
+                  <View
+                    style={[
+                      flexbox.directionRow,
+                      flexbox.justifySpaceBetween,
+                      { alignItems: 'baseline' },
+                      spacings.mbLg
+                    ]}
+                  >
                     <RouteStepsToken
+                      wrapperStyle={{
+                        width: 'auto'
+                      }}
                       uri={fromAsset.icon}
                       chainId={BigInt(fromAsset.chainId)}
                       address={fromAsset.address}
                       symbol={fromAsset.symbol}
+                      amount={
+                        lastCompletedRoute.route?.fromAmount
+                          ? formatDecimals(
+                              Number(
+                                formatUnits(
+                                  lastCompletedRoute.route?.fromAmount,
+                                  fromAsset.decimals
+                                )
+                              ),
+                              'amount'
+                            )
+                          : ''
+                      }
                     />
-                    <View
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 16,
-                        backgroundColor: theme.secondaryBackground,
-                        ...flexbox.alignCenter,
-                        ...flexbox.justifyCenter,
-                        ...spacings.mhSm
-                      }}
-                    >
-                      <RightArrowIcon />
+                    <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+                      <View
+                        style={{
+                          width: 32,
+                          height: 32,
+                          borderRadius: 16,
+                          backgroundColor: theme.secondaryBackground,
+                          ...flexbox.alignCenter,
+                          ...flexbox.justifyCenter,
+                          ...spacings.mhLg,
+                          ...spacings.mb2Xl
+                        }}
+                      >
+                        <RightArrowIcon />
+                      </View>
+                      {!!lastCompletedRoute.route?.serviceTime && (
+                        <Text
+                          fontSize={12}
+                          weight="medium"
+                          appearance="secondaryText"
+                          style={text.center}
+                        >
+                          {t('Time: {{time}}', {
+                            time:
+                              lastCompletedRoute.route.fromChainId !==
+                              lastCompletedRoute.route.toChainId
+                                ? `~ ${formatTime(lastCompletedRoute.route?.serviceTime)}`
+                                : 'instant'
+                          })}
+                        </Text>
+                      )}
                     </View>
                     <RouteStepsToken
+                      wrapperStyle={{
+                        width: 'auto'
+                      }}
                       uri={toAsset.icon}
                       chainId={BigInt(toAsset.chainId)}
                       address={toAsset.address}
                       symbol={toAsset.symbol}
                       isLast
+                      amount={
+                        lastCompletedRoute.route?.toAmount
+                          ? formatDecimals(
+                              Number(
+                                formatUnits(lastCompletedRoute.route?.toAmount, toAsset.decimals)
+                              ),
+                              'amount'
+                            )
+                          : ''
+                      }
                     />
                   </View>
-                )}
-                {!!lastCompletedRoute.route?.serviceTime && (
-                  <Text
-                    fontSize={12}
-                    weight="medium"
-                    appearance="secondaryText"
-                    style={text.center}
-                  >
-                    {t('Time: ~{{time}}', {
-                      time: formatTime(lastCompletedRoute.route?.serviceTime)
-                    })}
-                  </Text>
                 )}
               </>
             )}

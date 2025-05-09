@@ -8,7 +8,11 @@ import cloneDeep from 'lodash/cloneDeep'
 import { ORIGINS_WHITELISTED_TO_ALL_ACCOUNTS } from '@ambire-common/consts/dappCommunication'
 import { MainController } from '@ambire-common/controllers/main/main'
 import { DappProviderRequest } from '@ambire-common/interfaces/dapp'
-import { AccountOpIdentifiedBy, fetchTxnId } from '@ambire-common/libs/accountOp/submittedAccountOp'
+import {
+  AccountOpIdentifiedBy,
+  fetchTxnId,
+  isIdentifiedByMultipleTxn
+} from '@ambire-common/libs/accountOp/submittedAccountOp'
 import { getBundlerByName, getDefaultBundler } from '@ambire-common/services/bundlers/getBundler'
 import { getRpcProvider } from '@ambire-common/services/provider'
 import { getBenzinUrlParams } from '@ambire-common/utils/benzin'
@@ -17,7 +21,13 @@ import { APP_VERSION } from '@common/config/env'
 import { SAFE_RPC_METHODS } from '@web/constants/common'
 import { notificationManager } from '@web/extension-services/background/webapi/notification'
 
-import { canBecomeSmarterOnChain } from '@ambire-common/libs/account/account'
+import {
+  getFailureStatus,
+  getPendingStatus,
+  getSuccessStatus,
+  getVersion
+} from '@ambire-common/libs/5792/5792'
+import { getBaseAccount } from '@ambire-common/libs/account/getBaseAccount'
 import { createTab } from '../webapi/tab'
 import { RequestRes, Web3WalletPermission } from './types'
 
@@ -372,21 +382,23 @@ export class ProviderController {
           },
           paymasterService: {
             supported: false
+          },
+          atomic: {
+            status: 'unsupported'
           }
         }
         return
       }
 
       const accout = this.mainCtrl.accounts.accounts.find((acc) => acc.addr === accountAddr)!
-      const isSmart =
-        !accountState.isEOA ||
-        accountState.isSmarterEoa ||
-        canBecomeSmarterOnChain(
-          network,
-          accout,
-          accountState,
-          this.mainCtrl.keystore.keys.filter((key) => accout.associatedKeys.includes(key.addr))
-        )
+      const baseAccount = getBaseAccount(
+        accout,
+        accountState,
+        this.mainCtrl.keystore.keys.filter((key) => accout.associatedKeys.includes(key.addr)),
+        network
+      )
+      const isSmart = baseAccount.getAtomicStatus() !== 'unsupported'
+
       capabilities[networkChainIdToHex(network.chainId)] = {
         atomicBatch: {
           supported: true
@@ -402,6 +414,9 @@ export class ProviderController {
             // our default may be the relayer but we will broadcast an userOp
             // in case of sponsorships
             (network.erc4337.enabled || network.erc4337.hasBundlerSupport)
+        },
+        atomic: {
+          status: baseAccount.getAtomicStatus()
         }
       }
     })
@@ -441,6 +456,15 @@ export class ProviderController {
     const network = this.mainCtrl.networks.networks.filter(
       (n) => n.chainId === dappNetwork.chainId
     )[0]
+    const accOp = this.mainCtrl.selectedAccount.account
+      ? this.mainCtrl.activity.findByIdentifiedBy(
+          identifiedBy,
+          this.mainCtrl.selectedAccount.account.addr,
+          network.chainId
+        )
+      : undefined
+    const version = getVersion(accOp)
+
     const txnIdData = await fetchTxnId(
       identifiedBy,
       network,
@@ -449,36 +473,67 @@ export class ProviderController {
     )
     if (txnIdData.status === 'rejected') {
       return {
-        status: 'FAILURE'
+        status: getFailureStatus(version)
       }
     }
     if (txnIdData.status !== 'success') {
       return {
-        status: 'PENDING'
+        status: getPendingStatus(version)
       }
     }
 
+    const isMultipleTxn = isIdentifiedByMultipleTxn(identifiedBy)
     const txnId = txnIdData.txnId as string
     const provider = getRpcProvider(network.rpcUrls, network.chainId, network.selectedRpcUrl)
     const isUserOp = identifiedBy.type === 'UserOperation'
     const bundler = bundlerName ? getBundlerByName(bundlerName) : getDefaultBundler(network)
-    const receipt = isUserOp
-      ? await bundler.getReceipt(identifiedBy.identifier, network)
-      : await provider.getTransactionReceipt(txnId)
 
-    if (!receipt) {
-      return {
-        status: 'PENDING'
+    const receipts = []
+    if (isUserOp) {
+      const userOpReceipt = await bundler
+        .getReceipt(identifiedBy.identifier, network)
+        .catch(() => null)
+      if (!userOpReceipt) {
+        return {
+          status: getPendingStatus(version)
+        }
       }
+
+      receipts.push(userOpReceipt)
+    } else if (!isMultipleTxn) {
+      const txnReceipt = await provider.getTransactionReceipt(txnId).catch(() => null)
+      if (!txnReceipt) {
+        return {
+          status: getPendingStatus(version)
+        }
+      }
+
+      receipts.push(txnReceipt)
+    } else {
+      const txnIds = identifiedBy.identifier.split('-')
+      const txnReceipts = await Promise.all(
+        txnIds.map((oneTxnId) => provider.getTransactionReceipt(oneTxnId).catch(() => null))
+      )
+      const foundTxnReceipts = txnReceipts.filter((r) => r)
+
+      if (!foundTxnReceipts.length || foundTxnReceipts.length < txnIds.length) {
+        return {
+          status: getPendingStatus(version)
+        }
+      }
+
+      receipts.push(...foundTxnReceipts)
     }
 
-    const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
-    const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
-
     return {
-      status: 'CONFIRMED',
-      receipts: [
-        {
+      version,
+      id: identifiedBy,
+      atomic: !isMultipleTxn,
+      status: getSuccessStatus(version),
+      receipts: receipts.map((receipt) => {
+        const txnStatus = isUserOp ? receipt.receipt.status : toBeHex(receipt.status as number)
+        const status = txnStatus === '0x01' || txnStatus === '0x1' ? '0x1' : '0x0'
+        return {
           logs: receipt.logs,
           status,
           chainId: networkChainIdToHex(network.chainId),
@@ -489,7 +544,7 @@ export class ProviderController {
           gasUsed: isUserOp ? receipt.receipt.gasUsed : toBeHex(receipt.gasUsed),
           transactionHash: isUserOp ? receipt.receipt.transactionHash : receipt.hash
         }
-      ]
+      })
     }
   }
 
