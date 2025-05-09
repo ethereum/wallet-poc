@@ -8,6 +8,7 @@ import ZapIcon from '@legends/common/assets/svg/ZapIcon'
 import CloseIcon from '@legends/components/CloseIcon'
 import MidnightTimer from '@legends/components/MidnightTimer'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
+import { BASE_CHAIN_ID } from '@legends/constants/networks'
 import useAccountContext from '@legends/hooks/useAccountContext'
 import useErc5792 from '@legends/hooks/useErc5792'
 import useEscModal from '@legends/hooks/useEscModal'
@@ -130,7 +131,7 @@ const TreasureChestComponentModal: React.FC<TreasureChestComponentModalProps> = 
     setChestState('unlocking')
 
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new BrowserProvider(window.ambire)
       const signer = await provider.getSigner()

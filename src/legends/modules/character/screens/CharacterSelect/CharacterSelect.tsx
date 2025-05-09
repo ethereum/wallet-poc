@@ -50,7 +50,10 @@ const CharacterSelect = () => {
   useEffect(() => {
     document.title = 'Ambire Rewards'
   }, [])
-  if (!!v1Account || (!connectedAccount && !v1Account)) return <Navigate to="/" />
+
+  if (!!v1Account || !connectedAccount) {
+    return <Navigate to="/" />
+  }
 
   const isButtonDisabled = isMinting || isLoading || isMinted
 

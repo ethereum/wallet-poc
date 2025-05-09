@@ -679,6 +679,33 @@ type OpenExtensionPopupAction = {
   type: 'OPEN_EXTENSION_POPUP'
 }
 
+type MainControllerBuildTransactionUserRequest = {
+  type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
+  // TODO: use the correct type
+  params: any
+}
+
+type TransactionControllerUpdateFormAction = {
+  type: 'TRANSACTION_CONTROLLER_UPDATE_FORM'
+  params: {
+    fromAmount?: string
+    fromAmountInFiat?: string
+    fromAmountFieldMode?: 'fiat' | 'token'
+    fromChainId?: bigint | number
+    fromSelectedToken?: TokenResult | null
+    toChainId?: bigint | number
+    toSelectedToken?: SwapAndBridgeToToken | null
+    routePriority?: 'output' | 'time'
+  }
+}
+
+type TransactionControllerInitFormAction = {
+  type: 'TRANSACTION_CONTROLLER_INIT_FORM'
+  params: {
+    sessionId: string
+  }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -807,3 +834,6 @@ export type Action =
   | SwapAndBridgeControllerCloseSigningActionWindow
   | SwapAndBridgeControllerUserProceededAction
   | SwapAndBridgeControllerIsAutoSelectRouteDisabled
+  | MainControllerBuildTransactionUserRequest
+  | TransactionControllerUpdateFormAction
+  | TransactionControllerInitFormAction

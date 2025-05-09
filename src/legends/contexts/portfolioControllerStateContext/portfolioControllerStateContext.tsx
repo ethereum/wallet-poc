@@ -59,7 +59,6 @@ const PortfolioControllerStateProvider: React.FC<any> = ({ children }) => {
       const xWalletClaimableBalanceData =
         additionalPortfolioJson?.data?.rewards?.xWalletClaimableBalance
       const claimableBalance = additionalPortfolioJson?.data?.rewards?.stkWalletClaimableBalance
-      console.log('additionalPortfolioJson', additionalPortfolioJson)
       if (claimableBalance === undefined) {
         throw new Error('Invalid response format')
       }

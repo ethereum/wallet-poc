@@ -108,6 +108,9 @@ const CharacterSection = () => {
 
   const rewardsDisabledState = Number(claimWalletCard?.meta?.availableToClaim) === 0
 
+  const isNotAvailableForRewards =
+    Number((amountFormatted ?? '0').replace(/[^0-9.-]+/g, '')) < 500 ||
+    (userLeaderboardData?.level ?? 0) <= 2
   return (
     <>
       <div className={styles.rewardsWrapper}>
@@ -154,18 +157,25 @@ const CharacterSection = () => {
                 <p>Error loading rewards</p>
               ) : rewardsDisabledState ? (
                 <p className={styles.rewardsTitle}>
-                  {Number(claimWalletCard?.meta?.availableToClaim) === 0
-                    ? "You haven't accumulated $WALLET rewards yet."
-                    : 'You need to reach Level 3 and keep a minimum balance of $500 on the supported networks to start accruing rewards.'}
+                  {Number(claimWalletCard?.meta?.availableToClaim) === 0 &&
+                  !isNotAvailableForRewards ? (
+                    "You haven't accumulated $WALLET rewards yet."
+                  ) : (
+                    <>
+                      You need to reach Level 3 and keep a minimum balance of
+                      <br />
+                      $500 on the supported networks to start accruing rewards.
+                    </>
+                  )}
                 </p>
               ) : (
                 <>
                   <p className={styles.rewardsTitle}>$WALLET Rewards</p>
                   <p className={styles.rewardsAmount}>
                     {claimWalletCard?.meta?.availableToClaim
-                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim)).toLocaleString(
-                          'en-US'
-                        )
+                      ? Math.floor(Number(claimWalletCard?.meta?.availableToClaim))
+                          .toLocaleString('en-US', { useGrouping: true })
+                          .replace(/,/g, ' ')
                       : '0'}
                   </p>
                 </>

@@ -73,7 +73,7 @@ const WheelComponentModal: React.FC<WheelComponentProps> = ({ isOpen, handleClos
 
   const unlockWheel = useCallback(async () => {
     try {
-      await switchNetwork()
+      await switchNetwork(BASE_CHAIN_ID)
 
       const provider = new ethers.BrowserProvider(window.ambire)
       const signer = await provider.getSigner()

@@ -20,8 +20,10 @@ import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/
 import useProvidersControllerState from '@web/hooks/useProvidersControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSignMessageControllerState from '@web/hooks/useSignMessageControllerState'
+import useStorageControllerState from '@web/hooks/useStorageControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useWalletStateController from '@web/hooks/useWalletStateController'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import { getUiType } from '@web/utils/uiType'
 
 const ControllersStateLoadedContext = createContext<{
@@ -41,6 +43,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const accountPickerState = useAccountPickerControllerState()
   const keystoreState = useKeystoreControllerState()
   const mainState = useMainControllerState()
+  const storageCtrl = useStorageControllerState()
   const networksState = useNetworksControllerState()
   const providersState = useProvidersControllerState()
   const accountsState = useAccountsControllerState()
@@ -59,11 +62,13 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
   const swapAndBridgeControllerState = useSwapAndBridgeControllerState()
   const extensionUpdateControllerState = useExtensionUpdateControllerState()
   const featureFlagsControllerState = useFeatureFlagsControllerState()
+  const transactionManagerControllerState = useTransactionControllerState()
 
   const hasMainState: boolean = useMemo(
     () => !!Object.keys(mainState).length && !!mainState?.isReady,
     [mainState]
   )
+  const hasStorageState: boolean = useMemo(() => !!Object.keys(storageCtrl).length, [storageCtrl])
   const hasNetworksState: boolean = useMemo(
     () => !!Object.keys(networksState).length,
     [networksState]
@@ -133,6 +138,10 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     () => !!Object.keys(swapAndBridgeControllerState).length,
     [swapAndBridgeControllerState]
   )
+  const hasTransactionManagerState: boolean = useMemo(
+    () => !!Object.keys(transactionManagerControllerState).length,
+    [transactionManagerControllerState]
+  )
   const hasExtensionUpdateState: boolean = useMemo(
     () => !!Object.keys(extensionUpdateControllerState).length,
     [extensionUpdateControllerState]
@@ -152,6 +161,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     const timeout = setTimeout(() => setIsStatesLoadingTakingTooLong(true), 10000)
     if (
       hasMainState &&
+      hasStorageState &&
       hasNetworksState &&
       hasProvidersState &&
       hasAccountsState &&
@@ -171,7 +181,8 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
       hasInviteState &&
       hasSwapAndBridgeState &&
       hasExtensionUpdateState &&
-      hasFeatureFlagsControllerState
+      hasFeatureFlagsControllerState &&
+      hasTransactionManagerState
     ) {
       clearTimeout(timeout)
       if (isPopup) dispatch({ type: 'MAIN_CONTROLLER_ON_POPUP_OPEN' })
@@ -181,6 +192,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     return () => clearTimeout(timeout)
   }, [
     hasMainState,
+    hasStorageState,
     hasNetworksState,
     hasProvidersState,
     hasAccountsState,
@@ -202,6 +214,7 @@ const ControllersStateLoadedProvider: React.FC<any> = ({ children }) => {
     hasSwapAndBridgeState,
     hasExtensionUpdateState,
     hasFeatureFlagsControllerState,
+    hasTransactionManagerState,
     dispatch
   ])
 

@@ -18,13 +18,16 @@ import { ProvidersController } from '@ambire-common/controllers/providers/provid
 import { SelectedAccountController } from '@ambire-common/controllers/selectedAccount/selectedAccount'
 import { SignAccountOpController } from '@ambire-common/controllers/signAccountOp/signAccountOp'
 import { SignMessageController } from '@ambire-common/controllers/signMessage/signMessage'
+import { StorageController } from '@ambire-common/controllers/storage/storage'
 import { SwapAndBridgeController } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
+import { TransactionManagerController } from '@ambire-common/controllers/transaction/transactionManager'
 import { TransferController } from '@ambire-common/controllers/transfer/transfer'
 import AutoLockController from '@web/extension-services/background/controllers/auto-lock'
 import { ExtensionUpdateController } from '@web/extension-services/background/controllers/extension-update'
 import { WalletStateController } from '@web/extension-services/background/controllers/wallet-state'
 
 export const controllersNestedInMainMapping = {
+  storage: StorageController,
   providers: ProvidersController,
   networks: NetworksController,
   accounts: AccountsController,
@@ -45,11 +48,12 @@ export const controllersNestedInMainMapping = {
   invite: InviteController,
   swapAndBridge: SwapAndBridgeController,
   featureFlags: FeatureFlagsController,
-  defiPositions: DefiPositionsController
+  defiPositions: DefiPositionsController,
 
   // Add the rest of the controllers that are part of the main controller:
   // - key is the name of the controller
   // - value is the type of the controller
+  transactionManager: TransactionManagerController
 }
 export const controllersMapping = {
   main: MainController,

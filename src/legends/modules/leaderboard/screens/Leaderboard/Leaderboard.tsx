@@ -26,7 +26,7 @@ const LeaderboardContainer: React.FC = () => {
   const tableRef = useRef<HTMLDivElement>(null)
   const pageRef = useRef<HTMLDivElement>(null)
   const currentUserRef = useRef<HTMLDivElement>(null)
-  const [activeTab, setActiveTab] = useState(0)
+  const [activeTab, setActiveTab] = useState(2)
 
   const [stickyPosition, setStickyPosition] = useState<'top' | 'bottom' | null>(null)
   const leaderboardSources = useMemo(

@@ -275,11 +275,12 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
   }
 
   mainCtrl = new MainController({
-    storage,
+    storageAPI: storage,
     fetch: fetchWithAnalytics,
     relayerUrl: RELAYER_URL,
     velcroUrl: VELCRO_URL,
-    swapApiKey: USE_SWAP_KEY ? LI_FI_API_KEY : undefined,
+    // Temporarily use NO API key in production, until we have a middleware to handle the API key
+    swapApiKey: isProd ? undefined : LI_FI_API_KEY,
     keystoreSigners: {
       internal: KeystoreSigner,
       // TODO: there is a mismatch in hw signer types, it's not a big deal

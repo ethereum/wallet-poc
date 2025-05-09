@@ -565,6 +565,42 @@ export const handleActions = async (
       break
     }
 
+    case 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
+      const transactionType = params.transactionType
+
+      if (transactionType === 'intent') {
+        // eslint-disable-next-line no-console
+        console.log('buildIntentUserRequest', params)
+
+        // TODO: remove this once the intent is implemented
+        const amount = '1'
+        const recipientAddress = '0x0000000000000000000000000000000000000000'
+        const selectedToken = mainCtrl.swapAndBridge.fromSelectedToken as any
+
+        return mainCtrl.buildIntentUserRequest(amount, recipientAddress, selectedToken)
+      }
+
+      if (transactionType === 'swapAndBridge') {
+        return await mainCtrl.buildSwapAndBridgeUserRequest()
+      }
+
+      if (transactionType === 'transfer') {
+        return await mainCtrl.buildTransferUserRequest(
+          params.amount,
+          params.recipientAddress,
+          params.selectedToken,
+          params.actionExecutionType
+        )
+      }
+      break
+    }
+
+    case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
+      return mainCtrl.transactionManager.formState.update(params)
+
+    case 'TRANSACTION_CONTROLLER_INIT_FORM':
+      return mainCtrl.transactionManager.formState.initForm(params.sessionId)
+
     default:
       // eslint-disable-next-line no-console
       return console.error(

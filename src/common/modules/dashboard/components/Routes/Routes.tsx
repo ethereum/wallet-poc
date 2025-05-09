@@ -34,6 +34,15 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       scaleOnHover: 1.18
     },
     {
+      testID: 'dashboard-button-intent',
+      icon: SendIcon, // TODO: change icon to intent icon
+      label: t('Intent'),
+      route: WEB_ROUTES.intent,
+      isExternal: false,
+      scale: 1.08,
+      scaleOnHover: 1.18
+    },
+    {
       testID: 'dashboard-button-swap-and-bridge',
       icon: SwapAndBridgeIcon,
       label: t('Swap & Bridge'),

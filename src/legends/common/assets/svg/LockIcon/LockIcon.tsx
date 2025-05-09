@@ -1,21 +1,58 @@
 import React, { FC } from 'react'
-import Svg, { Path } from 'react-native-svg'
+import Svg, { Defs, G, Path } from 'react-native-svg'
 
 import { LegendsSvgProps } from '@legends/types/svg'
 
 const LockIcon: FC<LegendsSvgProps> = ({ width = 45, height = 64, ...rest }) => {
   return (
-    <Svg width={width} height={height} viewBox="0 0 45 64" fill="none" {...rest}>
+    <Svg width={width} height={height} viewBox="0 0 35 35" fill="none" {...rest}>
       <Path
-        d="M41.9051 31.5298C43.1027 32.8732 43.8081 34.5118 43.9969 36.3101L44 55.3883C43.6467 59.5211 40.2663 62.7659 36.1177 63.0002L8.88604 62.9971C4.80282 62.7976 1.35268 59.5161 1.00374 55.4467L1 36.3679C1.27978 32.8633 3.82579 29.8757 7.22546 28.9989L7.23169 14.6823C9.03247 -4.09202 37.2088 -3.32151 37.8312 15.6144L37.8368 28.9685C37.8618 29.0418 38.8762 29.3537 39.055 29.4314C40.133 29.8974 41.1306 30.6611 41.9051 31.5298ZM32.4077 28.7597L32.4102 14.9315C31.2749 3.44656 13.8148 3.39623 12.5904 14.8694L12.5929 28.7597H32.4077Z"
-        fill="#00BB92"
-        stroke="#006750"
-        strokeWidth="2"
+        d="M28.31 17.239a4.666 4.666 0 011.166 2.656h-2.753c-.682.032-2.26.032-3.702 0l-4.407.032c-2.507 0-3.621 0-6.634-.032l-6.459.032c.156-1.947 1.575-3.607 3.469-4.094l.003-7.955c1.004-10.431 16.701-10.003 17.048.518l.003 7.42c.014.04.58.214.679.257.6.259 1.156.683 1.588 1.166zm-5.289-1.166V8.017c-.633-6.382-10.36-6.41-11.042-.035v8.09H23.02z"
+        fill="#E13A7B"
       />
+      <G filter="url(#filter0_d_3597_2358)">
+        <Path
+          d="M28.814 17.255a4.562 4.562 0 011.22 2.653l.002 10.59c-.206 2.295-2.177 4.096-4.596 4.226l-15.877-.002c-2.381-.11-4.393-1.932-4.596-4.191l-.002-10.59c.163-1.946 1.647-3.604 3.63-4.091l7.156-.017h2.915l6.774.017c.014.04 1.253 0 1.253 0s1.05.26 2.121 1.405z"
+          fill="#E13A7B"
+        />
+      </G>
       <Path
-        d="M21.1916 37.303C26.1465 35.821 29.039 42.5039 24.6947 45.1143L24.6841 52.4677C24.4685 55.3478 20.5766 55.3143 20.318 52.5299L20.3211 45.146C17.1339 43.3192 17.6286 38.3686 21.1916 37.303Z"
-        fill="white"
+        d="M16.772 20.447c2.76-.824 4.372 2.89 1.951 4.34l-.006 4.085c-.12 1.6-2.288 1.582-2.432.035l.002-4.103c-1.776-1.015-1.5-3.765.485-4.357z"
+        fill="#191A1F"
       />
+      <Defs>
+        <filter
+          id="filter0_d_3597_2358"
+          x="0.964844"
+          y="7.83307"
+          width="33.0703"
+          height="26.8909"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feColorMatrix
+            in="SourceAlpha"
+            type="matrix"
+            values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"
+            result="hardAlpha"
+          />
+          <feOffset dy="-4" />
+          <feGaussianBlur stdDeviation="2" />
+          <feComposite in2="hardAlpha" operator="out" />
+          <feColorMatrix
+            type="matrix"
+            values="0 0 0 0 0.18109 0 0 0 0 0.129132 0 0 0 0 0.0107376 0 0 0 0.6 0"
+          />
+          <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_3597_2358" />
+          <feBlend
+            mode="normal"
+            in="SourceGraphic"
+            in2="effect1_dropShadow_3597_2358"
+            result="shape"
+          />
+        </filter>
+      </Defs>
     </Svg>
   )
 }
