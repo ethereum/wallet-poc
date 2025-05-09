@@ -10,7 +10,7 @@ export class WalletStateController extends EventEmitter {
 
   #isPinnedInterval: ReturnType<typeof setTimeout> | undefined = undefined
 
-  #isSetupComplete: boolean = true
+  #isSetupComplete: boolean = false
 
   get isPinned() {
     return this.#isPinned
@@ -47,7 +47,7 @@ export class WalletStateController extends EventEmitter {
     this.#isPinned = isSafari() || (await storage.get('isPinned', false))
     this.#initCheckIsPinned()
 
-    this.#isSetupComplete = await storage.get('isSetupComplete', true)
+    this.#isSetupComplete = await storage.get('isSetupComplete', false)
 
     this.isReady = true
     this.emitUpdate()

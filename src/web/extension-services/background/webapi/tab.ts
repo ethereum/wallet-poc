@@ -10,7 +10,8 @@ const createTab = async (url: string): Promise<number | undefined> => {
     return tab
   }
   try {
-    const allTabs = ((await browser.tabs.query({})) || []).filter(
+    const window = await browser.windows.getCurrent() // search existing Ambire tabs only for the current window
+    const allTabs = ((await browser.tabs.query({ windowId: window.id })) || []).filter(
       (t) => !t.url.includes('action-window.html')
     )
     const base = browser.runtime.getURL('/')

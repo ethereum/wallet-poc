@@ -25,6 +25,7 @@ interface Props {
   setCustomValue?: (value: string) => void
   testID?: string
   children?: ReactNode
+  onSetIsEditing?: (isEditing: boolean) => void
 }
 
 const Editable: FC<Props> = ({
@@ -39,7 +40,8 @@ const Editable: FC<Props> = ({
   minWidth = 100,
   maxLength = 20,
   testID,
-  children
+  children,
+  onSetIsEditing
 }) => {
   const { theme } = useTheme()
   const { t } = useTranslation()
@@ -52,13 +54,14 @@ const Editable: FC<Props> = ({
 
   const handleSave = useCallback(() => {
     setIsEditing(false)
+    !!onSetIsEditing && onSetIsEditing(false)
     if (actualValue === initialValue || !actualValue) {
       setValue(initialValue)
       return
     }
 
     if (onSave) onSave(actualValue)
-  }, [actualValue, initialValue, onSave])
+  }, [actualValue, initialValue, onSave, onSetIsEditing])
 
   const setValueWrapped = useCallback(
     (newValue: string) => {
@@ -120,6 +123,7 @@ const Editable: FC<Props> = ({
             return
           }
           setIsEditing(true)
+          !!onSetIsEditing && onSetIsEditing(true)
         }}
         style={[spacings.mlTy]}
         testID={`edit-btn-for-${testID}`}

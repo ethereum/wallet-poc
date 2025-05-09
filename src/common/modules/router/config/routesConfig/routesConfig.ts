@@ -321,23 +321,6 @@ const routesConfig: RouteConfig = {
     }),
     name: Platform.select({ default: i18n.t('Accounts Settings') })
   },
-  [ROUTES.basicToSmartSettingsScreen]: {
-    route: ROUTES.basicToSmartSettingsScreen,
-    title: Platform.select({
-      default: i18n.t('Basic to Smart Settings')
-    }),
-    name: Platform.select({ default: i18n.t('Basic to Smart Settings') })
-  },
-  [ROUTES.exportKey]: {
-    route: ROUTES.exportKey,
-    title: Platform.select({ default: i18n.t('Export Key') }),
-    name: Platform.select({ default: i18n.t('Export Key') })
-  },
-  [ROUTES.savedSeed]: {
-    route: ROUTES.savedSeed,
-    title: Platform.select({ default: i18n.t('Saved Seed') }),
-    name: Platform.select({ default: i18n.t('Saved Seed') })
-  },
   [ROUTES.networksSettings]: {
     route: ROUTES.networksSettings,
     title: Platform.select({ default: i18n.t('Networks') }),

@@ -4,7 +4,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { NativeScrollEvent, View } from 'react-native'
 
 import AccountPickerController from '@ambire-common/controllers/accountPicker/accountPicker'
-import { Account as AccountInterface, AccountOnPage } from '@ambire-common/interfaces/account'
+import {
+  Account as AccountInterface,
+  AccountOnPage,
+  ImportStatus
+} from '@ambire-common/interfaces/account'
 import WarningFilledIcon from '@common/assets/svg/WarningFilledIcon'
 import Alert from '@common/components/Alert'
 import Badge from '@common/components/Badge'
@@ -111,12 +115,12 @@ const AccountsOnPageList = ({
   const getAccounts = useCallback(
     ({
       accounts,
-      shouldCheckForLastAccountInTheList,
+      isLastSlot = false,
       byType = ['basic', 'smart'],
       withQuaternaryBackground = false
     }: {
       accounts: AccountOnPage[]
-      shouldCheckForLastAccountInTheList?: boolean
+      isLastSlot?: boolean
       slotIndex?: number
       byType?: ('basic' | 'linked' | 'smart')[]
       withQuaternaryBackground?: boolean
@@ -124,9 +128,7 @@ const AccountsOnPageList = ({
       const filteredAccounts = accounts.filter((a) => byType.includes(getType(a)))
 
       return filteredAccounts.map((acc, i: number) => {
-        const hasBottomSpacing = !(
-          shouldCheckForLastAccountInTheList && i === filteredAccounts.length - 1
-        )
+        const hasBottomSpacing = !(isLastSlot && i === filteredAccounts.length - 1)
         const isUnused = !acc.account.usedOnNetworks.length
         const isSelected = state.selectedAccounts.some(
           (selectedAcc) => selectedAcc.account.addr === acc.account.addr
@@ -146,6 +148,15 @@ const AccountsOnPageList = ({
             onDeselect={handleDeselectAccount}
             displayTypeBadge={false}
             displayTypePill={getType(acc) === 'linked'}
+            // Only show "new" badge for the last unused smart account.
+            // Otherwise, multiple smart accounts could be displayed as "new",
+            // because they could have identity on the Relayer, but still be unused.
+            shouldBeDisplayedAsNew={
+              isLastSlot &&
+              getType(acc) === 'smart' &&
+              isUnused &&
+              acc.importStatus === ImportStatus.NotImported
+            }
           />
         )
       })
@@ -247,7 +258,7 @@ const AccountsOnPageList = ({
                     <View key={key}>
                       {getAccounts({
                         accounts: slots[key],
-                        shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                        isLastSlot: i === Object.keys(slots).length - 1,
                         slotIndex: 1,
                         byType: ['basic']
                       })}
@@ -313,7 +324,7 @@ const AccountsOnPageList = ({
                       <View key={key}>
                         {getAccounts({
                           accounts: slots[key],
-                          shouldCheckForLastAccountInTheList: i === Object.keys(slots).length - 1,
+                          isLastSlot: i === Object.keys(slots).length - 1,
                           slotIndex: 1,
                           byType: ['smart', 'linked'],
                           withQuaternaryBackground: true

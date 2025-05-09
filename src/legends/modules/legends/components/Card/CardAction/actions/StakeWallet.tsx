@@ -2,7 +2,7 @@
 import { BrowserProvider, Contract, Interface } from 'ethers'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { WALLET_STAKING_ADDR, WALLET_TOKEN } from '@ambire-common/consts/addresses'
+import { STK_WALLET, WALLET_TOKEN } from '@ambire-common/consts/addresses'
 import HumanReadableError from '@legends/classes/HumanReadableError'
 import { ERROR_MESSAGES } from '@legends/constants/errors/messages'
 import { ETHEREUM_CHAIN_ID } from '@legends/constants/networks'
@@ -19,6 +19,8 @@ const walletIface = new Interface([
   'function approve(address,uint)',
   'function balanceOf(address) view returns (uint256)'
 ])
+
+const stkWalletIface = new Interface(['function enter(uint256 amount) external'])
 
 const StakeWallet = () => {
   const [isLoading, setIsLoading] = useState(true)
@@ -66,19 +68,17 @@ const StakeWallet = () => {
 
       const useSponsorship = false
 
-      const xWalletIface = new Interface(['function enter(uint)'])
-
       const sendCallsIdentifier = await sendCalls(
         chainId,
         await signer.getAddress(),
         [
           {
             to: WALLET_TOKEN,
-            data: walletIface.encodeFunctionData('approve', [WALLET_STAKING_ADDR, walletBalance])
+            data: walletIface.encodeFunctionData('approve', [STK_WALLET, walletBalance])
           },
           {
-            to: WALLET_STAKING_ADDR,
-            data: xWalletIface.encodeFunctionData('enter', [walletBalance])
+            to: STK_WALLET,
+            data: stkWalletIface.encodeFunctionData('enter', [walletBalance])
           }
         ],
         useSponsorship
@@ -132,7 +132,7 @@ const StakeWallet = () => {
       disabled={disabledButton || isInProgress}
       buttonText={
         disabledButton
-          ? 'Switch to a smart account to unlock Rewards quests'
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
           : isLoading
           ? 'Loading...'
           : !walletBalance

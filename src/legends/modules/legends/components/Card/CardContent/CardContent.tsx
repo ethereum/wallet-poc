@@ -42,6 +42,11 @@ const CardContent: FC<Props> = ({
 
   const isTreasureChestCard = isMatchingPredefinedId(action, CARD_PREDEFINED_ID.chest)
 
+  const FIXED_CARD_FREQUENCY = {
+    ...CARD_FREQUENCY,
+    [CardType.oneTime]: 'OneTime'
+  }
+
   return (
     <div
       className={`${styles.wrapper} ${(disabled || isCompleted) && styles.disabled}`}
@@ -72,7 +77,7 @@ const CardContent: FC<Props> = ({
       ) : null}
       {disabled && (
         <div className={styles.overlay}>
-          <LockIcon className={styles.overlayIcon} />
+          <LockIcon className={`${styles.overlayIcon} ${styles.disabledIcon}`} />
         </div>
       )}
       <div className={styles.contentAndAction}>
@@ -102,7 +107,7 @@ const CardContent: FC<Props> = ({
             ) : (
               <span
                 className={`${styles.rewardFrequency} ${
-                  styles[`rewardFrequency${CARD_FREQUENCY[card.type]}`]
+                  styles[`rewardFrequency${FIXED_CARD_FREQUENCY[card.type]}`]
                 }`}
               >
                 {CARD_FREQUENCY[card.type]}

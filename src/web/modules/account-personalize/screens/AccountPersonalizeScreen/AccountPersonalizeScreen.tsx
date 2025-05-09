@@ -67,7 +67,12 @@ const AccountPersonalizeScreen = () => {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     ;(async () => {
       await wait(1000)
-      if (accountPickerState.isInitialized && accountPickerState.addAccountsStatus === 'INITIAL') {
+      if (
+        accountPickerState.isInitialized &&
+        accountPickerState.selectNextAccountStatus === 'INITIAL' &&
+        !accountPickerState.selectedAccountsFromCurrentSession.length &&
+        accountPickerState.addAccountsStatus === 'INITIAL'
+      ) {
         setIsLoading(false)
       }
 
@@ -78,6 +83,7 @@ const AccountPersonalizeScreen = () => {
   }, [
     accountPickerState.isInitialized,
     accountPickerState.readyToRemoveAccounts.length,
+    accountPickerState.selectNextAccountStatus,
     accountPickerState.selectedAccountsFromCurrentSession.length,
     accountsToPersonalize,
     accountPickerState.addAccountsStatus

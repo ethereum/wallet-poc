@@ -294,6 +294,9 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
     } as any,
     windowManager: {
       ...windowManager,
+      remove: async (winId: number) => {
+        await windowManager.remove(winId, pm)
+      },
       sendWindowToastMessage: (text, options) => {
         pm.send('> ui-toast', { method: 'addToast', params: { text, options } })
       },

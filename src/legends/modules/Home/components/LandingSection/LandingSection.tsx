@@ -34,7 +34,7 @@ const LandingSection: FC<Props> = ({ nonV2acc = false }) => {
         <span className={styles.kicker}>Welcome to Ambire Rewards</span>
         <h1 className={styles.title}>
           {nonV2acc
-            ? 'Switch to a smart account to unlock Rewards quests'
+            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy accounts not supported.'
             : 'Complete onchain quests, earn XP, win prizes!'}
         </h1>
 

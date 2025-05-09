@@ -2,6 +2,7 @@ import * as Clipboard from 'expo-clipboard'
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Animated, View, ViewStyle } from 'react-native'
+import { useModalize } from 'react-native-modalize'
 
 import { AMBIRE_V1_QUICK_ACC_MANAGER } from '@ambire-common/consts/addresses'
 import { Account } from '@ambire-common/interfaces/account'
@@ -12,16 +13,18 @@ import ExportIcon from '@common/assets/svg/ExportIcon'
 import ImportIcon from '@common/assets/svg/ImportIcon'
 import RightArrowIcon from '@common/assets/svg/RightArrowIcon'
 import AccountKeyIcon from '@common/components/AccountKeyIcon'
+import AccountKeyDetails from '@common/components/AccountKeysBottomSheet/AccountKeyDetails'
 import Badge from '@common/components/Badge'
+import BottomSheet from '@common/components/BottomSheet'
 import Button from '@common/components/Button'
 import Editable from '@common/components/Editable'
+import ExportKey from '@common/components/ExportKey'
 import Text from '@common/components/Text'
 import Tooltip from '@common/components/Tooltip'
-import useNavigation from '@common/hooks/useNavigation'
 import useTheme from '@common/hooks/useTheme'
 import useToast from '@common/hooks/useToast'
-import { ROUTES } from '@common/modules/router/constants/common'
 import spacings from '@common/styles/spacings'
+import { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover, { AnimatedPressable, useCustomHover } from '@web/hooks/useHover'
@@ -40,13 +43,11 @@ type Props = AccountKeyType & {
   isLast?: boolean
   style?: ViewStyle
   enableEditing?: boolean
-  handleOnKeyDetailsPress?: () => void
   openAddAccountBottomSheet?: () => void
   showCopyAddr?: boolean
   account: Account
   keyIconColor?: string
   showExportImport?: boolean
-  closeDetails?: () => void
 }
 
 const { isPopup } = getUiType()
@@ -61,33 +62,31 @@ const AccountKey: React.FC<Props> = ({
   isImported,
   style,
   enableEditing = true,
-  handleOnKeyDetailsPress,
   openAddAccountBottomSheet,
   account,
+  meta,
   keyIconColor,
-  showExportImport = false,
-  closeDetails
+  showExportImport = false
 }) => {
   const [isImporting, setIsImporting] = useState<boolean>(false)
   const { t } = useTranslation()
   const { theme } = useTheme()
   const { addToast } = useToast()
   const { dispatch } = useBackgroundService()
-  const { navigate } = useNavigation()
+  const [isEditing, setIsEditing] = useState(false)
+
   const [bindKeyDetailsAnim, keyDetailsAnimStyles] = useCustomHover({
-    property: 'left',
-    values: {
-      from: 0,
-      to: 4
-    }
+    property: 'bottom',
+    values: { from: 0, to: -2 }
   })
+  const { ref: sheetRefExportKey, open: openExportKey, close: closeExportKey } = useModalize()
   const [bindCopyIconAnim, copyIconAnimStyle] = useHover({
     preset: 'opacityInverted'
   })
   const fontSize = isPopup ? 14 : 16
-  const isShowingDetails = !openAddAccountBottomSheet
   const isKeyAmbireV1 = addr === AMBIRE_V1_QUICK_ACC_MANAGER
   const canExportOrImportKey = showExportImport && !isKeyAmbireV1
+  const [isShowingDetails, setIsShowingDetails] = useState<boolean>(false)
 
   const handleCopy = async () => {
     try {
@@ -101,13 +100,7 @@ const AccountKey: React.FC<Props> = ({
   const editKeyLabel = (newLabel: string) => {
     dispatch({
       type: 'KEYSTORE_CONTROLLER_UPDATE_KEY_PREFERENCES',
-      params: [
-        {
-          addr,
-          type: type || 'internal',
-          preferences: { label: newLabel }
-        }
-      ]
+      params: [{ addr, type: type || 'internal', preferences: { label: newLabel } }]
     })
     addToast(t('Key label updated'), { type: 'success' })
   }
@@ -116,9 +109,7 @@ const AccountKey: React.FC<Props> = ({
 
   const isInternal = !type || type === 'internal'
   const canExportKey = isImported && isInternal
-  const exportKey = () => {
-    navigate(`${ROUTES.exportKey}?accountAddr=${account.addr}&keyAddr=${addr}`)
-  }
+
   const importKey = () => {
     setIsImporting(true)
   }
@@ -130,93 +121,115 @@ const AccountKey: React.FC<Props> = ({
     <View
       style={[
         {
-          borderBottomWidth: isLast ? 0 : 1,
-          borderBottomColor: theme.secondaryBorder
-        }
+          backgroundColor: theme.secondaryBackground,
+          borderRadius: BORDER_RADIUS_PRIMARY
+        },
+        isLast ? spacings.mb0 : spacings.mbTy
       ]}
     >
       <View
         style={[
           spacings.phSm,
-          isImported ? spacings.pvTy : spacings.pvSm,
+          spacings.pvTy,
           flexbox.directionRow,
           flexbox.justifySpaceBetween,
           flexbox.alignCenter,
+          flexbox.flex1,
+          { minHeight: 48 },
           style
         ]}
       >
-        <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-          {isImported && (
+        <View
+          style={[
+            flexbox.directionRow,
+            flexbox.alignCenter,
+            flexbox.flex1,
+            !!showExportImport && !isKeyAmbireV1 && spacings.mrSm
+          ]}
+        >
+          {!!isImported && (
             <View style={spacings.mrTy}>
               <AccountKeyIcon type={type || 'internal'} color={keyIconColor} />
             </View>
           )}
-          <View style={isPopup ? { maxWidth: 350 } : {}}>
-            {/* Keys that aren't imported can't be labeled */}
-            {isImported && enableEditing ? (
-              <Editable
-                textProps={{
-                  weight: 'semiBold'
-                }}
-                fontSize={fontSize}
-                initialValue={label || ''}
-                onSave={editKeyLabel}
-                maxLength={40}
-              />
-            ) : (
-              <Text weight="semiBold" fontSize={fontSize} numberOfLines={1}>
-                {label}
-              </Text>
-            )}
-          </View>
-          <Text
-            color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
-            fontSize={fontSize - 1}
-            weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
-            style={[
-              label || isImported ? spacings.mlMi : {},
-              // Reduce the letter spacing as a hack to be able to fit all elements
-              // on the row, even for the extreme case when the key label is max length
-              dedicatedToOneSA && { letterSpacing: -0.2 }
-            ]}
-          >
-            {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : addr}
-          </Text>
-          {showCopyAddr && (
-            <AnimatedPressable
-              style={[spacings.mlTy, copyIconAnimStyle]}
-              onPress={handleCopy}
-              {...bindCopyIconAnim}
-            >
-              <CopyIcon width={fontSize + 4} height={fontSize + 4} color={theme.secondaryText} />
-            </AnimatedPressable>
+
+          {/* Keys that aren't imported can't be labeled */}
+          {isImported && enableEditing ? (
+            <Editable
+              textProps={{ weight: 'semiBold' }}
+              fontSize={fontSize}
+              initialValue={label || ''}
+              onSave={editKeyLabel}
+              maxLength={40}
+              onSetIsEditing={setIsEditing}
+            />
+          ) : (
+            <Text weight="semiBold" fontSize={fontSize} numberOfLines={1}>
+              {label}
+            </Text>
           )}
-          {!isImported && (
-            <View style={spacings.mlTy}>
-              <Badge type="warning" text={t('Not imported')} />
-            </View>
+
+          {!isEditing && (
+            <>
+              {/* @ts-ignore */}
+              <View dataSet={{ tooltipId: `key-${addr}-tooltip` }}>
+                <Text
+                  color={dedicatedToOneSA ? theme.infoDecorative : theme.primaryText}
+                  fontSize={fontSize - 1}
+                  weight={dedicatedToOneSA ? 'semiBold' : 'regular'}
+                  style={[
+                    label || isImported ? spacings.mlMi : {},
+                    // Reduce the letter spacing as a hack to be able to fit all elements
+                    // on the row, even for the extreme case when the key label is max length
+                    dedicatedToOneSA && { letterSpacing: -0.2 }
+                  ]}
+                >
+                  {dedicatedToOneSA ? t('(dedicated key)') : label ? `(${shortAddr})` : shortAddr}
+                </Text>
+              </View>
+              <Tooltip id={`key-${addr}-tooltip`}>
+                <Text fontSize={14} weight="medium" appearance="secondaryText">
+                  {addr}
+                </Text>
+              </Tooltip>
+              {!!showCopyAddr && (
+                <AnimatedPressable
+                  style={[spacings.mlMi, copyIconAnimStyle]}
+                  onPress={handleCopy}
+                  {...bindCopyIconAnim}
+                >
+                  <CopyIcon
+                    width={fontSize + 2}
+                    height={fontSize + 2}
+                    color={theme.secondaryText}
+                  />
+                </AnimatedPressable>
+              )}
+              {!isImported && (
+                <View style={spacings.mlTy}>
+                  <Badge type="warning" text={t('Not imported')} />
+                </View>
+              )}
+            </>
           )}
         </View>
-        {isKeyAmbireV1 && (
-          <Text appearance="secondaryText" fontSize={12}>
-            {t('(Email signers cannot be imported in Ambire v2)')}
-          </Text>
-        )}
-        {canExportOrImportKey && (
+
+        {!isEditing && !!canExportOrImportKey && (
           <View>
             {isImported ? (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <View>
-                  {/* 
+                  {/*
                 When making the Pressable disabled, it disables literally everything in it.
                 So even the tooltip will not work.
                 The workaround is to set a wrapping <View> and make it the tooltip target
               */}
                   {/* @ts-ignore */}
-                  <View dataSet={{ tooltipId: 'export-icon-tooltip' }}>
+                  <View dataSet={{ tooltipId: `export-${addr}-tooltip` }}>
                     <Button
-                      style={spacings.mb0}
-                      onPress={exportKey}
+                      style={{ height: 32 }}
+                      hasBottomSpacing={false}
+                      onPress={openExportKey as any}
                       size="small"
                       disabled={!canExportKey}
                       type="secondary"
@@ -224,14 +237,14 @@ const AccountKey: React.FC<Props> = ({
                     >
                       <ExportIcon
                         style={[spacings.mlTy]}
-                        color={theme.secondaryText}
+                        color={theme.primary}
                         width={16}
                         height={16}
                       />
                     </Button>
                   </View>
                   {!canExportKey && (
-                    <Tooltip id="export-icon-tooltip">
+                    <Tooltip id={`export-${addr}-tooltip`}>
                       <View>
                         <Text fontSize={14} appearance="secondaryText">
                           {t('Export unavailable as this is a hardware wallet key')}
@@ -242,21 +255,11 @@ const AccountKey: React.FC<Props> = ({
                 </View>
                 <AnimatedPressable
                   onPress={() => {
-                    handleOnKeyDetailsPress
-                      ? handleOnKeyDetailsPress()
-                      : closeDetails && closeDetails()
+                    setIsShowingDetails((p) => !p)
                   }}
-                  style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlTy]}
+                  style={[flexbox.directionRow, flexbox.alignCenter, spacings.mlSm]}
                   {...bindKeyDetailsAnim}
                 >
-                  <Text
-                    fontSize={14}
-                    appearance="secondaryText"
-                    weight="medium"
-                    style={spacings.mrTy}
-                  >
-                    {t('Details')}
-                  </Text>
                   <Animated.View style={keyDetailsAnimStyles}>
                     <RightArrowIcon
                       width={16}
@@ -275,11 +278,12 @@ const AccountKey: React.FC<Props> = ({
             ) : (
               <View style={[flexbox.directionRow, flexbox.alignCenter]}>
                 <Button
-                  style={spacings.mb0}
                   onPress={importKey}
                   size="small"
                   type="secondary"
                   text={t('Import')}
+                  style={{ height: 32 }}
+                  hasBottomSpacing={false}
                 >
                   <ImportIcon
                     style={[spacings.mlTy]}
@@ -293,7 +297,7 @@ const AccountKey: React.FC<Props> = ({
           </View>
         )}
       </View>
-      {canExportOrImportKey && isImporting && openAddAccountBottomSheet && (
+      {!!canExportOrImportKey && !!isImporting && !!openAddAccountBottomSheet && (
         <View
           style={[
             spacings.phSm,
@@ -303,16 +307,45 @@ const AccountKey: React.FC<Props> = ({
             spacings.mbSm
           ]}
         >
-          <Text>{t('To import this key, you will need to reimport the account')}</Text>
+          <Text fontSize={14} appearance="secondaryText">
+            {t('To import this key, you have to reimport the account.')}
+          </Text>
           <Button
-            style={[spacings.mb0, spacings.mlTy]}
             onPress={reimportAccount}
             size="small"
-            text={t('Reimport Account')}
+            style={{ height: 32, ...spacings.mlTy }}
+            text={t('Reimport account')}
             hasBottomSpacing={false}
           />
         </View>
       )}
+      {!!isKeyAmbireV1 && (
+        <View style={[spacings.phSm, spacings.mbTy]}>
+          <Text appearance="secondaryText" weight="medium" fontSize={14} numberOfLines={2}>
+            {t('(Email signers cannot be imported in Ambire v2)')}
+          </Text>
+        </View>
+      )}
+      {!!isShowingDetails && (
+        <AccountKeyDetails details={{ type, addr, label, isImported, meta, dedicatedToOneSA }} />
+      )}
+      <BottomSheet
+        sheetRef={sheetRefExportKey}
+        id="confirm-password-bottom-sheet"
+        type="modal"
+        backgroundColor="primaryBackground"
+        closeBottomSheet={closeExportKey}
+        scrollViewProps={{ contentContainerStyle: { flex: 1 } }}
+        containerInnerWrapperStyles={{ flex: 1 }}
+        style={{ maxWidth: 432, minHeight: 432, ...spacings.pvLg }}
+      >
+        <ExportKey
+          account={account}
+          keyAddr={addr}
+          keyLabel={label}
+          onBackButtonPress={closeExportKey}
+        />
+      </BottomSheet>
     </View>
   )
 }

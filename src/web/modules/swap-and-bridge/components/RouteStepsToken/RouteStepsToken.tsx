@@ -1,5 +1,5 @@
 import React from 'react'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 
 import Text from '@common/components/Text'
 import TokenIcon from '@common/components/TokenIcon'
@@ -13,6 +13,7 @@ interface Props {
   uri?: string
   isLast?: boolean
   amount?: string
+  wrapperStyle?: ViewStyle
 }
 
 const RouteStepsToken: React.FC<Props> = ({
@@ -21,9 +22,12 @@ const RouteStepsToken: React.FC<Props> = ({
   chainId,
   uri,
   isLast = false,
-  amount = ''
+  amount = '',
+  wrapperStyle
 }) => (
-  <View style={[styles.tokenWrapper, { alignItems: isLast ? 'flex-end' : 'flex-start' }]}>
+  <View
+    style={[styles.tokenWrapper, wrapperStyle, { alignItems: isLast ? 'flex-end' : 'flex-start' }]}
+  >
     <View style={styles.tokenContainer}>
       <TokenIcon
         uri={uri}

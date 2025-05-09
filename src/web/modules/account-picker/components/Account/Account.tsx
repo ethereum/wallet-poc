@@ -45,7 +45,8 @@ const Account = ({
   importStatus,
   displayTypeBadge = true,
   withQuaternaryBackground = false,
-  displayTypePill = true
+  displayTypePill = true,
+  shouldBeDisplayedAsNew = false
 }: {
   account: AccountInterface & { usedOnNetworks: Network[] }
   type: 'basic' | 'smart' | 'linked'
@@ -60,6 +61,7 @@ const Account = ({
   displayTypeBadge?: boolean
   withQuaternaryBackground?: boolean
   displayTypePill?: boolean
+  shouldBeDisplayedAsNew?: boolean
 }) => {
   const { isLoading: isDomainResolving, ens } = useReverseLookup({ address: account.addr })
   const domainName = ens
@@ -252,8 +254,8 @@ const Account = ({
             )}
             {!!unused && (
               <Badge
-                type={type === 'smart' ? 'new' : 'default'}
-                text={type === 'smart' ? t('new') : t('unused')}
+                type={shouldBeDisplayedAsNew ? 'new' : 'default'}
+                text={shouldBeDisplayedAsNew ? t('new') : t('unused')}
               />
             )}
           </View>

@@ -70,7 +70,6 @@ const useSwapAndBridgeForm = () => {
     open: openPriceImpactModal,
     close: closePriceImpactModal
   } = useModalize()
-  const [isInitialized, setIsInitialized] = useState(false)
   const { visibleActionsQueue } = useActionsControllerState()
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
   const sessionId = useMemo(() => {
@@ -102,53 +101,6 @@ const useSwapAndBridgeForm = () => {
     },
     [setFromAmountValue, setIsAutoSelectRouteDisabled]
   )
-
-  useEffect(() => {
-    if (isInitialized || !portfolio.isReadyToVisualize) return
-
-    if (
-      currentRoute &&
-      currentRoute.state &&
-      currentRoute.state.chainId &&
-      currentRoute.state.address
-    ) {
-      const { address, chainId } = currentRoute.state as {
-        address: string
-        chainId: string
-      }
-
-      if (
-        fromSelectedToken?.address === address &&
-        String(fromSelectedToken?.chainId) === chainId
-      ) {
-        setIsInitialized(true)
-        return
-      }
-      const tokenToSelectOnInit = portfolio.tokens.find(
-        (t) =>
-          t.address === address &&
-          t.chainId.toString() === chainId &&
-          getIsTokenEligibleForSwapAndBridge(t)
-      )
-
-      if (tokenToSelectOnInit) {
-        dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_UPDATE_FORM',
-          params: { fromSelectedToken: tokenToSelectOnInit }
-        })
-      }
-    } else {
-      setIsInitialized(true)
-    }
-  }, [
-    currentRoute,
-    dispatch,
-    fromSelectedToken?.address,
-    fromSelectedToken?.chainId,
-    isInitialized,
-    portfolio?.isReadyToVisualize,
-    portfolio.tokens
-  ])
 
   useEffect(() => {
     const hasSwapAndBridgeAction = visibleActionsQueue.some(
@@ -192,15 +144,40 @@ const useSwapAndBridgeForm = () => {
     // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    if (!portfolio.isReadyToVisualize) return
+
+    const preselectedTokenInParams = currentRoute.state as
+      | {
+          address: string
+          chainId: string
+        }
+      | undefined
+
+    const tokenToSelectOnInit = portfolio.tokens.find(
+      (t) =>
+        t.address === preselectedTokenInParams?.address &&
+        t.chainId.toString() === preselectedTokenInParams.chainId &&
+        getIsTokenEligibleForSwapAndBridge(t)
+    )
+
+    dispatch({
+      type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM',
+      params: {
+        sessionId,
+        preselectedFromToken: tokenToSelectOnInit
+      }
+    })
     sessionIdsRequestedToBeInit.current.push(sessionId)
     setSearchParams((prev) => {
       prev.set('sessionId', sessionId)
       return prev
     })
   }, [
+    currentRoute.state,
     dispatch,
     navigate,
+    portfolio.isReadyToVisualize,
+    portfolio.tokens,
     sessionId,
     sessionIds,
     setSearchParams,
@@ -462,7 +439,6 @@ const useSwapAndBridgeForm = () => {
 
   return {
     sessionId,
-    isInitialized,
     fromAmountValue,
     onFromAmountChange,
     fromTokenAmountSelectDisabled,

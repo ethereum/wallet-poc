@@ -127,7 +127,9 @@ const InviteAcc: FC<Props> = ({
       isLoading={isInProgress}
       loadingText="Signing..."
       buttonText={
-        isInvalidAccount ? 'Switch to a smart account to unlock Rewards quests' : buttonText
+        isInvalidAccount
+          ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+          : buttonText
       }
       disabled={isInvalidAccount || validation.isError || addressState.isDomainResolving}
       onButtonClick={onButtonClick}

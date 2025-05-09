@@ -13,6 +13,7 @@ export type CardActionComponentProps = {
   action: CardAction
   buttonText: string
   meta: CardFromResponse['meta']
+  id: CardFromResponse['id']
 }
 
 const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, buttonText }) => {
@@ -67,7 +68,9 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
     return (
       <CardActionButton
         buttonText={
-          disabledButton ? 'Switch to a smart account to unlock Rewards quests' : 'Proceed'
+          disabledButton
+            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+            : 'Proceed'
         }
         onButtonClick={() => {
           window.open(action.link, '_blank')
@@ -82,7 +85,9 @@ const CardActionComponent: FC<CardActionComponentProps> = ({ meta, action, butto
     return (
       <CardActionButton
         buttonText={
-          disabledButton ? 'Switch to a smart account to unlock Rewards quests' : 'Proceed'
+          disabledButton
+            ? 'Switch to a new account to unlock Rewards quests. Ambire legacy Web accounts (V1) are not supported.'
+            : 'Proceed'
         }
         onButtonClick={handleWalletRouteButtonPress}
         loadingText=""

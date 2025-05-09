@@ -53,7 +53,6 @@ const SwapAndBridgeScreen = () => {
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
-    isInitialized,
     displayedView,
     closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
@@ -157,7 +156,7 @@ const SwapAndBridgeScreen = () => {
     )
   }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
 
-  if (!sessionIds.includes(sessionId) || !isInitialized) {
+  if (!sessionIds.includes(sessionId)) {
     // If the portfolio has loaded we can skip the spinner as initializing the screen
     // takes a short time and the spinner will only flash.
     if (portfolio.isReadyToVisualize) return null

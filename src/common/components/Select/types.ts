@@ -6,6 +6,10 @@ export type SelectValue = {
   label: string | ReactNode
   icon?: string | ReactNode
   disabled?: boolean
+  isPending?: boolean
+  balanceFormatted?: string
+  pendingBalanceFormatted?: string
+  symbol?: string
   [key: string]: any
 }
 

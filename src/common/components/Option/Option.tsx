@@ -23,6 +23,7 @@ interface Props {
   testID?: string
   disabled?: boolean
   status?: 'default' | 'expanded' | 'collapsed'
+  icons?: { key: string; component: React.FC<any> }[]
 }
 
 const Option = ({
@@ -34,7 +35,8 @@ const Option = ({
   children,
   testID,
   disabled,
-  status = 'default'
+  status = 'default',
+  icons = []
 }: Props) => {
   const { theme, styles } = useTheme(getStyles)
   const [bindAnim, animStyle, isHovered] = useCustomHover({
@@ -66,6 +68,14 @@ const Option = ({
         <Text style={flexbox.flex1} fontSize={14} weight="medium" numberOfLines={1}>
           {text}
         </Text>
+        {icons.length > 0 && (
+          <View style={[flexbox.directionRow, spacings.mrTy]}>
+            {icons.map(({ key, component: Component }) => (
+              <Component key={key} width={32} height={32} style={spacings.mrMi} />
+            ))}
+          </View>
+        )}
+
         <View style={spacings.mrSm}>
           {status === 'default' && <RightArrowIcon />}
           {status === 'expanded' && <UpArrowIcon />}

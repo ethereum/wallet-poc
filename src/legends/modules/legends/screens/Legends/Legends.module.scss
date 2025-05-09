@@ -4,6 +4,39 @@
 .group {
   margin-bottom: 2.75rem;
 }
+
+.overachieverBanner {
+
+  background: rgba($yellow-500, 0.22);
+
+  gap: .625rem;
+  border-radius: 1rem;
+  padding: .625rem 1.4375rem;
+  border: .0625rem solid rgba($yellow-500, 0.37);
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin-bottom: 1.875rem;
+
+  .lockIcon {
+    path:first-child {
+      fill: $red-400;
+      stroke: $red-400;
+    }
+
+    path:nth-child(2) {
+      fill: $neutral-700;
+    }
+  }
+
+  .overachieverText {
+    font-weight: 300;
+    font-size: 1rem;
+    line-height: 100%;
+    letter-spacing: 0%;
+    color: $mainText;
+  }
+}
 .groupName {
   color: $secondaryText;
   font-size: 2rem;

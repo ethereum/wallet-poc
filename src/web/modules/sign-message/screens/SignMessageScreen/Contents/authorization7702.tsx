@@ -108,7 +108,7 @@ const Authorization7702 = ({
           ))}
         </View>
       </Panel>
-      <View style={[spacings.pt0, spacings.pb0, getPanelPaddings(maxWidthSize, false)]}>
+      <View style={[spacings.pt0, spacings.pb0, getPanelPaddings(maxWidthSize, 'large')]}>
         <View>
           <Text weight="light" fontSize={14} style={spacings.mb}>
             Once enabled in Ambire Wallet,{' '}
