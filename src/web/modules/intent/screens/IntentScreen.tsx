@@ -40,11 +40,13 @@ const IntentScreen = () => {
   const {
     handleSubmitForm,
     onFromAmountChange,
+    onRecipientAddressChange,
     fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
     fromTokenAmountSelectDisabled,
-    addressState
+    addressState,
+    addressInputState
   } = useTransactionForm()
 
   const {
@@ -193,26 +195,8 @@ const IntentScreen = () => {
     )
   }
 
-  // Mocked data
-  const isRecipientHumanizerKnownTokenOrSmartContract = true
-  const isRecipientAddressUnknown = false
-  const isRecipientAddressUnknownAgreed = false
-  const isSWWarningVisible = false
-  const isSWWarningAgreed = false
-  const selectedToken = fromTokenOptions[0]
-  const recipientMenuClosedAutomaticallyRef = { current: false }
-  const isPopup = false
   const disableForm = false
-  const setAddressStateFieldValue = () => {}
-  const onRecipientAddressUnknownCheckboxClick = () => {}
-  const validation = {
-    isError: true,
-    message: ''
-  }
-  const selectedTokenSymbol =
-    typeof selectedToken === 'object' && 'extraSearchProps' in selectedToken
-      ? selectedToken.extraSearchProps.symbol
-      : undefined
+  const { validation } = addressInputState
 
   return (
     <Wrapper title={t('Swap & Bridge')} handleGoBack={onBackButtonPress} buttons={buttons}>
@@ -231,22 +215,10 @@ const IntentScreen = () => {
           <Recipient
             disabled={disableForm}
             address={addressState.fieldValue}
-            setAddress={setAddressStateFieldValue}
+            setAddress={onRecipientAddressChange}
             validation={validation}
             ensAddress={addressState.ensAddress}
-            addressValidationMsg={validation.message}
-            isRecipientHumanizerKnownTokenOrSmartContract={
-              isRecipientHumanizerKnownTokenOrSmartContract
-            }
-            isRecipientAddressUnknown={isRecipientAddressUnknown}
             isRecipientDomainResolving={addressState.isDomainResolving}
-            isRecipientAddressUnknownAgreed={isRecipientAddressUnknownAgreed}
-            onRecipientAddressUnknownCheckboxClick={onRecipientAddressUnknownCheckboxClick}
-            isSWWarningVisible={isSWWarningVisible}
-            isSWWarningAgreed={isSWWarningAgreed}
-            selectedTokenSymbol={selectedTokenSymbol}
-            recipientMenuClosedAutomaticallyRef={recipientMenuClosedAutomaticallyRef}
-            menuPosition={isPopup ? 'top' : undefined}
           />
           <FromToken
             fromTokenOptions={fromTokenOptions}

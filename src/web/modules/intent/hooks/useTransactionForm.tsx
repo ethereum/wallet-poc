@@ -8,10 +8,15 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useNavigation from '@common/hooks/useNavigation'
+import useToast from '@common/hooks/useToast'
+import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
+import { isEqual } from 'lodash'
+import useAddressInput from './useAddressInput'
 
 type SessionId = ReturnType<typeof nanoid>
 
 const useTransactionForm = () => {
+  const { addToast } = useToast()
   const { isPopup, isActionWindow } = getUiType()
   const { formState } = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
@@ -24,8 +29,11 @@ const useTransactionForm = () => {
     fromSelectedToken,
     portfolioTokenList,
     supportedChainIds,
-    addressState
+    addressState,
+    isRecipientAddressUnknown,
+    isRecipientAddressUnknownAgreed
   } = formState
+
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
@@ -71,6 +79,67 @@ const useTransactionForm = () => {
     [dispatch, setFromAmountValue]
   )
 
+  const onRecipientAddressChange = useCallback(
+    (value: string) => {
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+        params: {
+          addressState: { fieldValue: value, ensAddress: '', isDomainResolving: false }
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const handleCacheResolvedDomain = useCallback(
+    (address: string, domain: string, type: 'ens') => {
+      dispatch({
+        type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+        params: {
+          type,
+          address,
+          name: domain
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const setAddressState = useCallback(
+    (newPartialAddressState: AddressStateOptional) => {
+      // Merge the partial update with the current state to ensure a full AddressState object is dispatched
+      const nextAddressState: AddressState = {
+        fieldValue: newPartialAddressState.fieldValue ?? addressState.fieldValue,
+        ensAddress: newPartialAddressState.ensAddress ?? addressState.ensAddress,
+        isDomainResolving:
+          newPartialAddressState.isDomainResolving ?? addressState.isDomainResolving
+      }
+
+      // Prevent dispatching if the state hasn't actually changed
+      if (isEqual(addressState, nextAddressState)) return
+
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+        params: { addressState: nextAddressState }
+      })
+    },
+    [addressState, dispatch]
+  )
+
+  const addressInputState = useAddressInput({
+    addressState,
+    setAddressState,
+    overwriteError:
+      formState?.isInitialized && !formState.validationFormMsgs.recipientAddress.success
+        ? formState.validationFormMsgs.recipientAddress.message
+        : '',
+    overwriteValidLabel: formState?.validationFormMsgs?.recipientAddress.success
+      ? formState.validationFormMsgs.recipientAddress.message
+      : '',
+    addToast,
+    handleCacheResolvedDomain
+  })
+
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
@@ -111,6 +180,7 @@ const useTransactionForm = () => {
   return {
     handleSubmitForm,
     onFromAmountChange,
+    onRecipientAddressChange,
     fromAmountValue,
     fromAmountFieldMode,
     fromAmount,
@@ -120,7 +190,10 @@ const useTransactionForm = () => {
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
     fromTokenValue,
-    addressState
+    addressState,
+    isRecipientAddressUnknown,
+    isRecipientAddressUnknownAgreed,
+    addressInputState
   }
 }
 
