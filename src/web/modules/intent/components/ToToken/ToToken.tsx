@@ -23,12 +23,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import SwitchTokensButton from '@web/modules/swap-and-bridge/components/SwitchTokensButton'
-import ToTokenSelect from '@web/modules/swap-and-bridge/components/ToToken/ToTokenSelect'
-import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import SwitchTokensButton from '@web/modules/intent/components/SwitchTokensButton'
+import ToTokenSelect from '@web/modules/intent/components/ToToken/ToTokenSelect'
+import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
 
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
+import useTransactionForm from '../../hooks/useTransactionForm'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
   isAutoSelectRouteDisabled: boolean
@@ -37,6 +38,7 @@ type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRoute
 const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
+  const { toChainId, supportedChainIds } = useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
     toSelectedToken,
@@ -44,10 +46,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     toTokenList,
     quote,
     formStatus,
-    toChainId,
     updateToTokenListStatus,
     switchTokensStatus,
-    supportedChainIds,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
 
@@ -125,40 +125,43 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
-      networks.map((n) => {
-        const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-        const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+      networks
+        // filter out networks that are not supported
+        .filter((n) => getIsNetworkSupported(supportedChainIds, n))
+        .map((n) => {
+          const tooltipId = `network-${n.chainId}-not-supported-tooltip`
+          const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
-        return {
-          value: String(n.chainId),
-          extraSearchProps: [n.name],
-          disabled: !isNetworkSupported,
-          label: (
-            <>
-              <Text
-                fontSize={14}
-                weight="medium"
-                dataSet={{ tooltipId }}
-                style={flexbox.flex1}
-                numberOfLines={1}
-              >
-                {n.name}
-              </Text>
-              {!isNetworkSupported && (
-                <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-              )}
-            </>
-          ),
-          icon: (
-            <NetworkIcon
-              key={n.chainId.toString()}
-              id={n.chainId.toString()}
-              style={{ backgroundColor: theme.primaryBackground }}
-              size={18}
-            />
-          )
-        }
-      }),
+          return {
+            value: String(n.chainId),
+            extraSearchProps: [n.name],
+            disabled: !isNetworkSupported,
+            label: (
+              <>
+                <Text
+                  fontSize={14}
+                  weight="medium"
+                  dataSet={{ tooltipId }}
+                  style={flexbox.flex1}
+                  numberOfLines={1}
+                >
+                  {n.name}
+                </Text>
+                {!isNetworkSupported && (
+                  <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
+                )}
+              </>
+            ),
+            icon: (
+              <NetworkIcon
+                key={n.chainId.toString()}
+                id={n.chainId.toString()}
+                style={{ backgroundColor: theme.primaryBackground }}
+                size={18}
+              />
+            )
+          }
+        }),
     [networks, supportedChainIds, theme.primaryBackground]
   )
 

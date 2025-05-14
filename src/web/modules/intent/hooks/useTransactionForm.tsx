@@ -18,21 +18,27 @@ type SessionId = ReturnType<typeof nanoid>
 const useTransactionForm = () => {
   const { addToast } = useToast()
   const { isPopup, isActionWindow } = getUiType()
-  const { formState } = useTransactionControllerState()
+  const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
+  const { formState } = state
   const {
     fromAmount,
     fromAmountFieldMode,
     fromAmountInFiat,
     fromChainId,
     toChainId,
-    fromSelectedToken,
     portfolioTokenList,
-    supportedChainIds,
+    fromSelectedToken,
+    toSelectedToken,
     addressState,
     isRecipientAddressUnknown,
-    isRecipientAddressUnknownAgreed
+    isRecipientAddressUnknownAgreed,
+    supportedChainIds,
+    maxFromAmount
   } = formState
+
+  // Temporary log
+  console.log({ state })
 
   const { dispatch } = useBackgroundService()
   const { networks } = useNetworksControllerState()
@@ -177,10 +183,16 @@ const useTransactionForm = () => {
     })
   }, [])
 
+  const fromTokenOptionsFiltered = useMemo(() => {
+    return fromTokenOptions.filter((token: any) => supportedChainIds.includes(token.chainId))
+  }, [fromTokenOptions, supportedChainIds])
+
   return {
     handleSubmitForm,
     onFromAmountChange,
     onRecipientAddressChange,
+    fromSelectedToken,
+    toSelectedToken,
     fromAmountValue,
     fromAmountFieldMode,
     fromAmount,
@@ -188,12 +200,14 @@ const useTransactionForm = () => {
     fromChainId,
     toChainId,
     fromTokenAmountSelectDisabled,
-    fromTokenOptions,
+    fromTokenOptions: fromTokenOptionsFiltered as typeof fromTokenOptions,
     fromTokenValue,
     addressState,
     isRecipientAddressUnknown,
     isRecipientAddressUnknownAgreed,
-    addressInputState
+    addressInputState,
+    supportedChainIds,
+    maxFromAmount
   }
 }
 
