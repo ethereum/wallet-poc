@@ -708,6 +708,10 @@ type TransactionControllerInitFormAction = {
   }
 }
 
+type TransactionControllerSwitchFromAndToTokensAction = {
+  type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -839,3 +843,4 @@ export type Action =
   | MainControllerBuildTransactionUserRequest
   | TransactionControllerUpdateFormAction
   | TransactionControllerInitFormAction
+  | TransactionControllerSwitchFromAndToTokensAction

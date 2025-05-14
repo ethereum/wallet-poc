@@ -38,16 +38,13 @@ type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRoute
 const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
-  const { toChainId, supportedChainIds } = useTransactionForm()
+  const { toChainId, supportedChainIds, switchTokensStatus, toSelectedToken, toTokenList, quote } =
+    useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
-    toSelectedToken,
     updateQuoteStatus,
-    toTokenList,
-    quote,
     formStatus,
     updateToTokenListStatus,
-    switchTokensStatus,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
 
@@ -58,7 +55,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const handleSwitchFromAndToTokens = useCallback(
     () =>
       dispatch({
-        type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
+        type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
       }),
     [dispatch]
   )
@@ -210,10 +207,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     )
       return '0'
 
-    return `${formatDecimals(
-      Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
-      'amount'
-    )}`
+    // return `${formatDecimals(
+    //   Number(formatUnits(quote.selectedRoute.toAmount, quote.toAsset.decimals)),
+    //   'amount'
+    // )}`
+    return quote.selectedRoute.toAmount
   }, [quote, signAccountOpController?.estimation.status])
 
   return (

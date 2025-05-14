@@ -595,6 +595,9 @@ export const handleActions = async (
       break
     }
 
+    case 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
+      return await mainCtrl.transactionManager.formState.switchFromAndToTokens()
+
     case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transactionManager.formState.update(params)
 

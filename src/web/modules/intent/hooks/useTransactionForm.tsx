@@ -11,7 +11,9 @@ import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isEqual } from 'lodash'
+import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
 import useAddressInput from './useAddressInput'
+import { toTokenList } from '../utils/toTokenList'
 
 type SessionId = ReturnType<typeof nanoid>
 
@@ -34,7 +36,8 @@ const useTransactionForm = () => {
     isRecipientAddressUnknown,
     isRecipientAddressUnknownAgreed,
     supportedChainIds,
-    maxFromAmount
+    maxFromAmount,
+    switchTokensStatus
   } = formState
 
   // Temporary log
@@ -146,6 +149,25 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
+  const fromTokenOptionsFiltered = useMemo(() => {
+    return fromTokenOptions.filter((token: any) => supportedChainIds.includes(token.chainId))
+  }, [fromTokenOptions, supportedChainIds])
+
+  // Temporary while the SDK quote is implemented
+  const quote = useMemo(() => {
+    return {
+      fromAsset: fromSelectedToken,
+      fromChainId,
+      toAsset: toSelectedToken,
+      toChainId,
+      selectedRouteSteps: [],
+      routes: [],
+      selectedRoute: {
+        toAmount: fromAmount || '0'
+      }
+    } as unknown as SwapAndBridgeQuote
+  }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
+
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
@@ -183,10 +205,6 @@ const useTransactionForm = () => {
     })
   }, [])
 
-  const fromTokenOptionsFiltered = useMemo(() => {
-    return fromTokenOptions.filter((token: any) => supportedChainIds.includes(token.chainId))
-  }, [fromTokenOptions, supportedChainIds])
-
   return {
     handleSubmitForm,
     onFromAmountChange,
@@ -207,7 +225,10 @@ const useTransactionForm = () => {
     isRecipientAddressUnknownAgreed,
     addressInputState,
     supportedChainIds,
-    maxFromAmount
+    maxFromAmount,
+    switchTokensStatus,
+    toTokenList,
+    quote
   }
 }
 
