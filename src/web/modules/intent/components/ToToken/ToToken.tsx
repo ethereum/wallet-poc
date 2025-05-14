@@ -244,6 +244,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             backgroundColor: '#54597A14',
             borderWidth: 0
           }}
+          mode="bottomSheet"
+          bottomSheetTitle={t('Receive token network')}
         />
       </View>
       <View style={[styles.container, spacings.ph0]}>
