@@ -38,7 +38,8 @@ const useTransactionForm = () => {
     supportedChainIds,
     maxFromAmount,
     switchTokensStatus,
-    updateToTokenListStatus
+    updateToTokenListStatus,
+    recipientAddress
   } = formState
 
   // Temporary log
@@ -69,7 +70,7 @@ const useTransactionForm = () => {
   })
 
   const handleSubmitForm = useCallback(() => {
-    if (!fromAmount || !fromSelectedToken || !addressState.fieldValue) return
+    if (!fromAmount || !fromSelectedToken || !recipientAddress) return
 
     // TODO: remove this once the intent is implemented
     const transactionType = 'transfer'
@@ -80,12 +81,12 @@ const useTransactionForm = () => {
         transactionType,
         fromAmount,
         fromSelectedToken,
-        recipientAddress: addressState.fieldValue,
+        recipientAddress,
         toChainId,
         toSelectedToken
       }
     })
-  }, [dispatch, fromAmount, fromSelectedToken, addressState.fieldValue, toChainId, toSelectedToken])
+  }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -235,6 +236,7 @@ const useTransactionForm = () => {
     switchTokensStatus,
     toTokenList,
     updateToTokenListStatus,
+    recipientAddress,
     quote
   }
 }

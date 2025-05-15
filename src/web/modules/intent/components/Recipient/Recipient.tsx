@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import AddressInput from '@common/components/AddressInput'
-import { AddressValidation } from '@common/components/AddressInput/AddressInput'
 import { InputProps } from '@common/components/Input'
 import spacings from '@common/styles/spacings'
 import { findAccountDomainFromPartialDomain } from '@common/utils/domains'
@@ -12,6 +10,8 @@ import useDomainsControllerState from '@web/hooks/useDomainsController/useDomain
 import AddressBookContact from '@common/components/AddressBookContact'
 import { SectionedSelect } from '@common/components/Select'
 import { RenderSelectedOptionParams, SelectValue } from '@common/components/Select/types'
+import { AddressValidation } from './AddressInput/AddressInput'
+import AddressInput from './AddressInput'
 import styles from './styles'
 
 interface Props extends InputProps {
@@ -56,7 +56,7 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Add recipient"
+      label="Recipient"
       value={address}
       onChangeText={setAddress}
       disabled={disabled}

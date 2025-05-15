@@ -92,8 +92,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
 
   const {
     options: toTokenOptions,
-    value: toTokenValue,
-    amountSelectDisabled: toTokenAmountSelectDisabled
+    value: toTokenValue
+    // amountSelectDisabled: toTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
     tokens: toTokenList.filter((token) => token.symbol === (fromSelectedToken as any)?.symbol),
     token: toSelectedToken ? getTokenId(toSelectedToken, networks) : defaultToTokenId,
@@ -254,6 +254,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {t('Receive')}
         </Text>
         <Select
+          disabled // temporarily disabled
           setValue={handleSetToNetworkValue}
           containerStyle={{ ...spacings.mb0, width: 142 }}
           options={toNetworksOptions}
@@ -273,7 +274,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             toTokenOptions={toTokenOptions}
             toTokenValue={toTokenValue}
             handleChangeToToken={handleChangeToToken}
-            toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
+            // toTokenAmountSelectDisabled={toTokenAmountSelectDisabled}
             addToTokenByAddressStatus={swapAndBridgeCtrlStatuses.addToTokenByAddress}
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
