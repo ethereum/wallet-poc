@@ -5,13 +5,13 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
 import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
 import { isEqual } from 'lodash'
 import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 
@@ -37,14 +37,14 @@ const useTransactionForm = () => {
     isRecipientAddressUnknownAgreed,
     supportedChainIds,
     maxFromAmount,
-    switchTokensStatus
+    switchTokensStatus,
+    updateToTokenListStatus
   } = formState
 
   // Temporary log
   console.log({ state })
 
   const { dispatch } = useBackgroundService()
-  const { networks } = useNetworksControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
@@ -61,10 +61,10 @@ const useTransactionForm = () => {
     value: fromTokenValue,
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: portfolioTokenList,
-    token: fromSelectedToken ? getTokenId(fromSelectedToken, networks) : '',
+    tokens: portfolioTokenList.filter((token) => supportedChainIds.includes(token.chainId)),
+    token: fromSelectedToken ? getTokenId(fromSelectedToken, testnetNetworks) : '',
     isLoading: false, // TODO: from the manager
-    networks,
+    networks: testnetNetworks,
     supportedChainIds
   })
 
@@ -159,10 +159,6 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
-  const fromTokenOptionsFiltered = useMemo(() => {
-    return fromTokenOptions.filter((token: any) => supportedChainIds.includes(token.chainId))
-  }, [fromTokenOptions, supportedChainIds])
-
   // Temporary while the SDK quote is implemented
   const quote = useMemo(() => {
     return {
@@ -207,7 +203,7 @@ const useTransactionForm = () => {
     // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    dispatch({ type: 'TRANSACTION_CONTROLLER_INIT_FORM', params: { sessionId } })
     sessionIdsRequestedToBeInit.current.push(sessionId)
     setSearchParams((prev) => {
       prev.set('sessionId', sessionId)
@@ -228,7 +224,7 @@ const useTransactionForm = () => {
     fromChainId,
     toChainId,
     fromTokenAmountSelectDisabled,
-    fromTokenOptions: fromTokenOptionsFiltered as typeof fromTokenOptions,
+    fromTokenOptions,
     fromTokenValue,
     addressState,
     isRecipientAddressUnknown,
@@ -238,6 +234,7 @@ const useTransactionForm = () => {
     maxFromAmount,
     switchTokensStatus,
     toTokenList,
+    updateToTokenListStatus,
     quote
   }
 }

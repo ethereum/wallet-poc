@@ -621,6 +621,10 @@ export const handleActions = async (
         mainCtrl.selectedAccount.account?.addr,
         true
       )
+      await mainCtrl.transactionManager.formState.update({
+        toChainId: 11155111,
+        fromChainId: 11155111
+      })
 
       return mainCtrl.transactionManager.formState.initForm(params.sessionId)
 
