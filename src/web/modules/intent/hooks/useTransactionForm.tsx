@@ -104,7 +104,12 @@ const useTransactionForm = () => {
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: {
-          addressState: { fieldValue: value, ensAddress: '', isDomainResolving: false }
+          addressState: {
+            fieldValue: value,
+            ensAddress: '',
+            interopAddress: '',
+            isDomainResolving: false
+          }
         }
       })
     },
@@ -131,6 +136,7 @@ const useTransactionForm = () => {
       const nextAddressState: AddressState = {
         fieldValue: newPartialAddressState.fieldValue ?? addressState.fieldValue,
         ensAddress: newPartialAddressState.ensAddress ?? addressState.ensAddress,
+        interopAddress: newPartialAddressState.interopAddress ?? addressState.interopAddress,
         isDomainResolving:
           newPartialAddressState.isDomainResolving ?? addressState.isDomainResolving
       }

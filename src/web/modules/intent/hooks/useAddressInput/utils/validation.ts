@@ -1,11 +1,11 @@
 import { getAddress } from 'ethers'
-
 import { isValidAddress } from '@ambire-common/services/address'
 
 type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
   isValidEns: boolean
+  isInteropAddress: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
 }
@@ -14,6 +14,7 @@ const getAddressInputValidation = ({
   address,
   isRecipientDomainResolving,
   isValidEns,
+  isInteropAddress,
   overwriteError,
   overwriteValidLabel
 }: AddressInputValidation): {
@@ -47,12 +48,21 @@ const getAddressInputValidation = ({
       isError: false
     }
   }
+
+  if (isInteropAddress) {
+    return {
+      message: 'Valid interop address',
+      isError: false
+    }
+  }
+
   if (isValidEns) {
     return {
       message: 'Valid ENS domain',
       isError: false
     }
   }
+
   if (address && isValidAddress(address)) {
     try {
       getAddress(address)

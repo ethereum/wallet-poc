@@ -41,6 +41,7 @@ const useAddressInput = ({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
         isValidEns: !!addressState.ensAddress,
+        isInteropAddress: !!addressState.interopAddress,
         overwriteError,
         overwriteValidLabel
       }),
@@ -48,6 +49,7 @@ const useAddressInput = ({
       addressState.fieldValue,
       addressState.isDomainResolving,
       addressState.ensAddress,
+      addressState.interopAddress,
       overwriteError,
       overwriteValidLabel
     ]
@@ -103,6 +105,7 @@ const useAddressInput = ({
       isError === debouncedIsError &&
       // There is no ENS address
       !addressState.ensAddress &&
+      !addressState.interopAddress &&
       // The message is not empty
       latestMessage
 
@@ -121,15 +124,37 @@ const useAddressInput = ({
     }
   }, [
     addressState.ensAddress,
+    addressState.interopAddress,
     debouncedValidation,
     debouncedValidation.isError,
     debouncedValidation.message,
     validation
   ])
 
+  const canBeInteropAddress = (address: string): boolean => {
+    // Format: <address>@<namespace>:<chainId>#<checksum>
+    const pattern = /^0x[a-fA-F0-9]{40}@[^:#]+:[^#]+#[a-fA-F0-9]+$/
+    return pattern.test(address)
+  }
+
   useEffect(() => {
     const trimmedAddress = fieldValue.trim()
+
+    // This logic should be refactored in the future
+    // Interop address could have ens address
+    // Workaround to avoid breaking the transfer build => addy.split('@')[0]
+    if (canBeInteropAddress(trimmedAddress)) {
+      setAddressState({
+        ensAddress: '',
+        interopAddress: trimmedAddress.split('@')[0],
+        isDomainResolving: false
+      })
+
+      return
+    }
+
     const dotIndexInAddress = trimmedAddress.indexOf('.')
+
     // There is a dot and it is not the first or last character
     const canBeDomain =
       dotIndexInAddress !== -1 &&
@@ -137,22 +162,18 @@ const useAddressInput = ({
       dotIndexInAddress !== trimmedAddress.length - 1
 
     if (!trimmedAddress || !canBeDomain) {
-      // Only update if the state is not already reset
-      if (addressState.ensAddress !== '' || addressState.isDomainResolving) {
-        setAddressState({
-          ensAddress: '',
-          isDomainResolving: false
-        })
-      }
+      setAddressState({
+        ensAddress: '',
+        interopAddress: '',
+        isDomainResolving: false
+      })
+
       return
     }
 
-    // Only set resolving to true if it's not already true
-    if (!addressState.isDomainResolving) {
-      setAddressState({
-        isDomainResolving: true
-      })
-    }
+    setAddressState({
+      isDomainResolving: true
+    })
 
     // Debounce domain resolving
     const timeout = setTimeout(() => {

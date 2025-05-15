@@ -133,6 +133,7 @@ const IntentScreen = () => {
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
+
   const onBatchAddedSecondaryButtonPress = useCallback(() => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
