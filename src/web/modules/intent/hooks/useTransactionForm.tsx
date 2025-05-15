@@ -69,13 +69,23 @@ const useTransactionForm = () => {
   })
 
   const handleSubmitForm = useCallback(() => {
+    if (!fromAmount || !fromSelectedToken || !addressState.fieldValue) return
+
+    // TODO: remove this once the intent is implemented
+    const transactionType = 'transfer'
+
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+      type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
       params: {
-        transactionType: 'intent'
+        transactionType,
+        fromAmount,
+        fromSelectedToken,
+        recipientAddress: addressState.fieldValue,
+        toChainId,
+        toSelectedToken
       }
     })
-  }, [dispatch])
+  }, [dispatch, fromAmount, fromSelectedToken, addressState.fieldValue, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
     (value: string) => {

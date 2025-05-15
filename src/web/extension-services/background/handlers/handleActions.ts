@@ -565,19 +565,19 @@ export const handleActions = async (
       break
     }
 
-    case 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
-      const transactionType = params.transactionType
+    case 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
+      const {
+        fromAmount,
+        fromSelectedToken,
+        recipientAddress,
+        transactionType
+        // toChainId,
+        // toSelectedToken,
+        // quote,
+      } = params
 
       if (transactionType === 'intent') {
-        // eslint-disable-next-line no-console
-        console.log('buildIntentUserRequest', params)
-
-        // TODO: remove this once the intent is implemented
-        const amount = '1'
-        const recipientAddress = '0x0000000000000000000000000000000000000000'
-        const selectedToken = mainCtrl.swapAndBridge.fromSelectedToken as any
-
-        return mainCtrl.buildIntentUserRequest(amount, recipientAddress, selectedToken)
+        return mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
       }
 
       if (transactionType === 'swapAndBridge') {
@@ -586,10 +586,9 @@ export const handleActions = async (
 
       if (transactionType === 'transfer') {
         return await mainCtrl.buildTransferUserRequest(
-          params.amount,
-          params.recipientAddress,
-          params.selectedToken,
-          params.actionExecutionType
+          fromAmount,
+          recipientAddress,
+          fromSelectedToken
         )
       }
       break
