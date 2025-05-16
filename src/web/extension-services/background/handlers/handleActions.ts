@@ -569,12 +569,13 @@ export const handleActions = async (
       const {
         fromAmount,
         fromSelectedToken,
-        recipientAddress,
-        transactionType
+        recipientAddress
         // toChainId,
         // toSelectedToken,
         // quote,
       } = params
+
+      const transactionType = mainCtrl.transactionManager.transactionType
 
       if (transactionType === 'intent') {
         return mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)

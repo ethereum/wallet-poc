@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
+import {
+  ExtendedAddressState,
+  ExtendedAddressStateOptional
+} from '@ambire-common/interfaces/interop'
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { ToastOptions } from '@common/contexts/toastContext'
 
 import getAddressInputValidation from './utils/validation'
 
 interface Props {
-  addressState: AddressState
-  setAddressState: (newState: AddressStateOptional) => void
+  addressState: ExtendedAddressState
+  setAddressState: (newState: ExtendedAddressStateOptional) => void
   overwriteError?: string
   overwriteValidLabel?: string
   addToast: (message: string, options?: ToastOptions) => void
