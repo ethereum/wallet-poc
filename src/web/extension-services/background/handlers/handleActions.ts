@@ -565,19 +565,19 @@ export const handleActions = async (
       break
     }
 
-    case 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
-      const transactionType = params.transactionType
+    case 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST': {
+      const {
+        fromAmount,
+        fromSelectedToken,
+        recipientAddress,
+        transactionType
+        // toChainId,
+        // toSelectedToken,
+        // quote,
+      } = params
 
       if (transactionType === 'intent') {
-        // eslint-disable-next-line no-console
-        console.log('buildIntentUserRequest', params)
-
-        // TODO: remove this once the intent is implemented
-        const amount = '1'
-        const recipientAddress = '0x0000000000000000000000000000000000000000'
-        const selectedToken = mainCtrl.swapAndBridge.fromSelectedToken as any
-
-        return mainCtrl.buildIntentUserRequest(amount, recipientAddress, selectedToken)
+        return mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
       }
 
       if (transactionType === 'swapAndBridge') {
@@ -586,19 +586,46 @@ export const handleActions = async (
 
       if (transactionType === 'transfer') {
         return await mainCtrl.buildTransferUserRequest(
-          params.amount,
-          params.recipientAddress,
-          params.selectedToken,
-          params.actionExecutionType
+          fromAmount,
+          recipientAddress,
+          fromSelectedToken
         )
       }
       break
     }
 
+    case 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS':
+      return await mainCtrl.transactionManager.formState.switchFromAndToTokens()
+
     case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transactionManager.formState.update(params)
 
     case 'TRANSACTION_CONTROLLER_INIT_FORM':
+      // Add custom tokens (USDC) to the portfolio on init form
+      await mainCtrl.portfolio.addCustomToken({
+        address: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+        chainId: 421614n,
+        standard: 'ERC20'
+      })
+      await mainCtrl.portfolio.addCustomToken({
+        address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+        chainId: 84532n,
+        standard: 'ERC20'
+      })
+      await mainCtrl.portfolio.addCustomToken(
+        {
+          address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+          chainId: 11155111n,
+          standard: 'ERC20'
+        },
+        mainCtrl.selectedAccount.account?.addr,
+        true
+      )
+      await mainCtrl.transactionManager.formState.update({
+        toChainId: 11155111,
+        fromChainId: 11155111
+      })
+
       return mainCtrl.transactionManager.formState.initForm(params.sessionId)
 
     default:

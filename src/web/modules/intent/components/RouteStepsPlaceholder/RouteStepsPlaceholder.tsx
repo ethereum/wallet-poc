@@ -11,8 +11,8 @@ import useTheme from '@common/hooks/useTheme'
 import spacings from '@common/styles/spacings'
 import { iconColors } from '@common/styles/themeConfig'
 import flexbox from '@common/styles/utils/flexbox'
-import RouteStepsArrow from '@web/modules/swap-and-bridge/components/RouteStepsArrow'
-import RouteStepsToken from '@web/modules/swap-and-bridge/components/RouteStepsToken'
+import RouteStepsArrow from '@web/modules/intent/components/RouteStepsArrow'
+import RouteStepsToken from '@web/modules/intent/components/RouteStepsToken'
 
 import styles from './styles'
 

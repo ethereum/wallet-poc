@@ -5,28 +5,47 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useGetTokenSelectProps from '@common/hooks/useGetTokenSelectProps'
 import usePrevious from '@common/hooks/usePrevious'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useNavigation from '@common/hooks/useNavigation'
+import useToast from '@common/hooks/useToast'
+import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
+import { isEqual } from 'lodash'
+import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
+import useAddressInput from './useAddressInput'
+import { toTokenList } from '../utils/toTokenList'
 
 type SessionId = ReturnType<typeof nanoid>
 
 const useTransactionForm = () => {
+  const { addToast } = useToast()
   const { isPopup, isActionWindow } = getUiType()
-  const { formState } = useTransactionControllerState()
+  const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
+  const { formState } = state
   const {
     fromAmount,
     fromAmountFieldMode,
     fromAmountInFiat,
     fromChainId,
     toChainId,
-    fromSelectedToken,
     portfolioTokenList,
-    supportedChainIds
+    fromSelectedToken,
+    toSelectedToken,
+    addressState,
+    isRecipientAddressUnknown,
+    isRecipientAddressUnknownAgreed,
+    supportedChainIds,
+    maxFromAmount,
+    switchTokensStatus,
+    updateToTokenListStatus,
+    recipientAddress
   } = formState
+
+  // Temporary log
+  console.log({ state })
+
   const { dispatch } = useBackgroundService()
-  const { networks } = useNetworksControllerState()
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
@@ -43,21 +62,31 @@ const useTransactionForm = () => {
     value: fromTokenValue,
     amountSelectDisabled: fromTokenAmountSelectDisabled
   } = useGetTokenSelectProps({
-    tokens: portfolioTokenList,
-    token: fromSelectedToken ? getTokenId(fromSelectedToken, networks) : '',
+    tokens: portfolioTokenList.filter((token) => supportedChainIds.includes(token.chainId)),
+    token: fromSelectedToken ? getTokenId(fromSelectedToken, testnetNetworks) : '',
     isLoading: false, // TODO: from the manager
-    networks,
+    networks: testnetNetworks,
     supportedChainIds
   })
 
   const handleSubmitForm = useCallback(() => {
+    if (!fromAmount || !fromSelectedToken || !recipientAddress) return
+
+    // TODO: remove this once the intent is implemented
+    const transactionType = 'transfer'
+
     dispatch({
-      type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
+      type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
       params: {
-        transactionType: 'intent'
+        transactionType,
+        fromAmount,
+        fromSelectedToken,
+        recipientAddress,
+        toChainId,
+        toSelectedToken
       }
     })
-  }, [dispatch])
+  }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
     (value: string) => {
@@ -69,6 +98,88 @@ const useTransactionForm = () => {
     },
     [dispatch, setFromAmountValue]
   )
+
+  const onRecipientAddressChange = useCallback(
+    (value: string) => {
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+        params: {
+          addressState: {
+            fieldValue: value,
+            ensAddress: '',
+            interopAddress: '',
+            isDomainResolving: false
+          }
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const handleCacheResolvedDomain = useCallback(
+    (address: string, domain: string, type: 'ens') => {
+      dispatch({
+        type: 'DOMAINS_CONTROLLER_SAVE_RESOLVED_REVERSE_LOOKUP',
+        params: {
+          type,
+          address,
+          name: domain
+        }
+      })
+    },
+    [dispatch]
+  )
+
+  const setAddressState = useCallback(
+    (newPartialAddressState: AddressStateOptional) => {
+      // Merge the partial update with the current state to ensure a full AddressState object is dispatched
+      const nextAddressState: AddressState = {
+        fieldValue: newPartialAddressState.fieldValue ?? addressState.fieldValue,
+        ensAddress: newPartialAddressState.ensAddress ?? addressState.ensAddress,
+        interopAddress: newPartialAddressState.interopAddress ?? addressState.interopAddress,
+        isDomainResolving:
+          newPartialAddressState.isDomainResolving ?? addressState.isDomainResolving
+      }
+
+      // Prevent dispatching if the state hasn't actually changed
+      if (isEqual(addressState, nextAddressState)) return
+
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+        params: { addressState: nextAddressState }
+      })
+    },
+    [addressState, dispatch]
+  )
+
+  const addressInputState = useAddressInput({
+    addressState,
+    setAddressState,
+    overwriteError:
+      formState?.isInitialized && !formState.validationFormMsgs.recipientAddress.success
+        ? formState.validationFormMsgs.recipientAddress.message
+        : '',
+    overwriteValidLabel: formState?.validationFormMsgs?.recipientAddress.success
+      ? formState.validationFormMsgs.recipientAddress.message
+      : '',
+    addToast,
+    handleCacheResolvedDomain
+  })
+
+  // Temporary while the SDK quote is implemented
+  const quote = useMemo(() => {
+    return {
+      fromAsset: fromSelectedToken,
+      fromChainId,
+      toAsset: toSelectedToken,
+      toChainId,
+      selectedRouteSteps: [],
+      routes: [],
+      selectedRoute: {
+        toAmount: fromAmount || '0'
+      }
+    } as unknown as SwapAndBridgeQuote
+  }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
@@ -99,7 +210,7 @@ const useTransactionForm = () => {
     // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
-    dispatch({ type: 'SWAP_AND_BRIDGE_CONTROLLER_INIT_FORM', params: { sessionId } })
+    dispatch({ type: 'TRANSACTION_CONTROLLER_INIT_FORM', params: { sessionId } })
     sessionIdsRequestedToBeInit.current.push(sessionId)
     setSearchParams((prev) => {
       prev.set('sessionId', sessionId)
@@ -110,6 +221,9 @@ const useTransactionForm = () => {
   return {
     handleSubmitForm,
     onFromAmountChange,
+    onRecipientAddressChange,
+    fromSelectedToken,
+    toSelectedToken,
     fromAmountValue,
     fromAmountFieldMode,
     fromAmount,
@@ -118,7 +232,18 @@ const useTransactionForm = () => {
     toChainId,
     fromTokenAmountSelectDisabled,
     fromTokenOptions,
-    fromTokenValue
+    fromTokenValue,
+    addressState,
+    isRecipientAddressUnknown,
+    isRecipientAddressUnknownAgreed,
+    addressInputState,
+    supportedChainIds,
+    maxFromAmount,
+    switchTokensStatus,
+    toTokenList,
+    updateToTokenListStatus,
+    recipientAddress,
+    quote
   }
 }
 

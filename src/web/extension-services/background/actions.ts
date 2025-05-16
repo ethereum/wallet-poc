@@ -32,6 +32,7 @@ import { GasRecommendation } from '@ambire-common/libs/gasPrice/gasPrice'
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { CustomToken, TokenPreference } from '@ambire-common/libs/portfolio/customToken'
 
+import { AddressState } from '@ambire-common/interfaces/domains'
 import { AUTO_LOCK_TIMES } from './controllers/auto-lock'
 import { controllersMapping } from './types'
 
@@ -680,9 +681,16 @@ type OpenExtensionPopupAction = {
 }
 
 type MainControllerBuildTransactionUserRequest = {
-  type: 'MAIN_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
-  // TODO: use the correct type
-  params: any
+  type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST'
+  params: {
+    transactionType: 'transfer' | 'swapAndBridge' | 'intent'
+    fromAmount: string
+    fromSelectedToken: TokenResult
+    recipientAddress: string
+    toChainId: number | null
+    toSelectedToken: SwapAndBridgeToToken | null
+    quote?: any
+  }
 }
 
 type TransactionControllerUpdateFormAction = {
@@ -696,6 +704,7 @@ type TransactionControllerUpdateFormAction = {
     toChainId?: bigint | number
     toSelectedToken?: SwapAndBridgeToToken | null
     routePriority?: 'output' | 'time'
+    addressState?: AddressState
   }
 }
 
@@ -704,6 +713,10 @@ type TransactionControllerInitFormAction = {
   params: {
     sessionId: string
   }
+}
+
+type TransactionControllerSwitchFromAndToTokensAction = {
+  type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
 }
 
 export type Action =
@@ -837,3 +850,4 @@ export type Action =
   | MainControllerBuildTransactionUserRequest
   | TransactionControllerUpdateFormAction
   | TransactionControllerInitFormAction
+  | TransactionControllerSwitchFromAndToTokensAction

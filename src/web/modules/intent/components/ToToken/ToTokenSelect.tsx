@@ -22,7 +22,7 @@ import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControll
 interface Props {
   toTokenOptions: SelectValue[]
   toTokenValue: SelectValue
-  toTokenAmountSelectDisabled: boolean
+  // toTokenAmountSelectDisabled: boolean
   handleChangeToToken: (value: SelectValue) => void
   addToTokenByAddressStatus: SwapAndBridgeController['statuses']['addToTokenByAddress']
   handleAddToTokenByAddress: (searchTerm: string) => void
@@ -69,7 +69,7 @@ const getToTokenListErrorOption = ({
 const ToTokenSelect: React.FC<Props> = ({
   toTokenOptions,
   toTokenValue,
-  toTokenAmountSelectDisabled,
+  // toTokenAmountSelectDisabled,
   handleChangeToToken,
   addToTokenByAddressStatus,
   handleAddToTokenByAddress
@@ -198,7 +198,8 @@ const ToTokenSelect: React.FC<Props> = ({
       renderSectionHeader={renderFeeOptionSectionHeader}
       value={toTokenValueOrError}
       headerHeight={SECTION_MENU_HEADER_HEIGHT}
-      disabled={toTokenAmountSelectDisabled || (toTokenValueOrError && !toTokenOptions.length)}
+      // disabled={toTokenAmountSelectDisabled || (toTokenValueOrError && !toTokenOptions.length)}
+      disabled
       testID="to-token-select"
       searchPlaceholder={t('Token name or address...')}
       // menuLeftHorizontalOffset={285}

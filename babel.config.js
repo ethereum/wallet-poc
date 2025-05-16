@@ -11,7 +11,8 @@ module.exports = function (api) {
     '@mobile': './src/mobile',
     '@web': './src/web',
     '@benzin': './src/benzin',
-    '@legends': './src/legends'
+    '@legends': './src/legends',
+    '@interop-sdk': './src/interop-sdk/packages/'
   }
 
   const config = {

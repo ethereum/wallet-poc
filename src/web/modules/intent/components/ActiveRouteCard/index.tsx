@@ -12,7 +12,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import formatTime from '@common/utils/formatTime'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
+import RouteStepsPreview from '@web/modules/intent/components/RouteStepsPreview'
 
 import getStyles from './styles'
 
