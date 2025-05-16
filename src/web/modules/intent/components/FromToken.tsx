@@ -6,8 +6,9 @@ import SendToken from '@common/components/SendToken'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
+import useTransactionForm from '../hooks/useTransactionForm'
 
 type Props = Pick<
   ReturnType<typeof useSwapAndBridgeForm>,
@@ -29,17 +30,10 @@ const FromToken: FC<Props> = ({
 }) => {
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-
-  const {
-    fromSelectedToken,
-    toSelectedToken,
-    fromAmount,
-    fromAmountInFiat,
-    portfolioTokenList,
-    fromAmountFieldMode,
-    maxFromAmount,
-    validateFromAmount
-  } = useSwapAndBridgeControllerState()
+  const { fromAmount, fromAmountInFiat, fromSelectedToken, toSelectedToken, maxFromAmount } =
+    useTransactionForm()
+  const { portfolioTokenList, fromAmountFieldMode, validateFromAmount } =
+    useSwapAndBridgeControllerState()
 
   const handleChangeFromToken = useCallback(
     ({ value }: SelectValue) => {

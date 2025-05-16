@@ -2,7 +2,6 @@
 // with commonjs imports), so alternatively, use 'dotend' package to load the
 // environment variables from the .env file.
 require('dotenv').config()
-
 const createExpoWebpackConfigAsync = require('@expo/webpack-config')
 const webpack = require('webpack')
 const path = require('path')
@@ -193,6 +192,7 @@ module.exports = async function (env, argv) {
     '@web': path.resolve(__dirname, 'src/web'),
     '@benzin': path.resolve(__dirname, 'src/benzin'),
     '@legends': path.resolve(__dirname, 'src/legends'),
+    '@interop-sdk': path.resolve(__dirname, 'src/interop-sdk/packages'),
     react: path.resolve(__dirname, 'node_modules/react')
   }
 

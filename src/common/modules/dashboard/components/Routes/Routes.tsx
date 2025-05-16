@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import ReceiveIcon from '@common/assets/svg/ReceiveIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
-import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
+// import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
 import { useTranslation } from '@common/config/localization'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
 import flexbox from '@common/styles/utils/flexbox'
@@ -15,15 +15,15 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
   const { t } = useTranslation()
 
   const routeItems = [
-    {
-      testID: 'dashboard-button-send',
-      icon: SendIcon,
-      label: t('Send'),
-      route: WEB_ROUTES.transfer,
-      isExternal: false,
-      scale: 1.08,
-      scaleOnHover: 1.18
-    },
+    // {
+    //   testID: 'dashboard-button-send',
+    //   icon: SendIcon,
+    //   label: t('Send'),
+    //   route: WEB_ROUTES.transfer,
+    //   isExternal: false,
+    //   scale: 1.08,
+    //   scaleOnHover: 1.18
+    // },
     {
       testID: 'dashboard-button-receive',
       icon: ReceiveIcon,
@@ -42,15 +42,15 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       scale: 1.08,
       scaleOnHover: 1.18
     },
-    {
-      testID: 'dashboard-button-swap-and-bridge',
-      icon: SwapAndBridgeIcon,
-      label: t('Swap & Bridge'),
-      route: WEB_ROUTES.swapAndBridge,
-      isExternal: false,
-      scale: 0.95,
-      scaleOnHover: 1
-    },
+    // {
+    //   testID: 'dashboard-button-swap-and-bridge',
+    //   icon: SwapAndBridgeIcon,
+    //   label: t('Swap & Bridge'),
+    //   route: WEB_ROUTES.swapAndBridge,
+    //   isExternal: false,
+    //   scale: 0.95,
+    //   scaleOnHover: 1
+    // },
     {
       testID: 'dashboard-button-apps',
       icon: DAppsIcon,

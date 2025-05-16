@@ -11,6 +11,7 @@ import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 
 type Props = {
   isNotReadyToProceed: boolean
@@ -22,10 +23,16 @@ const { isActionWindow } = getUiType()
 
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
-  const { fromSelectedToken, swapSignErrors } = useSwapAndBridgeControllerState()
+  const {
+    formState: { fromAmount, fromSelectedToken, recipientAddress }
+  } = useTransactionControllerState()
+
+  const { swapSignErrors } = useSwapAndBridgeControllerState()
   const { userRequests } = useMainControllerState()
   const { account } = useSelectedAccountControllerState()
   const fromChainId = fromSelectedToken?.chainId
+
+  const disabled = !fromAmount || !fromSelectedToken || !recipientAddress
 
   const networkUserRequests = fromChainId
     ? userRequests?.filter(
@@ -85,6 +92,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
           text={t('Proceed')}
           // TODO: remove the disabled once the intent is implemented
           // disabled={isNotReadyToProceed || !!oneClickDisabledReason}
+          disabled={disabled}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}
           onPress={() => handleSubmitForm(true)}

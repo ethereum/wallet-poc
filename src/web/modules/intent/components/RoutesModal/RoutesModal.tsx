@@ -17,7 +17,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import { TRANSACTION_FORM_WIDTH } from '@web/components/TransactionsScreen/styles'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import RouteStepsPreview from '@web/modules/swap-and-bridge/components/RouteStepsPreview'
+import RouteStepsPreview from '@web/modules/intent/components/RouteStepsPreview'
 import { getUiType } from '@web/utils/uiType'
 
 import getStyles from './styles'

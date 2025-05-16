@@ -17,9 +17,9 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import SwapAndBridgeEstimation from '@web/modules/swap-and-bridge/components/Estimation'
-import RoutesModal from '@web/modules/swap-and-bridge/components/RoutesModal'
-import useSwapAndBridgeForm from '@web/modules/swap-and-bridge/hooks/useSwapAndBridgeForm'
+import SwapAndBridgeEstimation from '@web/modules/intent/components/Estimation'
+import RoutesModal from '@web/modules/intent/components/RoutesModal'
+import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
 import BatchAdded from '../components/BatchModal/BatchAdded'
@@ -30,6 +30,7 @@ import PriceImpactWarningModal from '../components/PriceImpactWarningModal'
 import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
+import Recipient from '../components/Recipient'
 
 const { isTab, isActionWindow } = getUiType()
 
@@ -39,10 +40,13 @@ const IntentScreen = () => {
   const {
     handleSubmitForm,
     onFromAmountChange,
+    onRecipientAddressChange,
     fromAmountValue,
     fromTokenOptions,
     fromTokenValue,
-    fromTokenAmountSelectDisabled
+    fromTokenAmountSelectDisabled,
+    addressState,
+    addressInputState
   } = useTransactionForm()
 
   const {
@@ -129,6 +133,7 @@ const IntentScreen = () => {
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
+
   const onBatchAddedSecondaryButtonPress = useCallback(() => {
     setShowAddedToBatch(false)
   }, [setShowAddedToBatch])
@@ -191,6 +196,9 @@ const IntentScreen = () => {
     )
   }
 
+  const disableForm = false
+  const { validation } = addressInputState
+
   return (
     <Wrapper title={t('Swap & Bridge')} handleGoBack={onBackButtonPress} buttons={buttons}>
       <Content scrollViewRef={scrollViewRef} buttons={buttons}>
@@ -205,6 +213,14 @@ const IntentScreen = () => {
           />
         )}
         <Form>
+          <Recipient
+            disabled={disableForm}
+            address={addressState.fieldValue}
+            setAddress={onRecipientAddressChange}
+            validation={validation}
+            ensAddress={addressState.ensAddress}
+            isRecipientDomainResolving={addressState.isDomainResolving}
+          />
           <FromToken
             fromTokenOptions={fromTokenOptions}
             fromTokenValue={fromTokenValue}
