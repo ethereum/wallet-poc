@@ -46,7 +46,9 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     toTokenList,
     quote,
     fromSelectedToken,
-    fromTokenValue
+    fromTokenValue,
+    transactionType,
+    fromAmount
   } = useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
@@ -217,6 +219,10 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   )
 
   const formattedToAmount = useMemo(() => {
+    if (transactionType === 'transfer') {
+      return Number(fromAmount) > 0 ? fromAmount : '0'
+    }
+
     if (
       !quote ||
       !quote.selectedRoute ||
@@ -230,7 +236,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     //   'amount'
     // )}`
     return quote.selectedRoute.toAmount
-  }, [quote, signAccountOpController?.estimation.status])
+  }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
 
   return (
     <View>

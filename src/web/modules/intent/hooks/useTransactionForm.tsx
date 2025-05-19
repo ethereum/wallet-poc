@@ -13,7 +13,6 @@ import {
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
 import { isEqual } from 'lodash'
-import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
@@ -25,7 +24,7 @@ const useTransactionForm = () => {
   const { isPopup, isActionWindow } = getUiType()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState } = state
+  const { formState, transactionType } = state
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -42,7 +41,8 @@ const useTransactionForm = () => {
     maxFromAmount,
     switchTokensStatus,
     updateToTokenListStatus,
-    recipientAddress
+    recipientAddress,
+    quote
   } = formState
 
   // Temporary log
@@ -165,21 +165,6 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
-  // Temporary while the SDK quote is implemented
-  const quote = useMemo(() => {
-    return {
-      fromAsset: fromSelectedToken,
-      fromChainId,
-      toAsset: toSelectedToken,
-      toChainId,
-      selectedRouteSteps: [],
-      routes: [],
-      selectedRoute: {
-        toAmount: fromAmount || '0'
-      }
-    } as unknown as SwapAndBridgeQuote
-  }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
-
   useEffect(() => {
     const toToken = toTokenList.find(
       (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
@@ -254,7 +239,8 @@ const useTransactionForm = () => {
     toTokenList,
     updateToTokenListStatus,
     recipientAddress,
-    quote
+    quote,
+    transactionType
   }
 }
 
