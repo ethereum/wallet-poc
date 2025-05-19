@@ -181,6 +181,18 @@ const useTransactionForm = () => {
   }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
 
   useEffect(() => {
+    const toToken = toTokenList.find(
+      (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
+    )
+    if (!toToken) return
+
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+      params: { toSelectedToken: toToken }
+    })
+  }, [fromSelectedToken, dispatch, toChainId])
+
+  useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
   }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, setFromAmountValue])
