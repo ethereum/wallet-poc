@@ -200,7 +200,7 @@ const IntentScreen = () => {
   const { validation } = addressInputState
 
   return (
-    <Wrapper title={t('Swap & Bridge')} handleGoBack={onBackButtonPress} buttons={buttons}>
+    <Wrapper title={t('Transfer')} handleGoBack={onBackButtonPress} buttons={buttons}>
       <Content scrollViewRef={scrollViewRef} buttons={buttons}>
         {isHealthy === false && (
           <Alert
