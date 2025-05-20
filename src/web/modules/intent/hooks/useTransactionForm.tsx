@@ -165,17 +165,18 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
+  // This is a temporary fix meanwhile the intent logic is implemented
   useEffect(() => {
     const toToken = toTokenList.find(
-      (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
+      (token) => token.chainId === fromChainId && token.symbol === fromSelectedToken?.symbol
     )
     if (!toToken) return
 
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
-      params: { toSelectedToken: toToken }
+      params: { toSelectedToken: toToken, toChainId: fromChainId ?? undefined }
     })
-  }, [fromSelectedToken, dispatch, toChainId])
+  }, [dispatch, fromChainId, fromSelectedToken?.symbol])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
