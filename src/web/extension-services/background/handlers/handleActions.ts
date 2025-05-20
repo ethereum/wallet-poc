@@ -629,6 +629,12 @@ export const handleActions = async (
 
       return mainCtrl.transactionManager.formState.initForm(params.sessionId)
 
+    case 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN':
+      return mainCtrl.transactionManager.formState.unloadScreen(
+        params.sessionId,
+        params.forceUnload
+      )
+
     default:
       // eslint-disable-next-line no-console
       return console.error(

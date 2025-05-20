@@ -718,6 +718,11 @@ type TransactionControllerSwitchFromAndToTokensAction = {
   type: 'TRANSACTION_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
 }
 
+type TransactionControllerUnloadScreenAction = {
+  type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN'
+  params: { sessionId: string; forceUnload?: boolean }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -850,3 +855,4 @@ export type Action =
   | TransactionControllerUpdateFormAction
   | TransactionControllerInitFormAction
   | TransactionControllerSwitchFromAndToTokensAction
+  | TransactionControllerUnloadScreenAction

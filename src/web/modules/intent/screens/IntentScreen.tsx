@@ -140,7 +140,7 @@ const IntentScreen = () => {
 
   const onBackButtonPress = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
       params: { sessionId, forceUnload: true }
     })
     if (isActionWindow) {
