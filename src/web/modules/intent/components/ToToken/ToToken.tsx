@@ -223,6 +223,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       return Number(fromAmount) > 0 ? fromAmount : '0'
     }
 
+    // TODO: remove this once the intent is implemented
+    if (transactionType === 'intent') {
+      return Number(fromAmount) > 0 ? fromAmount : '0'
+    }
+
     if (
       !quote ||
       !quote.selectedRoute ||
@@ -260,7 +265,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {t('Receive')}
         </Text>
         <Select
-          disabled // temporarily disabled
           setValue={handleSetToNetworkValue}
           containerStyle={{ ...spacings.mb0, width: 142 }}
           options={toNetworksOptions}

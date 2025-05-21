@@ -168,15 +168,15 @@ const useTransactionForm = () => {
   // This is a temporary fix meanwhile the intent logic is implemented
   useEffect(() => {
     const toToken = toTokenList.find(
-      (token) => token.chainId === fromChainId && token.symbol === fromSelectedToken?.symbol
+      (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
     )
     if (!toToken) return
 
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
-      params: { toSelectedToken: toToken, toChainId: fromChainId ?? undefined }
+      params: { toSelectedToken: toToken }
     })
-  }, [dispatch, fromChainId, fromSelectedToken?.symbol])
+  }, [dispatch, fromChainId, fromSelectedToken?.symbol, toChainId])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
