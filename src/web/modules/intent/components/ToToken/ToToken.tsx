@@ -228,6 +228,11 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       return Number(fromAmount) > 0 ? fromAmount : '0'
     }
 
+    // TODO: this should be the quote value
+    if (transactionType === 'swapAndBridge') {
+      return Number(fromAmount) > 0 ? fromAmount : '0'
+    }
+
     if (
       !quote ||
       !quote.selectedRoute ||
