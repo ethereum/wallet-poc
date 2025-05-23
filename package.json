@@ -236,7 +236,8 @@
     "validator": "^13.7.0",
     "vm-browserify": "0.0.4",
     "web3": "^1.7.5",
-    "webextension-polyfill": "^0.10.0"
+    "webextension-polyfill": "^0.10.0",
+    "@interop-sdk/addresses": "file:./src/interop-sdk/packages/addresses"
   },
   "devDependencies": {
     "@babel/core": "^7.20.2",

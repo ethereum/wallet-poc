@@ -8,9 +8,11 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useNavigation from '@common/hooks/useNavigation'
 import useToast from '@common/hooks/useToast'
-import { AddressState, AddressStateOptional } from '@ambire-common/interfaces/domains'
+import {
+  ExtendedAddressState,
+  ExtendedAddressStateOptional
+} from '@ambire-common/interfaces/interop'
 import { isEqual } from 'lodash'
-import { SwapAndBridgeQuote } from '@ambire-common/interfaces/swapAndBridge'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
@@ -22,7 +24,7 @@ const useTransactionForm = () => {
   const { isPopup, isActionWindow } = getUiType()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState } = state
+  const { formState, transactionType } = state
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -39,7 +41,8 @@ const useTransactionForm = () => {
     maxFromAmount,
     switchTokensStatus,
     updateToTokenListStatus,
-    recipientAddress
+    recipientAddress,
+    quote
   } = formState
 
   // Temporary log
@@ -72,13 +75,9 @@ const useTransactionForm = () => {
   const handleSubmitForm = useCallback(() => {
     if (!fromAmount || !fromSelectedToken || !recipientAddress) return
 
-    // TODO: remove this once the intent is implemented
-    const transactionType = 'transfer'
-
     dispatch({
       type: 'TRANSACTION_CONTROLLER_BUILD_TRANSACTION_USER_REQUEST',
       params: {
-        transactionType,
         fromAmount,
         fromSelectedToken,
         recipientAddress,
@@ -131,9 +130,9 @@ const useTransactionForm = () => {
   )
 
   const setAddressState = useCallback(
-    (newPartialAddressState: AddressStateOptional) => {
+    (newPartialAddressState: ExtendedAddressStateOptional, forceDispatch = false) => {
       // Merge the partial update with the current state to ensure a full AddressState object is dispatched
-      const nextAddressState: AddressState = {
+      const nextAddressState: ExtendedAddressState = {
         fieldValue: newPartialAddressState.fieldValue ?? addressState.fieldValue,
         ensAddress: newPartialAddressState.ensAddress ?? addressState.ensAddress,
         interopAddress: newPartialAddressState.interopAddress ?? addressState.interopAddress,
@@ -142,8 +141,9 @@ const useTransactionForm = () => {
       }
 
       // Prevent dispatching if the state hasn't actually changed
-      if (isEqual(addressState, nextAddressState)) return
+      if (!forceDispatch && isEqual(addressState, nextAddressState)) return
 
+      console.log('Front: DISPATCHING')
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { addressState: nextAddressState }
@@ -166,20 +166,18 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
-  // Temporary while the SDK quote is implemented
-  const quote = useMemo(() => {
-    return {
-      fromAsset: fromSelectedToken,
-      fromChainId,
-      toAsset: toSelectedToken,
-      toChainId,
-      selectedRouteSteps: [],
-      routes: [],
-      selectedRoute: {
-        toAmount: fromAmount || '0'
-      }
-    } as unknown as SwapAndBridgeQuote
-  }, [fromSelectedToken, toSelectedToken, fromChainId, toChainId, fromAmount])
+  // This is a temporary fix meanwhile the intent logic is implemented
+  useEffect(() => {
+    const toToken = toTokenList.find(
+      (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
+    )
+    if (!toToken) return
+
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
+      params: { toSelectedToken: toToken }
+    })
+  }, [dispatch, fromChainId, fromSelectedToken?.symbol, toChainId])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
@@ -243,7 +241,8 @@ const useTransactionForm = () => {
     toTokenList,
     updateToTokenListStatus,
     recipientAddress,
-    quote
+    quote,
+    transactionType
   }
 }
 
