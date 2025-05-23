@@ -46,7 +46,9 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     toTokenList,
     quote,
     fromSelectedToken,
-    fromTokenValue
+    fromTokenValue,
+    transactionType,
+    fromAmount
   } = useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
@@ -217,6 +219,20 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   )
 
   const formattedToAmount = useMemo(() => {
+    if (transactionType === 'transfer') {
+      return Number(fromAmount) > 0 ? fromAmount : '0'
+    }
+
+    // TODO: remove this once the intent is implemented
+    if (transactionType === 'intent') {
+      return Number(fromAmount) > 0 ? fromAmount : '0'
+    }
+
+    // TODO: this should be the quote value
+    if (transactionType === 'swapAndBridge') {
+      return Number(fromAmount) > 0 ? fromAmount : '0'
+    }
+
     if (
       !quote ||
       !quote.selectedRoute ||
@@ -230,7 +246,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     //   'amount'
     // )}`
     return quote.selectedRoute.toAmount
-  }, [quote, signAccountOpController?.estimation.status])
+  }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
 
   return (
     <View>
@@ -254,7 +270,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {t('Receive')}
         </Text>
         <Select
-          disabled // temporarily disabled
           setValue={handleSetToNetworkValue}
           containerStyle={{ ...spacings.mb0, width: 142 }}
           options={toNetworksOptions}

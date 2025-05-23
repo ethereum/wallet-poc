@@ -36,7 +36,7 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
     {
       testID: 'dashboard-button-intent',
       icon: SendIcon, // TODO: change icon to intent icon
-      label: t('Intent'),
+      label: t('Send'),
       route: WEB_ROUTES.intent,
       isExternal: false,
       scale: 1.08,

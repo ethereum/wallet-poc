@@ -24,6 +24,7 @@ interface Style {
   supportedNetworksTitle: TextStyle
   supportedNetworks: ViewStyle
   supportedNetwork: ViewStyle
+  networkSelectorContainer: ViewStyle
 }
 
 const { isTab } = getUiType()
@@ -36,7 +37,8 @@ const getStyles = (theme: ThemeProps) =>
       paddingBottom: isTab ? SPACING : SPACING_TY,
       ...common.borderRadiusPrimary,
       marginBottom: isTab ? SPACING_LG : SPACING,
-      width: '100%'
+      width: '100%',
+      padding: SPACING_MD
     },
     qrCodeContainer: { ...flexbox.alignCenter, ...spacings.mb },
     qrCode: {
@@ -53,8 +55,13 @@ const getStyles = (theme: ThemeProps) =>
       marginHorizontal: 'auto',
       marginBottom: isTab ? SPACING_XL : SPACING_MD
     },
-    supportedNetworksContainer: { ...flexbox.alignCenter, ...spacings.mb },
-    supportedNetworksTitle: { ...spacings.mbSm, ...text.center },
+    supportedNetworksContainer: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      width: '100%'
+    },
+    supportedNetworksTitle: { ...spacings.mbSm, ...text.center, marginRight: 'auto' },
     supportedNetworks: {
       flexDirection: 'row',
       flexWrap: 'wrap',
@@ -74,6 +81,16 @@ const getStyles = (theme: ThemeProps) =>
       ...common.borderRadiusPrimary,
       minWidth: 86,
       height: 50
+    },
+    networkSelectorContainer: {
+      ...flexbox.directionRow,
+      ...flexbox.justifyEnd,
+      ...flexbox.alignCenter,
+      borderBottomWidth: 1,
+      borderBottomColor: theme.tertiaryBackground,
+      ...spacings.mbTy,
+      ...spacings.phSm,
+      ...spacings.pbTy
     }
   })
 

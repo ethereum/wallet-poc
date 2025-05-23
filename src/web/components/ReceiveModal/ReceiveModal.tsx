@@ -1,11 +1,10 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { FC, useRef, useState } from 'react'
+import React, { FC, useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
 
 import { getIsViewOnly } from '@ambire-common/utils/accounts'
-import CopyIcon from '@common/assets/svg/CopyIcon'
 import Alert from '@common/components/Alert'
 import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import BottomSheet from '@common/components/BottomSheet'
@@ -22,6 +21,12 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getUiType } from '@web/utils/uiType'
 
+import { SelectValue } from '@common/components/Select/types'
+import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
+import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
+import Select from '@common/components/Select'
+import { InteropAddressProvider } from '@interop-sdk/addresses'
+import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import getStyles from './styles'
 
 interface Props {
@@ -36,19 +41,87 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const { networks } = useNetworksControllerState()
   const { keys } = useKeystoreControllerState()
   const { t } = useTranslation()
-  const { styles } = useTheme(getStyles)
+  const { styles, theme } = useTheme(getStyles)
   const [bindAnim, animStyle] = useHover({ preset: 'opacityInverted' })
   const qrCodeRef: any = useRef(null)
   const { addToast } = useToast()
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
   const isViewOnly = getIsViewOnly(keys, account?.associatedKeys || [])
+  const { supportedChainIds } = useSwapAndBridgeControllerState()
+  const [selectedChain, setSelectedChain] = useState<{
+    chainNamespace: 'eip155'
+    chainId: number
+  }>({ chainNamespace: 'eip155', chainId: 1 })
+  const [isInteropAddressAgreed] = useState(true)
+
+  const payloadAddress = useMemo(() => {
+    const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
+    const interopAddress = InteropAddressProvider.buildFromPayload({
+      version: 1,
+      chainType: 'eip155',
+      chainReference: fromNumberToHex(selectedChain.chainId),
+      address: account?.addr || ''
+    })
+
+    return interopAddress
+  }, [account?.addr, selectedChain.chainId])
+
+  const fromNetworkOptions: SelectValue[] = useMemo(() => {
+    const availableOptions: SelectValue[] = networks.map((n) => {
+      const tooltipId = `network-${n.chainId}-not-supported-tooltip`
+      const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
+
+      return {
+        value: String(n.chainId),
+        extraSearchProps: [n.name],
+        disabled: !isNetworkSupported,
+        label: (
+          <>
+            <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
+              {n.name}
+            </Text>
+            {!isNetworkSupported && (
+              <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
+            )}
+          </>
+        ),
+        icon: (
+          <NetworkIcon
+            key={n.chainId.toString()}
+            id={n.chainId.toString()}
+            style={{ backgroundColor: theme.primaryBackground }}
+            size={28}
+          />
+        )
+      }
+    })
+
+    return availableOptions
+  }, [networks, supportedChainIds, theme.primaryBackground])
+
+  const userAddress = useMemo(() => {
+    return InteropAddressProvider.binaryToHumanReadable(payloadAddress)
+  }, [payloadAddress])
 
   const handleCopyAddress = () => {
-    if (!account) return
-
-    Clipboard.setStringAsync(account.addr)
+    if (!userAddress) return
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    Clipboard.setStringAsync(userAddress)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
+
+  const handleSetToNetworkValue = useCallback((networkOption: SelectValue) => {
+    setSelectedChain({
+      chainNamespace: 'eip155',
+      chainId: Number(networkOption.value)
+    })
+  }, [])
+
+  const getFromNetworkSelectValue = useMemo(() => {
+    const network = networks.find((n) => Number(n.chainId) === Number(selectedChain.chainId))
+    if (!network) return fromNetworkOptions[0]
+    return fromNetworkOptions.filter((opt) => opt.value === String(network.chainId))[0]
+  }, [networks, selectedChain, fromNetworkOptions])
 
   return (
     <BottomSheet
@@ -61,11 +134,43 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     >
       <ModalHeader handleClose={handleClose} withBackButton={isPopup} title="Receive Assets" />
       <View style={styles.content}>
+        {/* Network */}
+        <View style={{ ...styles.supportedNetworksContainer, ...spacings.mb }}>
+          <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
+            {t('Showing Interoperable Address for:')}
+          </Text>
+
+          <Select
+            setValue={handleSetToNetworkValue}
+            containerStyle={{ ...spacings.mb0, width: '100%' }}
+            options={fromNetworkOptions}
+            size="sm"
+            value={getFromNetworkSelectValue}
+            selectStyle={{
+              backgroundColor: '#54597A14',
+              borderWidth: 0,
+              width: '100%',
+              ...spacings.pr,
+              ...spacings.plTy
+            }}
+            disabled={!isInteropAddressAgreed}
+          />
+        </View>
+
+        {/* Temporarily hidden */}
+        {/* <View style={{ ...styles.supportedNetworksContainer }}>
+          <UseInteropAddress
+            isInteropAddressAgreed={isInteropAddressAgreed}
+            onInteropAddressCheckboxClick={handleInteropAddressCheckboxClick}
+          />
+        </View> */}
+
+        {/* QR Code */}
         <View style={styles.qrCodeContainer}>
           {!!account && !qrCodeError && (
             <View style={styles.qrCode}>
               <QRCode
-                value={account.addr}
+                value={payloadAddress}
                 size={160}
                 quietZone={10}
                 getRef={qrCodeRef}
@@ -79,16 +184,17 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             </Text>
           )}
         </View>
+
+        {/* Address */}
         <View style={isPopup ? spacings.mb : spacings.mbXl}>
           <AnimatedPressable
             style={[styles.accountAddress, isViewOnly ? spacings.mbSm : spacings.mb0, animStyle]}
             onPress={handleCopyAddress}
             {...bindAnim}
           >
-            <Text selectable numberOfLines={1} fontSize={14} ellipsizeMode="middle" weight="medium">
-              {account?.addr}
+            <Text selectable numberOfLines={1} fontSize={12} ellipsizeMode="middle" weight="medium">
+              {userAddress}
             </Text>
-            <CopyIcon style={spacings.mlTy} />
           </AnimatedPressable>
           {isViewOnly ? (
             <Alert
@@ -101,31 +207,8 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             />
           ) : null}
         </View>
-
-        <View style={styles.supportedNetworksContainer}>
-          <Text weight="regular" fontSize={14} style={styles.supportedNetworksTitle}>
-            {t('Following networks supported on this address:')}
-          </Text>
-          <View style={styles.supportedNetworks}>
-            {networks.map(({ chainId, name }: any) => (
-              <View key={chainId.toString()} style={styles.supportedNetwork}>
-                <View style={spacings.mbMi}>
-                  <NetworkIcon id={chainId.toString()} size={22} scale={0.6} />
-                </View>
-                <Text
-                  style={spacings.plMi}
-                  fontSize={10}
-                  numberOfLines={1}
-                  appearance="secondaryText"
-                  weight="regular"
-                >
-                  {name}
-                </Text>
-              </View>
-            ))}
-          </View>
-        </View>
       </View>
+
       <AmbireLogoHorizontal />
     </BottomSheet>
   )
