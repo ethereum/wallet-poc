@@ -24,7 +24,7 @@ const { isActionWindow } = getUiType()
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
   const {
-    formState: { fromAmount, fromSelectedToken, recipientAddress }
+    formState: { fromAmount, fromSelectedToken, recipientAddress, maxFromAmount }
   } = useTransactionControllerState()
 
   const { swapSignErrors } = useSwapAndBridgeControllerState()
@@ -32,7 +32,12 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
   const { account } = useSelectedAccountControllerState()
   const fromChainId = fromSelectedToken?.chainId
 
-  const disabled = !fromAmount || !fromSelectedToken || !recipientAddress
+  const disabled =
+    !fromAmount ||
+    !fromSelectedToken ||
+    !recipientAddress ||
+    !Number(fromAmount) ||
+    Number(fromAmount) > Number(maxFromAmount)
 
   const networkUserRequests = fromChainId
     ? userRequests?.filter(
