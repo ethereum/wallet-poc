@@ -130,7 +130,7 @@ const useTransactionForm = () => {
   )
 
   const setAddressState = useCallback(
-    (newPartialAddressState: ExtendedAddressStateOptional) => {
+    (newPartialAddressState: ExtendedAddressStateOptional, forceDispatch = false) => {
       // Merge the partial update with the current state to ensure a full AddressState object is dispatched
       const nextAddressState: ExtendedAddressState = {
         fieldValue: newPartialAddressState.fieldValue ?? addressState.fieldValue,
@@ -141,8 +141,9 @@ const useTransactionForm = () => {
       }
 
       // Prevent dispatching if the state hasn't actually changed
-      if (isEqual(addressState, nextAddressState)) return
+      if (!forceDispatch && isEqual(addressState, nextAddressState)) return
 
+      console.log('Front: DISPATCHING')
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { addressState: nextAddressState }

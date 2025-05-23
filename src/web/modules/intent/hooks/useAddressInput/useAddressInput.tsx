@@ -6,12 +6,14 @@ import {
 } from '@ambire-common/interfaces/interop'
 
 import { ToastOptions } from '@common/contexts/toastContext'
-import getAddressInputValidation from './utils/validation'
+
 import { resolveAddress } from '../../utils/resolvers'
+
+import getAddressInputValidation from './utils/validation'
 
 interface Props {
   addressState: ExtendedAddressState
-  setAddressState: (newState: ExtendedAddressStateOptional) => void
+  setAddressState: (newState: ExtendedAddressStateOptional, forceDispatch?: boolean) => void
   overwriteError?: string
   overwriteValidLabel?: string
   addToast: (message: string, options?: ToastOptions) => void
@@ -67,7 +69,7 @@ const useAddressInput = ({
     const shouldDebounce =
       // Both validations are errors
       isError === debouncedIsError &&
-      // There is no ENS address
+      // There is no ENS or Interop address
       !addressState.ensAddress &&
       !addressState.interopAddress &&
       // The message is not empty
@@ -104,7 +106,6 @@ const useAddressInput = ({
         interopAddress: '',
         isDomainResolving: false
       })
-
       return
     }
 
@@ -118,11 +119,8 @@ const useAddressInput = ({
       })
     }, 300)
 
-    return () => {
-      clearTimeout(timeout)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fieldValue, resolveAddress, addToast, handleCacheResolvedDomain])
+    return () => clearTimeout(timeout)
+  }, [fieldValue, resolveAddress, handleCacheResolvedDomain, addToast])
 
   useEffect(() => {
     fieldValueRef.current = addressState.fieldValue

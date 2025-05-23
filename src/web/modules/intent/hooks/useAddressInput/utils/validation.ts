@@ -79,7 +79,7 @@ const getAddressInputValidation = ({
   }
   if (address && !isValidAddress(address)) {
     return {
-      message: 'Please enter a valid address or ENS domain',
+      message: 'Please enter a valid address, ENS domain, or interop address.',
       isError: true
     }
   }

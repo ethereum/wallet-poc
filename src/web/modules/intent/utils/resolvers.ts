@@ -1,23 +1,22 @@
 import { resolveENSDomain } from '@ambire-common/services/ensDomains'
 import { ToastOptions } from '@common/contexts/toastContext'
+import {
+  ExtendedAddressState,
+  ExtendedAddressStateOptional
+} from '@ambire-common/interfaces/interop'
 import { resolveInteropAddress } from './resolveInteropAddress'
 
-// Possible resfactor for resolvers logic
 export interface Resolver {
   name: string
   canResolve: (address: string) => boolean
-  resolve: (address: string) => Promise<string>
+  resolve: (address: string) => Promise<Partial<ExtendedAddressState>>
 }
 
 export interface ResolverContext {
   fieldValue: string
   handleCacheResolvedDomain: (address: string, domain: string, type: 'ens') => void
   addToast: (message: string, options?: ToastOptions) => void
-  setAddressState: (state: {
-    ensAddress?: string
-    interopAddress?: string
-    isDomainResolving?: boolean
-  }) => void
+  setAddressState: (state: ExtendedAddressStateOptional, forceDispatch?: boolean) => void
 }
 
 export const createResolvers = (context: ResolverContext): Resolver[] => [
@@ -33,17 +32,15 @@ export const createResolvers = (context: ResolverContext): Resolver[] => [
         const resolvedAddress = await resolveInteropAddress(address)
 
         if (resolvedAddress) {
-          context.setAddressState({ interopAddress: resolvedAddress })
-          return resolvedAddress
+          return { interopAddress: resolvedAddress }
         }
 
-        return ''
+        return { interopAddress: '' }
       } catch (error) {
-        context.setAddressState({ interopAddress: '' })
         context.addToast('Something went wrong while attempting to resolve the interop address.', {
           type: 'error'
         })
-        return ''
+        return { interopAddress: '' }
       }
     }
   },
@@ -56,17 +53,15 @@ export const createResolvers = (context: ResolverContext): Resolver[] => [
 
         if (resolvedAddress) {
           context.handleCacheResolvedDomain(resolvedAddress, context.fieldValue, 'ens')
-          context.setAddressState({ ensAddress: resolvedAddress })
-          return resolvedAddress
+          return { ensAddress: resolvedAddress }
         }
 
-        return ''
+        return { ensAddress: '' }
       } catch (error) {
-        context.setAddressState({ ensAddress: '' })
         context.addToast('Something went wrong while attempting to resolve the ENS domain.', {
           type: 'error'
         })
-        return ''
+        return { ensAddress: '' }
       }
     }
   }
@@ -86,18 +81,18 @@ export const resolveAddress = async (address: string, context: ResolverContext):
     return
   }
 
+  context.setAddressState({ isDomainResolving: true })
+
   try {
-    context.setAddressState({ isDomainResolving: true })
-    // If only one resolver applies, use it
-    if (applicableResolvers.length === 1) {
-      await applicableResolvers[0].resolve(address)
-    } else {
-      // If multiple resolvers apply (unlikely but possible in the future), run them in parallel
-      await Promise.all(applicableResolvers.map((r) => r.resolve(address)))
-    }
+    const results = await Promise.all(applicableResolvers.map((r) => r.resolve(address)))
+
+    const combined = results.reduce<Partial<ExtendedAddressState>>((acc, curr) => {
+      return { ...acc, ...curr }
+    }, {})
+
+    context.setAddressState({ ...combined, isDomainResolving: false }, true)
   } catch (error) {
     context.addToast('Something went wrong while resolving domain.', { type: 'error' })
-  } finally {
-    context.setAddressState({ isDomainResolving: false })
+    context.setAddressState({ isDomainResolving: false }, true)
   }
 }
