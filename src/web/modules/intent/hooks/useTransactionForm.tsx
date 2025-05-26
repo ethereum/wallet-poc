@@ -143,7 +143,6 @@ const useTransactionForm = () => {
       // Prevent dispatching if the state hasn't actually changed
       if (!forceDispatch && isEqual(addressState, nextAddressState)) return
 
-      console.log('Front: DISPATCHING')
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { addressState: nextAddressState }
