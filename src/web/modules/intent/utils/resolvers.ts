@@ -23,8 +23,8 @@ export const createResolvers = (context: ResolverContext): Resolver[] => [
   {
     name: 'interop',
     canResolve: (address: string) => {
-      // Match <prefix>@<namespace>[:<chainId>]#<checksum>
-      const pattern = /^[^@]+@[^:#]+(?::[^#]+)?#[^#]+$/
+      // Match <prefix>@<namespace>[:<chainId>][#<checksum>]
+      const pattern = /^[^@]+@[^:#]+(?::[^#]+)?(?:#[^#]+)?$/
       return pattern.test(address)
     },
     resolve: async (address: string) => {

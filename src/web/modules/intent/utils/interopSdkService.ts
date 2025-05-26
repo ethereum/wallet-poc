@@ -1,7 +1,20 @@
-import { isValidInteropAddress, getChainId, humanReadableToBinary } from '@interop-sdk/addresses'
+import {
+  isValidInteropAddress,
+  getChainId,
+  humanReadableToBinary,
+  computeChecksum
+} from '@interop-sdk/addresses'
 
 export const resolveInteropAddress = async (trimmedAddress: string): Promise<string> => {
-  const isValid = await isValidInteropAddress(trimmedAddress)
+  const hasChecksum = trimmedAddress.includes('#')
+  let addressToValidate = trimmedAddress
+
+  if (!hasChecksum) {
+    const checksum = await computeChecksum(trimmedAddress)
+    addressToValidate = `${trimmedAddress}#${checksum}`
+  }
+
+  const isValid = await isValidInteropAddress(addressToValidate)
   return isValid ? trimmedAddress : ''
 }
 
