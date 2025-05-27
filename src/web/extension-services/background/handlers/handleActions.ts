@@ -569,12 +569,13 @@ export const handleActions = async (
       const {
         fromAmount,
         fromSelectedToken,
-        recipientAddress,
-        transactionType
+        recipientAddress
         // toChainId,
         // toSelectedToken,
         // quote,
       } = params
+
+      const transactionType = mainCtrl.transactionManager.transactionType
 
       if (transactionType === 'intent') {
         return mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
@@ -627,6 +628,12 @@ export const handleActions = async (
       })
 
       return mainCtrl.transactionManager.formState.initForm(params.sessionId)
+
+    case 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN':
+      return mainCtrl.transactionManager.formState.unloadScreen(
+        params.sessionId,
+        params.forceUnload
+      )
 
     default:
       // eslint-disable-next-line no-console

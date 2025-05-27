@@ -140,7 +140,7 @@ const IntentScreen = () => {
 
   const onBackButtonPress = useCallback(() => {
     dispatch({
-      type: 'SWAP_AND_BRIDGE_CONTROLLER_UNLOAD_SCREEN',
+      type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
       params: { sessionId, forceUnload: true }
     })
     if (isActionWindow) {
@@ -200,7 +200,7 @@ const IntentScreen = () => {
   const { validation } = addressInputState
 
   return (
-    <Wrapper title={t('Swap & Bridge')} handleGoBack={onBackButtonPress} buttons={buttons}>
+    <Wrapper title={t('Transfer')} handleGoBack={onBackButtonPress} buttons={buttons}>
       <Content scrollViewRef={scrollViewRef} buttons={buttons}>
         {isHealthy === false && (
           <Alert
