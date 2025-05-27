@@ -1,5 +1,12 @@
 import { getAddress } from 'ethers'
 import { isValidAddress } from '@ambire-common/services/address'
+import {
+  getChainId,
+  humanReadableToBinary,
+  buildFromPayload,
+  binaryToHumanReadable
+} from '@interop-sdk/addresses'
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 
 type AddressInputValidation = {
   address: string
@@ -10,17 +17,17 @@ type AddressInputValidation = {
   overwriteValidLabel?: string
 }
 
-const getAddressInputValidation = ({
+const getAddressInputValidation = async ({
   address,
   isRecipientDomainResolving,
   isValidEns,
   isInteropAddress,
   overwriteError,
   overwriteValidLabel
-}: AddressInputValidation): {
+}: AddressInputValidation): Promise<{
   message: any
   isError: boolean
-} => {
+}> => {
   if (!address) {
     return {
       message: '',
@@ -50,9 +57,30 @@ const getAddressInputValidation = ({
   }
 
   if (isInteropAddress) {
-    return {
-      message: 'Valid interop address',
-      isError: false
+    try {
+      // TODO: Change this when getChainId support humanRedeableAddress as param
+      const binaryAddress = await humanReadableToBinary(address)
+      const chainId = getChainId(binaryAddress)
+      const isSupportedChain = testnetNetworks.find(
+        (network) => Number(network.chainId) === chainId
+      )
+
+      if (!isSupportedChain) {
+        return {
+          message: 'Unsupported chain',
+          isError: true
+        }
+      }
+
+      return {
+        message: 'Valid interop address',
+        isError: false
+      }
+    } catch {
+      return {
+        message: 'Invalid interop address',
+        isError: true
+      }
     }
   }
 

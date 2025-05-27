@@ -39,26 +39,34 @@ const useAddressInput = ({
     isError: true,
     message: ''
   })
+  const [validation, setValidation] = useState({
+    isError: true,
+    message: ''
+  })
 
-  const validation = useMemo(
-    () =>
-      getAddressInputValidation({
+  useEffect(() => {
+    const validateAddress = async () => {
+      const result = await getAddressInputValidation({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
         isValidEns: !!addressState.ensAddress,
         isInteropAddress: !!addressState.interopAddress,
         overwriteError,
         overwriteValidLabel
-      }),
-    [
-      addressState.fieldValue,
-      addressState.isDomainResolving,
-      addressState.ensAddress,
-      addressState.interopAddress,
-      overwriteError,
-      overwriteValidLabel
-    ]
-  )
+      })
+
+      setValidation(result)
+    }
+
+    validateAddress()
+  }, [
+    addressState.fieldValue,
+    addressState.isDomainResolving,
+    addressState.ensAddress,
+    addressState.interopAddress,
+    overwriteError,
+    overwriteValidLabel
+  ])
 
   useEffect(() => {
     const { isError, message: latestMessage } = validation
