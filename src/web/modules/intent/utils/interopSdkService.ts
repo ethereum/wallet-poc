@@ -1,29 +1,36 @@
-import {
-  isValidInteropAddress,
-  getChainId,
-  humanReadableToBinary,
-  computeChecksum
-} from '@interop-sdk/addresses'
+import { isValidInteropAddress, getChainId, computeChecksum } from '@interop-sdk/addresses'
 
-export const resolveInteropAddress = async (trimmedAddress: string): Promise<string> => {
-  const hasChecksum = trimmedAddress.includes('#')
-  let addressToValidate = trimmedAddress
+export const getChecksumAddress = async (address: string): Promise<string> => {
+  const checksum = await computeChecksum(address)
+  return `${address}#${checksum}`
+}
 
-  if (!hasChecksum) {
-    const checksum = await computeChecksum(trimmedAddress)
-    addressToValidate = `${trimmedAddress}#${checksum}`
-  }
+export const toChecksumAddress = async (address: string): Promise<string> => {
+  const hasChecksum = address.includes('#')
+  return hasChecksum ? address : await getChecksumAddress(address)
+}
 
+export const resolveInteropAddress = async (address: string): Promise<string> => {
+  const addressToValidate = await toChecksumAddress(address)
   const isValid = await isValidInteropAddress(addressToValidate)
-  return isValid ? trimmedAddress : ''
+  return isValid ? address : ''
 }
 
 export const getInteropAddressChain = async (interopAddress: string): Promise<number> => {
-  const binaryAddress = await humanReadableToBinary(interopAddress)
-
-  if (binaryAddress) {
-    return getChainId(binaryAddress)
+  try {
+    const chainId = await getChainId(interopAddress)
+    return Number(chainId)
+  } catch (error) {
+    return 0
   }
+}
 
-  return 0
+export const getInteropAddressChainId = async (address: string): Promise<number> => {
+  try {
+    const interopAddress = await toChecksumAddress(address)
+    const chainId = await getChainId(interopAddress)
+    return Number(chainId)
+  } catch {
+    return 0
+  }
 }
