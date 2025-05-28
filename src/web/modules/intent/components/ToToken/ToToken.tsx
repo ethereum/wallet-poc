@@ -1,10 +1,9 @@
-import { formatUnits, isAddress } from 'ethers'
+import { isAddress } from 'ethers'
 import React, { FC, memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -33,10 +32,11 @@ import useTransactionForm from '../../hooks/useTransactionForm'
 import { getInteropAddressChain } from '../../utils/interopSdkService'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
-  isAutoSelectRouteDisabled: boolean
+  isLoading: boolean
+  outputAmount?: string
 }
 
-const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
+const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmount }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
@@ -55,7 +55,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   const {
     statuses: swapAndBridgeCtrlStatuses,
     updateQuoteStatus,
-    formStatus,
     updateToTokenListStatus,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
@@ -134,13 +133,6 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
   //     amountFormatted
   //   }
   // }, [portfolio?.tokens, toChainId, toTokenValue.value])
-
-  const shouldShowAmountOnEstimationFailure = useMemo(() => {
-    return (
-      isAutoSelectRouteDisabled &&
-      signAccountOpController?.estimation.status === EstimationStatus.Error
-    )
-  }, [isAutoSelectRouteDisabled, signAccountOpController?.estimation.status])
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
@@ -225,9 +217,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       return Number(fromAmount) > 0 ? fromAmount : '0'
     }
 
-    // TODO: remove this once the intent is implemented
     if (transactionType === 'intent') {
-      return Number(fromAmount) > 0 ? fromAmount : '0'
+      return outputAmount
     }
 
     // TODO: this should be the quote value
@@ -248,7 +239,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     //   'amount'
     // )}`
     return quote.selectedRoute.toAmount
-  }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
+  }, [transactionType, quote, signAccountOpController?.estimation.status, fromAmount, outputAmount])
 
   useEffect(() => {
     if (addressState.interopAddress) {
@@ -296,7 +287,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
         <Select
           disabled={!!addressState.interopAddress}
           setValue={handleSetToNetworkValue}
-          containerStyle={{ ...spacings.mb0, width: 142 }}
+          containerStyle={{ ...spacings.mb0, width: 220 }}
           options={toNetworksOptions}
           size="sm"
           value={getToNetworkSelectValue}
@@ -319,13 +310,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
           <View style={[flexbox.flex1]}>
-            {(formStatus === SwapAndBridgeFormStatus.Empty ||
-              formStatus === SwapAndBridgeFormStatus.Invalid ||
-              formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
-              formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-              formStatus === SwapAndBridgeFormStatus.Proceeded ||
-              shouldShowAmountOnEstimationFailure) &&
-            updateQuoteStatus !== 'LOADING' ? (
+            {!isLoading ? (
               <Text
                 fontSize={20}
                 weight="medium"

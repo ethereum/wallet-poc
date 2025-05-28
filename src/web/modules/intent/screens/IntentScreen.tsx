@@ -90,24 +90,52 @@ const IntentScreen = () => {
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
   const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState(false)
+  const [outputAmount, setOutputAmount] = useState<string | undefined>(undefined)
 
   const state = useTransactionControllerState()
   const { transactionType, intent } = state
-  const { params } = intent as any
+  const {
+    sender,
+    recipient,
+    inputTokenAddress: pInputTokenAddress,
+    outputTokenAddress: pOutputTokenAddress,
+    inputAmount,
+    inputChainId,
+    outputChainId
+  } = (intent?.params || {}) as {
+    sender?: string
+    recipient?: string
+    inputTokenAddress?: string
+    outputTokenAddress?: string
+    inputAmount?: string
+    inputChainId?: number
+    outputChainId?: number
+  }
+
+  const allParamsAvailable =
+    sender &&
+    recipient &&
+    pInputTokenAddress &&
+    pOutputTokenAddress &&
+    inputAmount &&
+    inputChainId !== undefined &&
+    outputChainId !== undefined
 
   const getQuotes = useCallback(async () => {
-    if (transactionType !== 'intent') return
-
     if (
-      !params.sender ||
-      !params.recipient ||
-      !params.inputTokenAddress ||
-      !params.outputTokenAddress ||
-      !params.inputAmount
+      !sender ||
+      !recipient ||
+      !pInputTokenAddress ||
+      !pOutputTokenAddress ||
+      !inputAmount ||
+      inputChainId === undefined ||
+      outputChainId === undefined
     ) {
-      console.error('Insufficient params')
+      console.warn('Insufficient params for getQuotes')
       return
     }
+
     setIsLoading(true)
     try {
       const paramParser = new InteropAddressParamsParser()
@@ -122,32 +150,31 @@ const IntentScreen = () => {
       const senderPayload = InteropAddressProvider.buildFromPayload({
         version: 1,
         chainType: 'eip155',
-        chainReference: fromNumberToHex(params.inputChainId),
-        address: params.sender || ''
+        chainReference: fromNumberToHex(inputChainId),
+        address: sender || ''
       })
 
       const recipientPayload = InteropAddressProvider.buildFromPayload({
         version: 1,
         chainType: 'eip155',
-        chainReference: fromNumberToHex(params.outputChainId),
-        address: params.recipient || ''
+        chainReference: fromNumberToHex(outputChainId),
+        address: recipient || ''
       })
 
-      // TODO: migrate this logic to ambire-common
-      const isEth = params.inputTokenAddress === ZeroAddress
-      const inputTokenAddress = isEth
-        ? SUPPORTED_ETH_BY_CHAIN_ID[params.inputChainId]
-        : params.inputTokenAddress
-      const outputTokenAddress = isEth
-        ? SUPPORTED_ETH_BY_CHAIN_ID[params.outputChainId]
-        : params.outputTokenAddress
+      const isInputEth = pInputTokenAddress === ZeroAddress
+      const resolvedInputTokenAddress = isInputEth
+        ? SUPPORTED_ETH_BY_CHAIN_ID[inputChainId]
+        : pInputTokenAddress
+      const resolvedOutputTokenAddress = isInputEth
+        ? SUPPORTED_ETH_BY_CHAIN_ID[outputChainId]
+        : pOutputTokenAddress
 
       const newParams = {
         sender: await InteropAddressProvider.binaryToHumanReadable(senderPayload),
         recipient: await InteropAddressProvider.binaryToHumanReadable(recipientPayload),
-        inputTokenAddress,
-        outputTokenAddress,
-        amount: params.inputAmount
+        inputTokenAddress: resolvedInputTokenAddress,
+        outputTokenAddress: resolvedOutputTokenAddress,
+        amount: inputAmount
       }
 
       console.log({ newParams })
@@ -155,12 +182,17 @@ const IntentScreen = () => {
 
       console.log({ quotes })
 
+      if (!quotes || quotes.length === 0) {
+        console.error('No quotes received from provider')
+        return
+      }
+
       const transactions = await executor.execute(quotes[0] as any)
 
-      if (isEth) {
+      if (isInputEth) {
         transactions.unshift({
-          value: parseUnits(params.inputAmount, 18),
-          to: SUPPORTED_ETH_BY_CHAIN_ID[params.inputChainId] as `0x${string}`,
+          value: parseUnits(inputAmount, 18),
+          to: SUPPORTED_ETH_BY_CHAIN_ID[inputChainId] as `0x${string}`,
           data: '0x'
         })
       }
@@ -170,15 +202,30 @@ const IntentScreen = () => {
         type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
         params: { quote: quotes[0], transactions }
       })
-    } catch (error) {
-      console.error(error)
-    } finally {
+      setOutputAmount((quotes[0] as any)?.output?.outputAmount)
+      setIsError(false)
       setIsLoading(false)
+    } catch (error) {
+      console.error('Error in getQuotes:', error)
+      setIsError(true)
     }
-  }, [params, dispatch, transactionType])
+  }, [
+    sender,
+    recipient,
+    pInputTokenAddress,
+    pOutputTokenAddress,
+    inputAmount,
+    inputChainId,
+    outputChainId,
+    dispatch,
+    setOutputAmount
+  ])
 
   useEffect(() => {
-    if (transactionType === 'intent') getQuotes().catch(console.error)
+    if (transactionType === 'intent' && allParamsAvailable) {
+      getQuotes().catch(console.error)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getQuotes, transactionType])
 
   useEffect(() => {
@@ -198,16 +245,9 @@ const IntentScreen = () => {
     if (!pendingRoutes || !prevPendingRoutes) return
     if (!pendingRoutes.length) return
     if (prevPendingRoutes.length < pendingRoutes.length) {
-      // scroll to top when there is a new item in the active routes list
       scrollViewRef.current?.scrollTo({ y: 0 })
     }
   }, [pendingRoutes, prevPendingRoutes])
-
-  // TODO: Disable tokens that are NOT supported
-  // (not in the `fromTokenList` of the SwapAndBridge controller)
-
-  // TODO: Confirmation modal (warn) if the diff in dollar amount between the
-  // FROM and TO tokens is too high (therefore, user will lose money).
 
   const isEstimatingRoute =
     formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
@@ -241,17 +281,15 @@ const IntentScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          isNotReadyToProceed={isLoading}
+          isNotReadyToProceed={isLoading || (isError && transactionType === 'intent')}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading])
+  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
 
   if (!sessionIds.includes(sessionId)) {
-    // If the portfolio has loaded we can skip the spinner as initializing the screen
-    // takes a short time and the spinner will only flash.
     if (portfolio.isReadyToVisualize) return null
 
     return (
@@ -314,8 +352,9 @@ const IntentScreen = () => {
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
           />
           <ToToken
-            isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            isLoading={isLoading && transactionType === 'intent'}
+            outputAmount={outputAmount}
           />
         </Form>
         <RouteInfo
