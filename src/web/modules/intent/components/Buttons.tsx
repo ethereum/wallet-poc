@@ -33,6 +33,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
   const fromChainId = fromSelectedToken?.chainId
 
   const disabled =
+    isNotReadyToProceed ||
     !fromAmount ||
     !fromSelectedToken ||
     !recipientAddress ||
@@ -82,7 +83,8 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
                   })
                 : t('Start a batch')
             }
-            disabled={isNotReadyToProceed || !!batchDisabledReason}
+            // hardcoded for now
+            disabled
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => handleSubmitForm(false)}

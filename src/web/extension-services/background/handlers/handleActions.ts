@@ -601,6 +601,14 @@ export const handleActions = async (
     case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transactionManager.formState.update(params)
 
+    case 'TRANSACTION_CONTROLLER_SET_QUOTE': {
+      const { quote, transactions } = params
+      mainCtrl.transactionManager.intent.setQuote(quote)
+      mainCtrl.transactionManager.intent.setTransaction(transactions)
+
+      break
+    }
+
     case 'TRANSACTION_CONTROLLER_INIT_FORM':
       // Add custom tokens (USDC) to the portfolio on init form
       await mainCtrl.portfolio.addCustomToken({

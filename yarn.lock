@@ -2,6 +2,11 @@
 # yarn lockfile v1
 
 
+"@across-protocol/app-sdk@0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@across-protocol/app-sdk/-/app-sdk-0.2.2.tgz#65ecc5bd97051060edd3cba1c31899250d990faa"
+  integrity sha512-jn+tR79L3Ntu7xSsyy3x40k4cTMODMRB+Vu6i04PVhcJFU33JCLNz8w4yttwx0rtOURTXR6xt4KKsndv8SBc1A==
+
 "@adraffy/ens-normalize@1.10.0":
   version "1.10.0"
   resolved "https://registry.yarnpkg.com/@adraffy/ens-normalize/-/ens-normalize-1.10.0.tgz#d2a39395c587e092d77cbbc80acf956a54f38bf7"
@@ -3742,11 +3747,20 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@interop-sdk/addresses@file:./src/interop-sdk/packages/addresses":
+"@interop-sdk/addresses@file:./src/interop-sdk/packages/addresses", "@interop-sdk/addresses@file:src/interop-sdk/packages/addresses":
   version "0.0.1"
   dependencies:
+    axios "1.9.0"
     bs58 "6.0.0"
     viem "2.28.0"
+    zod "3.24.3"
+
+"@interop-sdk/cross-chain@file:./src/interop-sdk/packages/cross-chain":
+  version "0.0.1"
+  dependencies:
+    "@across-protocol/app-sdk" "0.2.2"
+    "@interop-sdk/addresses" "file:../../../Library/Caches/Yarn/v6/npm-@interop-sdk-cross-chain-0.0.1-fbca3978-c6f8-4e75-b3e4-c135f4eea0f7-1748362958096/node_modules/@interop-sdk/addresses"
+    viem "2.29.2"
     zod "3.24.3"
 
 "@istanbuljs/load-nyc-config@^1.0.0":
@@ -7636,6 +7650,15 @@ axios@1.7.7:
   version "1.7.7"
   resolved "https://registry.yarnpkg.com/axios/-/axios-1.7.7.tgz#2f554296f9892a72ac8d8e4c5b79c14a91d0a47f"
   integrity sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==
+  dependencies:
+    follow-redirects "^1.15.6"
+    form-data "^4.0.0"
+    proxy-from-env "^1.1.0"
+
+axios@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-1.9.0.tgz#25534e3b72b54540077d33046f77e3b8d7081901"
+  integrity sha512-re4CqKTJaURpzbLHtIi6XpDv20/CnpXOtjRY5/CU32L8gU8ek9UIivcfvSWvmKEngmVbrUtPpdDwWDWL7DNHvg==
   dependencies:
     follow-redirects "^1.15.6"
     form-data "^4.0.0"
@@ -21287,6 +21310,20 @@ viem@2.28.0:
   version "2.28.0"
   resolved "https://registry.yarnpkg.com/viem/-/viem-2.28.0.tgz#b04bea64f067d6bfdb8603b39561b732a1e64066"
   integrity sha512-Z4W5O1pe+6pirYTFm451FcZmfGAUxUWt2L/eWC+YfTF28j/8rd7q6MBAi05lMN4KhLJjhN0s5YGIPB+kf1L20g==
+  dependencies:
+    "@noble/curves" "1.8.2"
+    "@noble/hashes" "1.7.2"
+    "@scure/bip32" "1.6.2"
+    "@scure/bip39" "1.5.4"
+    abitype "1.0.8"
+    isows "1.0.6"
+    ox "0.6.9"
+    ws "8.18.1"
+
+viem@2.29.2:
+  version "2.29.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.29.2.tgz#e3033f68d6baf95c412593b213865e91634ac35e"
+  integrity sha512-cukRxab90jvQ+TDD84sU3qB3UmejYqgCw4cX8SfWzvh7JPfZXI3kAMUaT5OSR2As1Mgvx1EJawccwPjGqkSSwA==
   dependencies:
     "@noble/curves" "1.8.2"
     "@noble/hashes" "1.7.2"

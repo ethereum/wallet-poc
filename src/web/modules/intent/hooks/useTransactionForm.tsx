@@ -14,6 +14,7 @@ import {
 } from '@ambire-common/interfaces/interop'
 import { isEqual } from 'lodash'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
+
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 
