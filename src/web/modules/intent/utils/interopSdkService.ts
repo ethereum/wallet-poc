@@ -1,4 +1,12 @@
-import { isValidInteropAddress, getChainId, computeChecksum } from '@defi-wonderland/interop'
+import {
+  isValidInteropAddress,
+  getChainId,
+  computeChecksum,
+  buildFromPayload,
+  humanReadableToBinary,
+  binaryToHumanReadable,
+  getAddress
+} from '@defi-wonderland/interop'
 
 export const getChecksumAddress = async (address: string): Promise<string> => {
   const checksum = await computeChecksum(address)
@@ -14,7 +22,10 @@ export const toChecksumAddress = async (address: string): Promise<string> => {
 export const resolveInteropAddress = async (address: string): Promise<string> => {
   const addressToValidate = await toChecksumAddress(address)
   const isValid = await isValidInteropAddress(addressToValidate)
-  return isValid ? address : ''
+  if (!isValid) return ''
+
+  const rawAddress = await getAddress(addressToValidate)
+  return rawAddress
 }
 
 export const getInteropAddressChain = async (interopAddress: string): Promise<number> => {

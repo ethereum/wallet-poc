@@ -146,6 +146,7 @@ const IntentScreen = () => {
     }
 
     setIsLoading(true)
+
     try {
       const paramParser = new InteropAddressParamsParser()
       const acrossProvider = createCrossChainProvider('across')
@@ -180,9 +181,7 @@ const IntentScreen = () => {
 
       const newParams = {
         sender: await InteropAddressProvider.binaryToHumanReadable(senderPayload),
-        recipient: addressState.interopAddress
-          ? recipient
-          : await InteropAddressProvider.binaryToHumanReadable(recipientPayload),
+        recipient: await InteropAddressProvider.binaryToHumanReadable(recipientPayload),
         inputTokenAddress: resolvedInputTokenAddress,
         outputTokenAddress: resolvedOutputTokenAddress,
         amount: inputAmount
@@ -228,7 +227,6 @@ const IntentScreen = () => {
     inputAmount,
     inputChainId,
     outputChainId,
-    addressState.interopAddress,
     dispatch,
     setOutputAmount
   ])

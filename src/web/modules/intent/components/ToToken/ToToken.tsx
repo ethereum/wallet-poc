@@ -243,7 +243,7 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
 
   useEffect(() => {
     if (addressState.interopAddress) {
-      getInteropAddressChainId(addressState.interopAddress)
+      getInteropAddressChainId(addressState.fieldValue)
         .then((interopChainId) => {
           const interopNetwork = networks.find((n) => Number(n.chainId) === interopChainId)
 
@@ -261,7 +261,7 @@ const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmo
           // TODO: advice the user to add the network
         })
     }
-  }, [addressState.interopAddress])
+  }, [addressState.interopAddress, addressState.fieldValue])
 
   return (
     <View>
