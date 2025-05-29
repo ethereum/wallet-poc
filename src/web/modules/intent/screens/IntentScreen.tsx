@@ -25,10 +25,10 @@ import { getUiType } from '@web/utils/uiType'
 import {
   createCrossChainProvider,
   createProviderExecutor,
-  InteropAddressParamsParser
-} from '@interop-sdk/cross-chain'
+  InteropAddressParamsParser,
+  InteropAddressProvider
+} from '@defi-wonderland/interop'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
-import { InteropAddressProvider } from '@interop-sdk/addresses'
 import { parseUnits, ZeroAddress } from 'ethers'
 import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'

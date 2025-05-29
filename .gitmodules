@@ -1,6 +1,3 @@
 [submodule "ambire-common"]
 	path = src/ambire-common
 	url = git@github.com:defi-wonderland/ambire-common.git
-[submodule "src/interop-sdk"]
-	path = src/interop-sdk
-	url = git@github.com:defi-wonderland/interop-sdk.git

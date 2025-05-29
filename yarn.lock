@@ -2419,6 +2419,38 @@
     ieee754 "^1.2.1"
     react-native-quick-base64 "^2.0.5"
 
+"@defi-wonderland/interop-addresses@0.0.1":
+  version "0.0.1"
+  resolved "https://npm.pkg.github.com/download/@defi-wonderland/interop-addresses/0.0.1/2740043ab1748feaa9cf7120b2ac1cbc761930d8#2740043ab1748feaa9cf7120b2ac1cbc761930d8"
+  integrity sha512-zvDUNUaVih0dv0NzBPZFYpLfIeOiLc4Qj65EjHU82N02prdP9PXE08kCubwGmhLeyxviZIduSbMT2gaPb2YQKw==
+  dependencies:
+    axios "1.9.0"
+    bs58 "6.0.0"
+    viem "2.28.0"
+    zod "3.24.3"
+
+"@defi-wonderland/interop-cross-chain@0.0.1":
+  version "0.0.1"
+  resolved "https://npm.pkg.github.com/download/@defi-wonderland/interop-cross-chain/0.0.1/95b093ac78b5bb7686619224a039fc9f8fe0e531#95b093ac78b5bb7686619224a039fc9f8fe0e531"
+  integrity sha512-nnCnZCnpk2SOooRNwJHY4bauqSfHqfx4Gn6zjLnf+mwUGGOt7XugS4NubEgGkMFN/It9cEfUBZ7ZTQh1fZM+9Q==
+  dependencies:
+    "@across-protocol/app-sdk" "0.2.2"
+    "@defi-wonderland/interop-addresses" "0.0.1"
+    viem "2.29.2"
+    zod "3.24.3"
+
+"@defi-wonderland/interop@^0.0.1":
+  version "0.0.1"
+  resolved "https://npm.pkg.github.com/download/@defi-wonderland/interop/0.0.1/c4a51d69bc46a2653a5d1e367bad8ca69602590c#c4a51d69bc46a2653a5d1e367bad8ca69602590c"
+  integrity sha512-7J61fCcwBNJn878bAbd5VmRzFO6HuYccxy/xCq2XXUAtdgdlR2Jo3C/lAWYeX+EsEpAPexPJPnVTvTDhIAWICw==
+  dependencies:
+    "@defi-wonderland/interop-addresses" "0.0.1"
+    "@defi-wonderland/interop-cross-chain" "0.0.1"
+    axios "1.9.0"
+    bs58 "6.0.0"
+    viem "2.28.0"
+    zod "3.24.3"
+
 "@discoveryjs/json-ext@^0.5.0":
   version "0.5.7"
   resolved "https://registry.npmjs.org/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz"
@@ -3747,22 +3779,6 @@
   resolved "https://registry.npmjs.org/@humanwhocodes/object-schema/-/object-schema-1.2.1.tgz"
   integrity sha512-ZnQMnLV4e7hDlUvw8H+U8ASL02SS2Gn6+9Ac3wGGLIe7+je2AeAOxPY+izIPJDfFDb7eDjev0Us8MO1iFRN8hA==
 
-"@interop-sdk/addresses@file:./src/interop-sdk/packages/addresses", "@interop-sdk/addresses@file:src/interop-sdk/packages/addresses":
-  version "0.0.1"
-  dependencies:
-    axios "1.9.0"
-    bs58 "6.0.0"
-    viem "2.28.0"
-    zod "3.24.3"
-
-"@interop-sdk/cross-chain@file:./src/interop-sdk/packages/cross-chain":
-  version "0.0.1"
-  dependencies:
-    "@across-protocol/app-sdk" "0.2.2"
-    "@interop-sdk/addresses" "file:../../../Library/Caches/Yarn/v6/npm-@interop-sdk-cross-chain-0.0.1-fbca3978-c6f8-4e75-b3e4-c135f4eea0f7-1748362958096/node_modules/@interop-sdk/addresses"
-    viem "2.29.2"
-    zod "3.24.3"
-
 "@istanbuljs/load-nyc-config@^1.0.0":
   version "1.1.0"
   resolved "https://registry.npmjs.org/@istanbuljs/load-nyc-config/-/load-nyc-config-1.1.0.tgz"
@@ -4441,6 +4457,13 @@
   dependencies:
     "@noble/hashes" "1.4.0"
 
+"@noble/curves@1.8.1":
+  version "1.8.1"
+  resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.8.1.tgz#19bc3970e205c99e4bdb1c64a4785706bce497ff"
+  integrity sha512-warwspo+UYUPep0Q+vtdVB4Ugn8GGQj8iyB3gnRWsztmUHTI3S1nhdiWNsPUGL0vud7JlRRk1XEu7Lq1KGTnMQ==
+  dependencies:
+    "@noble/hashes" "1.7.1"
+
 "@noble/curves@1.8.2", "@noble/curves@~1.8.1":
   version "1.8.2"
   resolved "https://registry.yarnpkg.com/@noble/curves/-/curves-1.8.2.tgz#8f24c037795e22b90ae29e222a856294c1d9ffc7"
@@ -4489,6 +4512,11 @@
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.4.0.tgz#45814aa329f30e4fe0ba49426f49dfccdd066426"
   integrity sha512-V1JJ1WTRUqHHrOSh597hURcMqVKVGL/ea3kv0gSnEdsEZ0/+VyPghM1lMNGc00z7CIQorSvbKpuJkxvuHbvdbg==
 
+"@noble/hashes@1.7.1", "@noble/hashes@^1.6.1", "@noble/hashes@~1.7.1":
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.7.1.tgz#5738f6d765710921e7a751e00c20ae091ed8db0f"
+  integrity sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==
+
 "@noble/hashes@1.7.2":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.7.2.tgz#d53c65a21658fb02f3303e7ee3ba89d6754c64b4"
@@ -4498,11 +4526,6 @@
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.8.0.tgz#cee43d801fcef9644b11b8194857695acd5f815a"
   integrity sha512-jCs9ldd7NwzpgXDIf6P3+NrHh9/sD6CQdxHyjQI+h/6rDNo88ypBxxz45UDuZHz9r3tNz7N/VInSVoVdtXEI4A==
-
-"@noble/hashes@^1.6.1", "@noble/hashes@~1.7.1":
-  version "1.7.1"
-  resolved "https://registry.yarnpkg.com/@noble/hashes/-/hashes-1.7.1.tgz#5738f6d765710921e7a751e00c20ae091ed8db0f"
-  integrity sha512-B8XBPsn4vT/KJAGqDzbwztd+6Yte3P4V7iafm24bxgDe/mlRuK6xmWPuCNrKt2vDafZ8MfJLlchDG/vYafQEjQ==
 
 "@noble/secp256k1@1.7.1", "@noble/secp256k1@~1.7.0":
   version "1.7.1"
@@ -8620,25 +8643,10 @@ caniuse-api@^3.0.0:
     lodash.memoize "^4.1.2"
     lodash.uniq "^4.5.0"
 
-caniuse-lite@^1.0.0:
-  version "1.0.30001495"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001495.tgz"
-  integrity sha512-F6x5IEuigtUfU5ZMQK2jsy5JqUUlEFRVZq8bO2a+ysq5K7jD6PPc9YXZj78xDNS3uNchesp1Jw47YXEqr+Viyg==
-
-caniuse-lite@^1.0.30001400:
-  version "1.0.30001462"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001462.tgz"
-  integrity sha512-PDd20WuOBPiasZ7KbFnmQRyuLE7cFXW2PVd7dmALzbkUXEP46upAuCDm9eY9vho8fgNMGmbAX92QBZHzcnWIqw==
-
-caniuse-lite@^1.0.30001489:
-  version "1.0.30001489"
-  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001489.tgz"
-  integrity sha512-x1mgZEXK8jHIfAxm+xgdpHpk50IN3z3q3zP261/WS+uvePxW8izXuCu6AHz0lkuYTlATDehiZ/tNyYBdSQsOUQ==
-
-caniuse-lite@^1.0.30001587:
-  version "1.0.30001612"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001612.tgz#d34248b4ec1f117b70b24ad9ee04c90e0b8a14ae"
-  integrity sha512-lFgnZ07UhaCcsSZgWW0K5j4e69dK1u/ltrL9lTUiFOwNHs12S3UMIEYgBV0Z6C6hRDev7iRnMzzYmKabYdXF9g==
+caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001400, caniuse-lite@^1.0.30001489, caniuse-lite@^1.0.30001587:
+  version "1.0.30001720"
+  resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001720.tgz"
+  integrity sha512-Ec/2yV2nNPwb4DnTANEV99ZWwm3ZWfdlfkQbWSDDt+PsXEVYwlhPH8tdMaPunYTKKmz7AnHi2oNEi1GcmKCD8g==
 
 cardinal@^2.1.1:
   version "2.1.1"
@@ -21305,6 +21313,20 @@ verror@1.10.0:
     assert-plus "^1.0.0"
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
+
+viem@2.27.0:
+  version "2.27.0"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-2.27.0.tgz#edfca8e107d96eecff70d6c4f049c5e43422f902"
+  integrity sha512-pKw2dcwDi6TaWlTzLHYazOgjO1GgbUpE1zdLsLNSiCjHNrMTpL/teL0wVHnJDLiB2tR5CL19LBqefYNtRUkH5Q==
+  dependencies:
+    "@noble/curves" "1.8.1"
+    "@noble/hashes" "1.7.1"
+    "@scure/bip32" "1.6.2"
+    "@scure/bip39" "1.5.4"
+    abitype "1.0.8"
+    isows "1.0.6"
+    ox "0.6.9"
+    ws "8.18.1"
 
 viem@2.28.0:
   version "2.28.0"

@@ -1,4 +1,4 @@
-import { isValidInteropAddress, getChainId, computeChecksum } from '@interop-sdk/addresses'
+import { isValidInteropAddress, getChainId, computeChecksum } from '@defi-wonderland/interop'
 
 export const getChecksumAddress = async (address: string): Promise<string> => {
   const checksum = await computeChecksum(address)
