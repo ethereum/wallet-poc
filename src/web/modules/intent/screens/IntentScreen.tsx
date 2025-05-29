@@ -92,6 +92,15 @@ const IntentScreen = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [outputAmount, setOutputAmount] = useState<string | undefined>(undefined)
+  const [recipientAddress, setRecipientAddress] = useState<string>('')
+
+  const handleRecipientAddressChange = useCallback(
+    (address: string) => {
+      setRecipientAddress(address)
+      onRecipientAddressChange(address)
+    },
+    [onRecipientAddressChange]
+  )
 
   const state = useTransactionControllerState()
   const { transactionType, intent } = state
@@ -340,8 +349,8 @@ const IntentScreen = () => {
         <Form>
           <Recipient
             disabled={disableForm}
-            address={addressState.fieldValue}
-            setAddress={onRecipientAddressChange}
+            address={recipientAddress}
+            setAddress={handleRecipientAddressChange}
             validation={validation}
             ensAddress={addressState.ensAddress}
             isRecipientDomainResolving={addressState.isDomainResolving}
