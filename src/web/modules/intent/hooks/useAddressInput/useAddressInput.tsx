@@ -128,7 +128,9 @@ const useAddressInput = ({
     }, 300)
 
     return () => clearTimeout(timeout)
-  }, [fieldValue, resolveAddress, handleCacheResolvedDomain, addToast])
+    // Do not add setAddressState as dependency due to infinte loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fieldValue, handleCacheResolvedDomain, addToast])
 
   useEffect(() => {
     fieldValueRef.current = addressState.fieldValue

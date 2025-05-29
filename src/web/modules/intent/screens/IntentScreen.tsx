@@ -171,7 +171,9 @@ const IntentScreen = () => {
 
       const newParams = {
         sender: await InteropAddressProvider.binaryToHumanReadable(senderPayload),
-        recipient: await InteropAddressProvider.binaryToHumanReadable(recipientPayload),
+        recipient: addressState.interopAddress
+          ? recipient
+          : await InteropAddressProvider.binaryToHumanReadable(recipientPayload),
         inputTokenAddress: resolvedInputTokenAddress,
         outputTokenAddress: resolvedOutputTokenAddress,
         amount: inputAmount
@@ -217,6 +219,7 @@ const IntentScreen = () => {
     inputAmount,
     inputChainId,
     outputChainId,
+    addressState.interopAddress,
     dispatch,
     setOutputAmount
   ])

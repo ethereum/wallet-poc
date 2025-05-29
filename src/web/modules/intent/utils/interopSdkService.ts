@@ -6,8 +6,9 @@ export const getChecksumAddress = async (address: string): Promise<string> => {
 }
 
 export const toChecksumAddress = async (address: string): Promise<string> => {
-  const hasChecksum = address.includes('#')
-  return hasChecksum ? address : await getChecksumAddress(address)
+  if (address.includes('#')) return address
+  const checksumAddress = await getChecksumAddress(address)
+  return checksumAddress
 }
 
 export const resolveInteropAddress = async (address: string): Promise<string> => {
