@@ -4,6 +4,8 @@
 > **DO NOT USE IT FOR PRODUCTION PURPOSES OR TO STORE REAL FUNDS.**
 > Use only test funds for evaluation and feedback.
 > The developers assume NO responsibility for any loss of funds.
+>
+> The current SDK uses Across on testnet for demo purposes only. Performance may not reflect mainnet behavior and is not representative of the final production experience.
 
 ---
 
