@@ -92,7 +92,7 @@ const IntentScreen = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [isError, setIsError] = useState(false)
   const [outputAmount, setOutputAmount] = useState<string | undefined>(undefined)
-  const [recipientAddress, setRecipientAddress] = useState<string>('')
+  const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
 
   const handleRecipientAddressChange = useCallback(
     (address: string) => {
