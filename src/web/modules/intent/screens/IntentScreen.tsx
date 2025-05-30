@@ -226,11 +226,21 @@ const IntentScreen = () => {
   ])
 
   useEffect(() => {
-    if (transactionType === 'intent' && allParamsAvailable) {
-      getQuotes().catch(console.error)
+    if (transactionType === 'intent') {
+      if (allParamsAvailable) {
+        getQuotes().catch(console.error)
+        return
+      }
+
+      setOutputAmount(0)
     }
+
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+      params: { quote: [], transactions: [] }
+    })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getQuotes, transactionType])
+  }, [getQuotes, transactionType, dispatch])
 
   useEffect(() => {
     if (!signAccountOpController || isAutoSelectRouteDisabled) return
