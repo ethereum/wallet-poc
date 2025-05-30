@@ -1,3 +1,12 @@
+> **⚠️ Experimental Wallet Warning ⚠️**
+>
+> This wallet is highly experimental and under active development.
+> **DO NOT USE IT FOR PRODUCTION PURPOSES OR TO STORE REAL FUNDS.**
+> Use only test funds for evaluation and feedback.
+> The developers assume NO responsibility for any loss of funds.
+
+---
+
 # Ambire Wallet
 
 <div align="center">
