@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Spinner from '@common/components/Spinner'
@@ -66,7 +65,6 @@ const IntentScreen = () => {
     acknowledgeHighPriceImpact,
     pendingRoutes,
     routesModalRef,
-    openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
@@ -76,14 +74,8 @@ const IntentScreen = () => {
     isBridge,
     setShowAddedToBatch
   } = useSwapAndBridgeForm()
-  const {
-    sessionIds,
-    formStatus,
-    isHealthy,
-    shouldEnableRoutesSelection,
-    signAccountOpController,
-    isAutoSelectRouteDisabled
-  } = useSwapAndBridgeControllerState()
+  const { sessionIds, isHealthy, signAccountOpController, isAutoSelectRouteDisabled } =
+    useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
@@ -259,11 +251,6 @@ const IntentScreen = () => {
     }
   }, [pendingRoutes, prevPendingRoutes])
 
-  const isEstimatingRoute =
-    formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
-    (!signAccountOpController ||
-      signAccountOpController.estimation.status === EstimationStatus.Loading)
-
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
   }, [navigate])
@@ -367,12 +354,8 @@ const IntentScreen = () => {
             outputAmount={outputAmount}
           />
         </Form>
-        <RouteInfo
-          isEstimatingRoute={isEstimatingRoute}
-          openRoutesModal={openRoutesModal}
-          shouldEnableRoutesSelection={shouldEnableRoutesSelection}
-          isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
-        />
+
+        <RouteInfo />
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
