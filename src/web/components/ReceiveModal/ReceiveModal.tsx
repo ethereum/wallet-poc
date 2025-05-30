@@ -25,7 +25,7 @@ import { SelectValue } from '@common/components/Select/types'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import Select from '@common/components/Select'
-import { InteropAddressProvider } from '@defi-wonderland/interop'
+import { buildFromPayload, binaryToHumanReadable } from '@defi-wonderland/interop'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
@@ -58,7 +58,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
 
   const payloadAddress = useMemo(() => {
     const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
-    const interopAddress = InteropAddressProvider.buildFromPayload({
+    const interopAddress = buildFromPayload({
       version: 1,
       chainType: 'eip155',
       chainReference: fromNumberToHex(selectedChain.chainId),
@@ -71,7 +71,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   useEffect(() => {
     async function updateHumanReadableAddress() {
       if (payloadAddress) {
-        const address = await InteropAddressProvider.binaryToHumanReadable(payloadAddress)
+        const address = await binaryToHumanReadable(payloadAddress)
         setHumanReadableAddress(address)
       }
     }

@@ -25,7 +25,8 @@ import {
   createCrossChainProvider,
   createProviderExecutor,
   InteropAddressParamsParser,
-  InteropAddressProvider
+  buildFromPayload,
+  binaryToHumanReadable
 } from '@defi-wonderland/interop'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import { parseUnits, ZeroAddress } from 'ethers'
@@ -149,14 +150,14 @@ const IntentScreen = () => {
 
       const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
 
-      const senderPayload = InteropAddressProvider.buildFromPayload({
+      const senderPayload = buildFromPayload({
         version: 1,
         chainType: 'eip155',
         chainReference: fromNumberToHex(inputChainId),
         address: sender || ''
       })
 
-      const recipientPayload = InteropAddressProvider.buildFromPayload({
+      const recipientPayload = buildFromPayload({
         version: 1,
         chainType: 'eip155',
         chainReference: fromNumberToHex(outputChainId),
@@ -172,8 +173,8 @@ const IntentScreen = () => {
         : pOutputTokenAddress
 
       const newParams = {
-        sender: await InteropAddressProvider.binaryToHumanReadable(senderPayload),
-        recipient: await InteropAddressProvider.binaryToHumanReadable(recipientPayload),
+        sender: await binaryToHumanReadable(senderPayload),
+        recipient: await binaryToHumanReadable(recipientPayload),
         inputTokenAddress: resolvedInputTokenAddress,
         outputTokenAddress: resolvedOutputTokenAddress,
         amount: inputAmount
@@ -210,6 +211,7 @@ const IntentScreen = () => {
     } catch (error) {
       console.error('Error in getQuotes:', error)
       setIsError(true)
+      throw new Error('No selected account')
     }
   }, [
     sender,

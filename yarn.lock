@@ -2441,15 +2441,11 @@
 
 "@defi-wonderland/interop@^0.0.1":
   version "0.0.1"
-  resolved "https://npm.pkg.github.com/download/@defi-wonderland/interop/0.0.1/c4a51d69bc46a2653a5d1e367bad8ca69602590c#c4a51d69bc46a2653a5d1e367bad8ca69602590c"
-  integrity sha512-7J61fCcwBNJn878bAbd5VmRzFO6HuYccxy/xCq2XXUAtdgdlR2Jo3C/lAWYeX+EsEpAPexPJPnVTvTDhIAWICw==
+  resolved "https://npm.pkg.github.com/download/@defi-wonderland/interop/0.0.1/dcc54c48f409b6cc0493fd78a2e792ff20676473#dcc54c48f409b6cc0493fd78a2e792ff20676473"
+  integrity sha512-pThQVHiibD0WVWL0ZR2jcp6oVjQRbeWng+y57rfItGkl3X5TtH53xXB2qNjDBoSVFfM/nIas4LhNBqgD1MvZzg==
   dependencies:
     "@defi-wonderland/interop-addresses" "0.0.1"
     "@defi-wonderland/interop-cross-chain" "0.0.1"
-    axios "1.9.0"
-    bs58 "6.0.0"
-    viem "2.28.0"
-    zod "3.24.3"
 
 "@discoveryjs/json-ext@^0.5.0":
   version "0.5.7"

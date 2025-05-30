@@ -11,6 +11,10 @@ const RouteInfo: FC = () => {
   const { t } = useTranslation()
   const state = useTransactionControllerState()
 
+  const hasQuote = useMemo(() => {
+    return state.intent?.quote?.fee?.total && state.transactionType === 'intent'
+  }, [state.intent?.quote?.fee, state.transactionType])
+
   const providerFee = useMemo(() => {
     if (!state.intent?.quote?.fee && state.transactionType !== 'intent') return null
     return `${state.intent?.quote?.fee?.total} ${
@@ -30,7 +34,7 @@ const RouteInfo: FC = () => {
         spacings.mbLg
       ]}
     >
-      {providerFee && state.transactionType === 'intent' && (
+      {hasQuote && (
         <View style={[flexbox.directionRow, flexbox.alignCenter]}>
           <Text appearance="tertiaryText" fontSize={14} weight="medium">
             {t('Provider fee: {{fee}}', {
