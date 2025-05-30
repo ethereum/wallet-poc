@@ -4,7 +4,7 @@ import {
   ExtendedAddressState,
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
-import { resolveInteropAddress } from './resolveInteropAddress'
+import { resolveInteropAddress } from './interopSdkService'
 
 export interface Resolver {
   name: string
@@ -23,8 +23,8 @@ export const createResolvers = (context: ResolverContext): Resolver[] => [
   {
     name: 'interop',
     canResolve: (address: string) => {
-      // Match <prefix>@<namespace>[:<chainId>]#<checksum>
-      const pattern = /^[^@]+@[^:#]+(?::[^#]+)?#[^#]+$/
+      // Match <prefix>@<namespace>[:<chainId>][#<checksum>]
+      const pattern = /^[^@]+@[^:#]+(?::[^#]+)?(?:#[^#]+)?$/
       return pattern.test(address)
     },
     resolve: async (address: string) => {

@@ -578,20 +578,20 @@ export const handleActions = async (
       const transactionType = mainCtrl.transactionManager.transactionType
 
       if (transactionType === 'intent') {
-        return mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
+        await mainCtrl.buildIntentUserRequest(fromAmount, recipientAddress, fromSelectedToken)
       }
 
       if (transactionType === 'swapAndBridge') {
-        return await mainCtrl.buildSwapAndBridgeUserRequest()
+        await mainCtrl.buildSwapAndBridgeUserRequest()
       }
 
       if (transactionType === 'transfer') {
-        return await mainCtrl.buildTransferUserRequest(
-          fromAmount,
-          recipientAddress,
-          fromSelectedToken
-        )
+        await mainCtrl.buildTransferUserRequest(fromAmount, recipientAddress, fromSelectedToken)
       }
+
+      mainCtrl.transactionManager.formState.resetForm()
+      mainCtrl.transactionManager.intent.setQuoteAndTransaction([], [])
+
       break
     }
 
@@ -600,6 +600,11 @@ export const handleActions = async (
 
     case 'TRANSACTION_CONTROLLER_UPDATE_FORM':
       return mainCtrl.transactionManager.formState.update(params)
+
+    case 'TRANSACTION_CONTROLLER_SET_QUOTE': {
+      const { quote, transactions } = params
+      return mainCtrl.transactionManager.intent.setQuoteAndTransaction(quote, transactions)
+    }
 
     case 'TRANSACTION_CONTROLLER_INIT_FORM':
       // Add custom tokens (USDC) to the portfolio on init form

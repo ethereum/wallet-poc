@@ -1,5 +1,7 @@
 import { getAddress } from 'ethers'
 import { isValidAddress } from '@ambire-common/services/address'
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
+import { getInteropAddressChainId } from '@web/modules/intent/utils/interopSdkService'
 
 type AddressInputValidation = {
   address: string
@@ -10,17 +12,17 @@ type AddressInputValidation = {
   overwriteValidLabel?: string
 }
 
-const getAddressInputValidation = ({
+const getAddressInputValidation = async ({
   address,
   isRecipientDomainResolving,
   isValidEns,
   isInteropAddress,
   overwriteError,
   overwriteValidLabel
-}: AddressInputValidation): {
+}: AddressInputValidation): Promise<{
   message: any
   isError: boolean
-} => {
+}> => {
   if (!address) {
     return {
       message: '',
@@ -50,9 +52,28 @@ const getAddressInputValidation = ({
   }
 
   if (isInteropAddress) {
-    return {
-      message: 'Valid interop address',
-      isError: false
+    try {
+      const chainId = await getInteropAddressChainId(address)
+      const isSupportedChain = testnetNetworks.find(
+        (network) => Number(network.chainId) === chainId
+      )
+
+      if (!isSupportedChain) {
+        return {
+          message: 'Unsupported chain',
+          isError: true
+        }
+      }
+
+      return {
+        message: 'Valid interop address',
+        isError: false
+      }
+    } catch {
+      return {
+        message: 'Invalid interop address',
+        isError: true
+      }
     }
   }
 
