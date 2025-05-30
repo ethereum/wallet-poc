@@ -12,16 +12,20 @@ import {
   ExtendedAddressState,
   ExtendedAddressStateOptional
 } from '@ambire-common/interfaces/interop'
+import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import { isEqual } from 'lodash'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
+
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 
 type SessionId = ReturnType<typeof nanoid>
 
+const { isPopup, isActionWindow } = getUiType()
+
 const useTransactionForm = () => {
   const { addToast } = useToast()
-  const { isPopup, isActionWindow } = getUiType()
+  const { visibleActionsQueue } = useActionsControllerState()
   const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
   const { formState, transactionType } = state
@@ -42,6 +46,7 @@ const useTransactionForm = () => {
     switchTokensStatus,
     updateToTokenListStatus,
     recipientAddress,
+    sessionIds,
     quote
   } = formState
 
@@ -143,7 +148,6 @@ const useTransactionForm = () => {
       // Prevent dispatching if the state hasn't actually changed
       if (!forceDispatch && isEqual(addressState, nextAddressState)) return
 
-      console.log('Front: DISPATCHING')
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { addressState: nextAddressState }
@@ -205,6 +209,27 @@ const useTransactionForm = () => {
   }, [fromAmountInFiat, fromAmountValue, prevFromAmountInFiat, fromAmountFieldMode])
 
   useEffect(() => {
+    const hasIntentAction = visibleActionsQueue.some((action) => action.type === 'intent')
+
+    // Cleanup sessions
+    if (hasIntentAction) {
+      // If there is an open swap and bridge window
+      // 1. Focus it if there is a signAccountOp controller
+      // 2. Close it if there isn't as that means the screen is displaying
+      // the progress of the operation
+
+      // Forcefully unload the popup session after the action window session is added.
+      // Otherwise when the user is done with the operation
+      // and closes the window the popup session will remain open and the swap and bridge
+      // screen will open on load
+      if (isActionWindow && sessionIds.includes('popup') && sessionIds.includes(sessionId)) {
+        dispatch({
+          type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
+          params: { sessionId: 'popup', forceUnload: true }
+        })
+      }
+    }
+
     // Init each session only once after the cleanup
     if (sessionIdsRequestedToBeInit.current.includes(sessionId)) return
 
@@ -215,6 +240,23 @@ const useTransactionForm = () => {
       return prev
     })
   }, [])
+
+  // remove session - this will be triggered only
+  // when navigation to another screen internally in the extension
+  // the session removal when the window is forcefully closed is handled
+  // in the port.onDisconnect callback in the background
+  useEffect(() => {
+    return () => {
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_UNLOAD_SCREEN',
+        params: { sessionId }
+      })
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+        params: { quote: [], transactions: [] }
+      })
+    }
+  }, [dispatch, sessionId])
 
   return {
     handleSubmitForm,

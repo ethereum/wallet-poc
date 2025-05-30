@@ -18,11 +18,13 @@ import useBackgroundService from '@web/hooks/useBackgroundService'
 import useKeystoreControllerState from '@web/hooks/useKeystoreControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import { getUiType } from '@web/utils/uiType'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 
 const SortHat = () => {
   const { authStatus } = useAuth()
   const { navigate } = useNavigation()
   const swapAndBridgeState = useSwapAndBridgeControllerState()
+  const transactionState = useTransactionControllerState()
   const { isActionWindow } = getUiType()
   const keystoreState = useKeystoreControllerState()
   const actionsState = useActionsControllerState()
@@ -73,6 +75,8 @@ const SortHat = () => {
 
       if (actionType === 'swapAndBridge') return navigate(ROUTES.swapAndBridge)
 
+      if (actionType === 'intent') return navigate(ROUTES.intent)
+
       if (actionType === 'benzin') {
         const benzinAction = actionsState.currentAction
         const link =
@@ -93,12 +97,19 @@ const SortHat = () => {
         return
       }
 
+      const hasIntentPersistentSession = transactionState.formState.sessionIds.some(
+        (id) => id === 'popup' || id === 'action-window'
+      )
+
       // TODO: Always redirects to Dashboard, which for initial extension load is okay, but
       // for other scenarios, ideally, it should be the last route before the keystore got locked.
       const hasSwapAndBridgePersistentSession = swapAndBridgeState.sessionIds.some(
         (id) => id === 'popup' || id === 'action-window'
       )
-      if (hasSwapAndBridgePersistentSession) {
+
+      if (hasIntentPersistentSession) {
+        navigate(ROUTES.intent)
+      } else if (hasSwapAndBridgePersistentSession) {
         navigate(ROUTES.swapAndBridge)
       } else if (await hasPersistedState(storage, APP_VERSION)) {
         navigate(ROUTES.transfer, {
@@ -115,9 +126,10 @@ const SortHat = () => {
     authStatus,
     isActionWindow,
     actionsState.currentAction,
+    swapAndBridgeState.sessionIds,
+    transactionState.formState.sessionIds,
     navigate,
-    dispatch,
-    swapAndBridgeState.sessionIds
+    dispatch
   ])
 
   useEffect(() => {

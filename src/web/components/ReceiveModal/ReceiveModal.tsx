@@ -1,5 +1,5 @@
 import * as Clipboard from 'expo-clipboard'
-import React, { FC, useCallback, useMemo, useRef, useState } from 'react'
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 import QRCode from 'react-native-qrcode-svg'
@@ -25,8 +25,9 @@ import { SelectValue } from '@common/components/Select/types'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import Select from '@common/components/Select'
-import { InteropAddressProvider } from '@interop-sdk/addresses'
+import { buildFromPayload, binaryToHumanReadable } from '@defi-wonderland/interop'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
+import SkeletonLoader from '@common/components/SkeletonLoader'
 import getStyles from './styles'
 
 interface Props {
@@ -53,10 +54,11 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     chainId: number
   }>({ chainNamespace: 'eip155', chainId: 1 })
   const [isInteropAddressAgreed] = useState(true)
+  const [humanReadableAddress, setHumanReadableAddress] = useState('')
 
   const payloadAddress = useMemo(() => {
     const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
-    const interopAddress = InteropAddressProvider.buildFromPayload({
+    const interopAddress = buildFromPayload({
       version: 1,
       chainType: 'eip155',
       chainReference: fromNumberToHex(selectedChain.chainId),
@@ -65,6 +67,17 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
 
     return interopAddress
   }, [account?.addr, selectedChain.chainId])
+
+  useEffect(() => {
+    async function updateHumanReadableAddress() {
+      if (payloadAddress) {
+        const address = await binaryToHumanReadable(payloadAddress)
+        setHumanReadableAddress(address)
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    updateHumanReadableAddress()
+  }, [payloadAddress])
 
   const fromNetworkOptions: SelectValue[] = useMemo(() => {
     const availableOptions: SelectValue[] = networks.map((n) => {
@@ -99,14 +112,10 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     return availableOptions
   }, [networks, supportedChainIds, theme.primaryBackground])
 
-  const userAddress = useMemo(() => {
-    return InteropAddressProvider.binaryToHumanReadable(payloadAddress)
-  }, [payloadAddress])
-
   const handleCopyAddress = () => {
-    if (!userAddress) return
+    if (!humanReadableAddress) return
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Clipboard.setStringAsync(userAddress)
+    Clipboard.setStringAsync(humanReadableAddress)
     addToast(t('Address copied to clipboard!') as string, { timeout: 2500 })
   }
 
@@ -192,9 +201,18 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
             onPress={handleCopyAddress}
             {...bindAnim}
           >
-            <Text selectable numberOfLines={1} fontSize={12} ellipsizeMode="middle" weight="medium">
-              {userAddress}
-            </Text>
+            {!humanReadableAddress && <SkeletonLoader width="100%" height={12} />}
+            {humanReadableAddress && (
+              <Text
+                selectable
+                numberOfLines={1}
+                fontSize={12}
+                ellipsizeMode="middle"
+                weight="medium"
+              >
+                {humanReadableAddress}
+              </Text>
+            )}
           </AnimatedPressable>
           {isViewOnly ? (
             <Alert

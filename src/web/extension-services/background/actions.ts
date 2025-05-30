@@ -723,6 +723,11 @@ type TransactionControllerUnloadScreenAction = {
   params: { sessionId: string; forceUnload?: boolean }
 }
 
+type TransactionControllerSetQuoteAction = {
+  type: 'TRANSACTION_CONTROLLER_SET_QUOTE'
+  params: { quote: any; transactions: any[] }
+}
+
 export type Action =
   | UpdateNavigationUrl
   | InitControllerStateAction
@@ -856,3 +861,4 @@ export type Action =
   | TransactionControllerInitFormAction
   | TransactionControllerSwitchFromAndToTokensAction
   | TransactionControllerUnloadScreenAction
+  | TransactionControllerSetQuoteAction

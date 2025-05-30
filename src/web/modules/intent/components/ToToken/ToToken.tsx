@@ -1,14 +1,13 @@
-import { formatUnits, isAddress } from 'ethers'
-import React, { FC, memo, useCallback, useMemo } from 'react'
+import { isAddress } from 'ethers'
+import React, { FC, memo, useCallback, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import { SwapAndBridgeToToken } from '@ambire-common/interfaces/swapAndBridge'
 import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
-import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
+// import WalletFilledIcon from '@common/assets/svg/WalletFilledIcon'
 import NetworkIcon from '@common/components/NetworkIcon'
 import Select from '@common/components/Select'
 import { SelectValue } from '@common/components/Select/types'
@@ -21,7 +20,7 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
-import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
+// import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwitchTokensButton from '@web/modules/intent/components/SwitchTokensButton'
 import ToTokenSelect from '@web/modules/intent/components/ToToken/ToTokenSelect'
@@ -30,12 +29,14 @@ import { getTokenId } from '@web/utils/token'
 
 import NotSupportedNetworkTooltip from '../NotSupportedNetworkTooltip'
 import useTransactionForm from '../../hooks/useTransactionForm'
+import { getInteropAddressChainId } from '../../utils/interopSdkService'
 
 type Props = Pick<ReturnType<typeof useSwapAndBridgeForm>, 'setIsAutoSelectRouteDisabled'> & {
-  isAutoSelectRouteDisabled: boolean
+  isLoading: boolean
+  outputAmount?: string
 }
 
-const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDisabled }) => {
+const ToToken: FC<Props> = ({ setIsAutoSelectRouteDisabled, isLoading, outputAmount }) => {
   const { theme, styles } = useTheme(getStyles)
   const { t } = useTranslation()
   const {
@@ -48,18 +49,18 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     fromSelectedToken,
     fromTokenValue,
     transactionType,
-    fromAmount
+    fromAmount,
+    addressState
   } = useTransactionForm()
   const {
     statuses: swapAndBridgeCtrlStatuses,
     updateQuoteStatus,
-    formStatus,
     updateToTokenListStatus,
     signAccountOpController
   } = useSwapAndBridgeControllerState()
 
   const { networks } = useNetworksControllerState()
-  const { portfolio } = useSelectedAccountControllerState()
+  // const { portfolio } = useSelectedAccountControllerState()
   const { dispatch } = useBackgroundService()
 
   const handleSwitchFromAndToTokens = useCallback(
@@ -105,40 +106,33 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     isToToken: true
   })
 
-  const toTokenInPortfolio = useMemo(() => {
-    const [address] = toTokenValue.value.split('.')
+  // const toTokenInPortfolio = useMemo(() => {
+  //   const [address] = toTokenValue.value.split('.')
 
-    if (!address || !toChainId) return null
+  //   if (!address || !toChainId) return null
 
-    const bigintChainId = BigInt(toChainId)
+  //   const bigintChainId = BigInt(toChainId)
 
-    const tokenInPortfolio = portfolio?.tokens.find(
-      (token) =>
-        token.address === address &&
-        token.chainId === bigintChainId &&
-        !token.flags.onGasTank &&
-        !token.flags.rewardsType
-    )
+  //   const tokenInPortfolio = portfolio?.tokens.find(
+  //     (token) =>
+  //       token.address === address &&
+  //       token.chainId === bigintChainId &&
+  //       !token.flags.onGasTank &&
+  //       !token.flags.rewardsType
+  //   )
 
-    if (!tokenInPortfolio) return null
+  //   if (!tokenInPortfolio) return null
 
-    const amountFormatted = formatDecimals(
-      parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
-      'amount'
-    )
+  //   const amountFormatted = formatDecimals(
+  //     parseFloat(formatUnits(tokenInPortfolio.amount, tokenInPortfolio.decimals)),
+  //     'amount'
+  //   )
 
-    return {
-      ...tokenInPortfolio,
-      amountFormatted
-    }
-  }, [portfolio?.tokens, toChainId, toTokenValue.value])
-
-  const shouldShowAmountOnEstimationFailure = useMemo(() => {
-    return (
-      isAutoSelectRouteDisabled &&
-      signAccountOpController?.estimation.status === EstimationStatus.Error
-    )
-  }, [isAutoSelectRouteDisabled, signAccountOpController?.estimation.status])
+  //   return {
+  //     ...tokenInPortfolio,
+  //     amountFormatted
+  //   }
+  // }, [portfolio?.tokens, toChainId, toTokenValue.value])
 
   const toNetworksOptions: SelectValue[] = useMemo(
     () =>
@@ -223,9 +217,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
       return Number(fromAmount) > 0 ? fromAmount : '0'
     }
 
-    // TODO: remove this once the intent is implemented
     if (transactionType === 'intent') {
-      return Number(fromAmount) > 0 ? fromAmount : '0'
+      return outputAmount
     }
 
     // TODO: this should be the quote value
@@ -246,7 +239,29 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
     //   'amount'
     // )}`
     return quote.selectedRoute.toAmount
-  }, [quote, signAccountOpController?.estimation.status, fromAmount, transactionType])
+  }, [transactionType, quote, signAccountOpController?.estimation.status, fromAmount, outputAmount])
+
+  useEffect(() => {
+    if (addressState.interopAddress) {
+      getInteropAddressChainId(addressState.fieldValue)
+        .then((interopChainId) => {
+          const interopNetwork = networks.find((n) => Number(n.chainId) === interopChainId)
+
+          if (!interopNetwork) return
+
+          const toNetwork = toNetworksOptions.filter(
+            (opt) => opt.value === String(interopChainId)
+          )[0]
+
+          if (!toNetwork) return
+
+          handleSetToNetworkValue(toNetwork)
+        })
+        .catch(() => {
+          // TODO: advice the user to add the network
+        })
+    }
+  }, [addressState.interopAddress, addressState.fieldValue])
 
   return (
     <View>
@@ -270,8 +285,9 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
           {t('Receive')}
         </Text>
         <Select
+          disabled={!!addressState.interopAddress}
           setValue={handleSetToNetworkValue}
-          containerStyle={{ ...spacings.mb0, width: 142 }}
+          containerStyle={{ ...spacings.mb0, width: 220 }}
           options={toNetworksOptions}
           size="sm"
           value={getToNetworkSelectValue}
@@ -294,13 +310,7 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             handleAddToTokenByAddress={handleAddToTokenByAddress}
           />
           <View style={[flexbox.flex1]}>
-            {(formStatus === SwapAndBridgeFormStatus.Empty ||
-              formStatus === SwapAndBridgeFormStatus.Invalid ||
-              formStatus === SwapAndBridgeFormStatus.NoRoutesFound ||
-              formStatus === SwapAndBridgeFormStatus.ReadyToSubmit ||
-              formStatus === SwapAndBridgeFormStatus.Proceeded ||
-              shouldShowAmountOnEstimationFailure) &&
-            updateQuoteStatus !== 'LOADING' ? (
+            {!isLoading ? (
               <Text
                 fontSize={20}
                 weight="medium"
@@ -328,7 +338,8 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             )}
           </View>
         </View>
-        <View
+        {/* Temporarily disabled */}
+        {/* <View
           style={[
             flexbox.directionRow,
             spacings.ptSm,
@@ -339,23 +350,23 @@ const ToToken: FC<Props> = ({ isAutoSelectRouteDisabled, setIsAutoSelectRouteDis
             }
           ]}
         >
-          {toTokenInPortfolio && (
-            <>
-              <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
-              <Text
-                testID="max-available-amount"
-                numberOfLines={1}
-                fontSize={12}
-                style={spacings.mlMi}
-                weight="medium"
-                appearance="tertiaryText"
-                ellipsizeMode="tail"
-              >
-                {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
-              </Text>
-            </>
-          )}
-        </View>
+            {toTokenInPortfolio && (
+              <>
+                <WalletFilledIcon width={14} height={14} color={theme.tertiaryText} />
+                <Text
+                  testID="max-available-amount"
+                  numberOfLines={1}
+                  fontSize={12}
+                  style={spacings.mlMi}
+                  weight="medium"
+                  appearance="tertiaryText"
+                  ellipsizeMode="tail"
+                >
+                  {toTokenInPortfolio?.amountFormatted} {toTokenInPortfolio?.symbol}
+                </Text>
+              </>
+            )}
+        </View> */}
       </View>
     </View>
   )

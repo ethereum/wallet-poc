@@ -2,7 +2,7 @@ import React, { FC, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
-import BatchIcon from '@common/assets/svg/BatchIcon'
+// import BatchIcon from '@common/assets/svg/BatchIcon'
 import Button from '@common/components/Button'
 import Tooltip from '@common/components/Tooltip'
 import spacings from '@common/styles/spacings'
@@ -10,7 +10,7 @@ import flexbox from '@common/styles/utils/flexbox'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
-import { getUiType } from '@web/utils/uiType'
+// import { getUiType } from '@web/utils/uiType'
 import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 
 type Props = {
@@ -19,12 +19,12 @@ type Props = {
   handleSubmitForm: (isOneClickMode: boolean) => void
 }
 
-const { isActionWindow } = getUiType()
+// const { isActionWindow } = getUiType()
 
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
   const {
-    formState: { fromAmount, fromSelectedToken, recipientAddress }
+    formState: { fromAmount, fromSelectedToken, recipientAddress, maxFromAmount }
   } = useTransactionControllerState()
 
   const { swapSignErrors } = useSwapAndBridgeControllerState()
@@ -32,7 +32,13 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
   const { account } = useSelectedAccountControllerState()
   const fromChainId = fromSelectedToken?.chainId
 
-  const disabled = !fromAmount || !fromSelectedToken || !recipientAddress
+  const disabled =
+    isNotReadyToProceed ||
+    !fromAmount ||
+    !fromSelectedToken ||
+    !recipientAddress ||
+    !Number(fromAmount) ||
+    Number(fromAmount) > Number(maxFromAmount)
 
   const networkUserRequests = fromChainId
     ? userRequests?.filter(
@@ -65,7 +71,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
 
   return (
     <View style={[flexbox.directionRow, flexbox.alignCenter, flexbox.justifyEnd]}>
-      {!isActionWindow && (
+      {/* {!isActionWindow && (
         // @ts-ignore
         <View dataSet={{ tooltipId: 'batch-btn-tooltip' }}>
           <Button
@@ -77,7 +83,8 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
                   })
                 : t('Start a batch')
             }
-            disabled={isNotReadyToProceed || !!batchDisabledReason}
+            // hardcoded for now
+            disabled
             type="secondary"
             style={{ minWidth: 160, ...spacings.phMd }}
             onPress={() => handleSubmitForm(false)}
@@ -85,7 +92,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
             <BatchIcon style={spacings.mlTy} />
           </Button>
         </View>
-      )}
+      )} */}
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button

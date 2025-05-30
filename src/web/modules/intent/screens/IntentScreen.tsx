@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react'
+/* eslint-disable no-console */
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { View } from 'react-native'
 
 import { EstimationStatus } from '@ambire-common/controllers/estimation/types'
-import { SwapAndBridgeFormStatus } from '@ambire-common/controllers/swapAndBridge/swapAndBridge'
 import Alert from '@common/components/Alert'
 import BackButton from '@common/components/BackButton'
 import Spinner from '@common/components/Spinner'
@@ -14,7 +14,6 @@ import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import { Content, Form, Wrapper } from '@web/components/TransactionsScreen'
 import useBackgroundService from '@web/hooks/useBackgroundService'
-import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SwapAndBridgeEstimation from '@web/modules/intent/components/Estimation'
@@ -22,6 +21,15 @@ import RoutesModal from '@web/modules/intent/components/RoutesModal'
 import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getUiType } from '@web/utils/uiType'
 
+import {
+  createCrossChainProvider,
+  createProviderExecutor,
+  InteropAddressParamsParser,
+  buildFromPayload,
+  binaryToHumanReadable
+} from '@defi-wonderland/interop'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
+import { parseUnits, ZeroAddress } from 'ethers'
 import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
 import TrackProgress from '../components/Estimation/TrackProgress'
@@ -31,6 +39,7 @@ import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
 import Recipient from '../components/Recipient'
+import { SUPPORTED_ETH_BY_CHAIN_ID } from '../utils/tokenAddresses'
 
 const { isTab, isActionWindow } = getUiType()
 
@@ -57,7 +66,6 @@ const IntentScreen = () => {
     acknowledgeHighPriceImpact,
     pendingRoutes,
     routesModalRef,
-    openRoutesModal,
     closeRoutesModal,
     estimationModalRef,
     setHasBroadcasted,
@@ -67,21 +75,172 @@ const IntentScreen = () => {
     isBridge,
     setShowAddedToBatch
   } = useSwapAndBridgeForm()
-  const {
-    sessionIds,
-    formStatus,
-    isHealthy,
-    shouldEnableRoutesSelection,
-    updateQuoteStatus,
-    signAccountOpController,
-    isAutoSelectRouteDisabled
-  } = useSwapAndBridgeControllerState()
+  const { sessionIds, isHealthy, signAccountOpController, isAutoSelectRouteDisabled } =
+    useSwapAndBridgeControllerState()
   const { portfolio } = useSelectedAccountControllerState()
 
-  const { statuses: mainCtrlStatuses } = useMainControllerState()
   const prevPendingRoutes: any[] | undefined = usePrevious(pendingRoutes)
   const scrollViewRef: any = useRef(null)
   const { dispatch } = useBackgroundService()
+  const [isLoading, setIsLoading] = useState(false)
+  const [isError, setIsError] = useState(false)
+  const [outputAmount, setOutputAmount] = useState<string | undefined>(undefined)
+  const [recipientAddress, setRecipientAddress] = useState<string>(addressState.fieldValue)
+
+  const handleRecipientAddressChange = useCallback(
+    (address: string) => {
+      setRecipientAddress(address)
+      onRecipientAddressChange(address)
+    },
+    [onRecipientAddressChange]
+  )
+
+  const state = useTransactionControllerState()
+  const { transactionType, intent } = state
+  const {
+    sender,
+    recipient,
+    inputTokenAddress: pInputTokenAddress,
+    outputTokenAddress: pOutputTokenAddress,
+    inputAmount,
+    inputChainId,
+    outputChainId
+  } = (intent?.params || {}) as {
+    sender?: string
+    recipient?: string
+    inputTokenAddress?: string
+    outputTokenAddress?: string
+    inputAmount?: string
+    inputChainId?: number
+    outputChainId?: number
+  }
+
+  const allParamsAvailable =
+    sender &&
+    recipient &&
+    pInputTokenAddress &&
+    pOutputTokenAddress &&
+    inputAmount &&
+    inputChainId !== undefined &&
+    outputChainId !== undefined
+
+  const getQuotes = useCallback(async () => {
+    if (
+      !sender ||
+      !recipient ||
+      !pInputTokenAddress ||
+      !pOutputTokenAddress ||
+      !inputAmount ||
+      inputChainId === undefined ||
+      outputChainId === undefined
+    ) {
+      console.warn('Insufficient params for getQuotes')
+      return
+    }
+
+    setIsLoading(true)
+
+    try {
+      const paramParser = new InteropAddressParamsParser()
+      const acrossProvider = createCrossChainProvider('across')
+
+      const executor = createProviderExecutor([acrossProvider], {
+        paramParser
+      })
+
+      const fromNumberToHex = (number: number) => `0x${number.toString(16)}`
+
+      const senderPayload = buildFromPayload({
+        version: 1,
+        chainType: 'eip155',
+        chainReference: fromNumberToHex(inputChainId),
+        address: sender || ''
+      })
+
+      const recipientPayload = buildFromPayload({
+        version: 1,
+        chainType: 'eip155',
+        chainReference: fromNumberToHex(outputChainId),
+        address: recipient || ''
+      })
+
+      const isInputEth = pInputTokenAddress === ZeroAddress
+      const resolvedInputTokenAddress = isInputEth
+        ? SUPPORTED_ETH_BY_CHAIN_ID[inputChainId]
+        : pInputTokenAddress
+      const resolvedOutputTokenAddress = isInputEth
+        ? SUPPORTED_ETH_BY_CHAIN_ID[outputChainId]
+        : pOutputTokenAddress
+
+      const newParams = {
+        sender: await binaryToHumanReadable(senderPayload),
+        recipient: await binaryToHumanReadable(recipientPayload),
+        inputTokenAddress: resolvedInputTokenAddress,
+        outputTokenAddress: resolvedOutputTokenAddress,
+        amount: inputAmount
+      }
+
+      console.log({ newParams })
+      const quotes = await executor.getQuotes('crossChainTransfer', newParams)
+
+      console.log({ quotes })
+
+      if (!quotes || quotes.length === 0) {
+        console.error('No quotes received from provider')
+        return
+      }
+
+      const transactions = await executor.execute(quotes[0] as any)
+
+      if (isInputEth) {
+        transactions.unshift({
+          value: parseUnits(inputAmount, 18),
+          to: SUPPORTED_ETH_BY_CHAIN_ID[inputChainId] as `0x${string}`,
+          data: '0x'
+        })
+      }
+
+      console.log({ transactions })
+      dispatch({
+        type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+        params: { quote: quotes[0], transactions }
+      })
+      setOutputAmount((quotes[0] as any)?.output?.outputAmount)
+      setIsError(false)
+      setIsLoading(false)
+    } catch (error) {
+      console.error('Error in getQuotes:', error)
+      setIsError(true)
+      throw new Error('No selected account')
+    }
+  }, [
+    sender,
+    recipient,
+    pInputTokenAddress,
+    pOutputTokenAddress,
+    inputAmount,
+    inputChainId,
+    outputChainId,
+    dispatch,
+    setOutputAmount
+  ])
+
+  useEffect(() => {
+    if (transactionType === 'intent') {
+      if (allParamsAvailable) {
+        getQuotes().catch(console.error)
+        return
+      }
+
+      setOutputAmount(0)
+    }
+
+    dispatch({
+      type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
+      params: { quote: [], transactions: [] }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getQuotes, transactionType, dispatch])
 
   useEffect(() => {
     if (!signAccountOpController || isAutoSelectRouteDisabled) return
@@ -100,35 +259,9 @@ const IntentScreen = () => {
     if (!pendingRoutes || !prevPendingRoutes) return
     if (!pendingRoutes.length) return
     if (prevPendingRoutes.length < pendingRoutes.length) {
-      // scroll to top when there is a new item in the active routes list
       scrollViewRef.current?.scrollTo({ y: 0 })
     }
   }, [pendingRoutes, prevPendingRoutes])
-
-  // TODO: Disable tokens that are NOT supported
-  // (not in the `fromTokenList` of the SwapAndBridge controller)
-
-  // TODO: Confirmation modal (warn) if the diff in dollar amount between the
-  // FROM and TO tokens is too high (therefore, user will lose money).
-
-  const isEstimatingRoute =
-    formStatus === SwapAndBridgeFormStatus.ReadyToEstimate &&
-    (!signAccountOpController ||
-      signAccountOpController.estimation.status === EstimationStatus.Loading)
-
-  const isNotReadyToProceed = useMemo(() => {
-    return (
-      formStatus !== SwapAndBridgeFormStatus.ReadyToSubmit ||
-      mainCtrlStatuses.buildSwapAndBridgeUserRequest !== 'INITIAL' ||
-      updateQuoteStatus === 'LOADING' ||
-      isEstimatingRoute
-    )
-  }, [
-    isEstimatingRoute,
-    formStatus,
-    mainCtrlStatuses.buildSwapAndBridgeUserRequest,
-    updateQuoteStatus
-  ])
 
   const onBatchAddedPrimaryButtonPress = useCallback(() => {
     navigate(WEB_ROUTES.dashboard)
@@ -157,17 +290,15 @@ const IntentScreen = () => {
       <>
         {isTab && <BackButton onPress={handleBackButtonPress} />}
         <Buttons
-          isNotReadyToProceed={isNotReadyToProceed}
+          isNotReadyToProceed={isLoading || (isError && transactionType === 'intent')}
           handleSubmitForm={handleSubmitForm}
           isBridge={isBridge}
         />
       </>
     )
-  }, [handleBackButtonPress, handleSubmitForm, isBridge, isNotReadyToProceed])
+  }, [handleBackButtonPress, handleSubmitForm, isBridge, isLoading, isError, transactionType])
 
   if (!sessionIds.includes(sessionId)) {
-    // If the portfolio has loaded we can skip the spinner as initializing the screen
-    // takes a short time and the spinner will only flash.
     if (portfolio.isReadyToVisualize) return null
 
     return (
@@ -215,8 +346,8 @@ const IntentScreen = () => {
         <Form>
           <Recipient
             disabled={disableForm}
-            address={addressState.fieldValue}
-            setAddress={onRecipientAddressChange}
+            address={recipientAddress}
+            setAddress={handleRecipientAddressChange}
             validation={validation}
             ensAddress={addressState.ensAddress}
             isRecipientDomainResolving={addressState.isDomainResolving}
@@ -230,16 +361,13 @@ const IntentScreen = () => {
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
           />
           <ToToken
-            isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
             setIsAutoSelectRouteDisabled={setIsAutoSelectRouteDisabled}
+            isLoading={isLoading && transactionType === 'intent'}
+            outputAmount={outputAmount}
           />
         </Form>
-        <RouteInfo
-          isEstimatingRoute={isEstimatingRoute}
-          openRoutesModal={openRoutesModal}
-          shouldEnableRoutesSelection={shouldEnableRoutesSelection}
-          isAutoSelectRouteDisabled={isAutoSelectRouteDisabled}
-        />
+
+        <RouteInfo />
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
