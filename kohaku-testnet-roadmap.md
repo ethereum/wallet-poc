@@ -15,10 +15,10 @@ Each release includes a public tweet, a Kohaku extension update, open-source cod
 
 ### Main Features
 
-1. **ERC-7828**: human-readable interoperable address resolution (via GitHub Cha no in List)
-2. **ERC-7939**: binary serialization support for intent protocols
+1. **ERC-7828**: human-readable interoperable address resolution (via GitHub chain list)
+2. **ERC-7930**: binary serialization support for intent protocols
 3. **Cross-chain sends**: via **OIF** + **Across**
-4. **Universal balance view-only**: display aggregation of same-asset balances across chains.
+4. **Universal balance views**: display aggregation of same-asset balances across chains
 
 ---
 
