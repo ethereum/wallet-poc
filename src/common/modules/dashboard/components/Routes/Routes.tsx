@@ -1,7 +1,7 @@
 import React from 'react'
 import { View } from 'react-native'
 
-import DAppsIcon from '@common/assets/svg/DAppsIcon'
+// import DAppsIcon from '@common/assets/svg/DAppsIcon'
 import ReceiveIcon from '@common/assets/svg/ReceiveIcon'
 import SendIcon from '@common/assets/svg/SendIcon'
 // import SwapAndBridgeIcon from '@common/assets/svg/SwapAndBridgeIcon'
@@ -25,15 +25,6 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
     //   scaleOnHover: 1.18
     // },
     {
-      testID: 'dashboard-button-receive',
-      icon: ReceiveIcon,
-      label: t('Receive'),
-      onPress: openReceiveModal,
-      isExternal: false,
-      scale: 1.08,
-      scaleOnHover: 1.18
-    },
-    {
       testID: 'dashboard-button-intent',
       icon: SendIcon, // TODO: change icon to intent icon
       label: t('Send'),
@@ -42,6 +33,15 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
       scale: 1.08,
       scaleOnHover: 1.18
     },
+    {
+      testID: 'dashboard-button-receive',
+      icon: ReceiveIcon,
+      label: t('Receive'),
+      onPress: openReceiveModal,
+      isExternal: false,
+      scale: 1.08,
+      scaleOnHover: 1.18
+    }
     // {
     //   testID: 'dashboard-button-swap-and-bridge',
     //   icon: SwapAndBridgeIcon,
@@ -51,15 +51,15 @@ const Routes = ({ openReceiveModal }: { openReceiveModal: () => void }) => {
     //   scale: 0.95,
     //   scaleOnHover: 1
     // },
-    {
-      testID: 'dashboard-button-apps',
-      icon: DAppsIcon,
-      label: t('Apps'),
-      route: WEB_ROUTES.appCatalog,
-      isExternal: false,
-      scale: 0.95,
-      scaleOnHover: 1.02
-    }
+    // {
+    //   testID: 'dashboard-button-apps',
+    //   icon: DAppsIcon,
+    //   label: t('Apps'),
+    //   route: WEB_ROUTES.appCatalog,
+    //   isExternal: false,
+    //   scale: 0.95,
+    //   scaleOnHover: 1.02
+    // }
   ]
 
   return (

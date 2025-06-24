@@ -20,8 +20,8 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
-import useHasGasTank from '@web/hooks/useHasGasTank'
-import GasTankButton from '../DashboardHeader/GasTankButton'
+// import useHasGasTank from '@web/hooks/useHasGasTank'
+// import GasTankButton from '../DashboardHeader/GasTankButton'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
@@ -49,7 +49,7 @@ const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
-  openGasTankModal,
+  // openGasTankModal,
   animatedOverviewHeight,
   dashboardOverviewSize,
   setDashboardOverviewSize,
@@ -60,7 +60,7 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
-  const { hasGasTank } = useHasGasTank({ account })
+  // const { hasGasTank } = useHasGasTank({ account })
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -162,7 +162,7 @@ const DashboardOverview: FC<Props> = ({
                 overflow: 'hidden'
               }}
             >
-              <View>
+              <View style={{ marginTop: 'auto' }}>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!portfolio?.isAllReady ? (
                     <SkeletonLoader
@@ -230,7 +230,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && hasGasTank ? (
+                  {/* {!portfolio?.isAllReady && hasGasTank ? (
                     <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
@@ -240,7 +240,7 @@ const DashboardOverview: FC<Props> = ({
                       account={account}
                       hasGasTank={hasGasTank}
                     />
-                  )}
+                  )} */}
                   <BalanceAffectingErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}
