@@ -34,7 +34,6 @@ import BatchAdded from '../components/BatchModal/BatchAdded'
 import Buttons from '../components/Buttons'
 import TrackProgress from '../components/Estimation/TrackProgress'
 import FromToken from '../components/FromToken'
-import PriceImpactWarningModal from '../components/PriceImpactWarningModal'
 import RouteInfo from '../components/RouteInfo'
 import ToToken from '../components/ToToken'
 import useTransactionForm from '../hooks/useTransactionForm'
@@ -55,22 +54,18 @@ const IntentScreen = () => {
     fromTokenValue,
     fromTokenAmountSelectDisabled,
     addressState,
-    addressInputState
+    addressInputState,
+    estimationModalRef,
+    closeEstimationModal
   } = useTransactionForm()
 
   const {
     sessionId,
-    highPriceImpactOrSlippageWarning,
-    priceImpactModalRef,
-    closePriceImpactModal,
-    acknowledgeHighPriceImpact,
     pendingRoutes,
     routesModalRef,
     closeRoutesModal,
-    estimationModalRef,
     setHasBroadcasted,
     displayedView,
-    closeEstimationModalWrapped,
     setIsAutoSelectRouteDisabled,
     isBridge,
     setShowAddedToBatch
@@ -371,14 +366,8 @@ const IntentScreen = () => {
       </Content>
       <RoutesModal sheetRef={routesModalRef} closeBottomSheet={closeRoutesModal} />
       <SwapAndBridgeEstimation
-        closeEstimationModal={closeEstimationModalWrapped}
+        closeEstimationModal={closeEstimationModal}
         estimationModalRef={estimationModalRef}
-      />
-      <PriceImpactWarningModal
-        sheetRef={priceImpactModalRef}
-        closeBottomSheet={closePriceImpactModal}
-        acknowledgeHighPriceImpact={acknowledgeHighPriceImpact}
-        highPriceImpactOrSlippageWarning={highPriceImpactOrSlippageWarning}
       />
     </Wrapper>
   )
