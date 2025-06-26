@@ -28,6 +28,9 @@ interface Props extends Partial<ImageProps> {
   networkSize?: number
   uri?: string
   skeletonAppearance?: SkeletonLoaderProps['appearance']
+  amountPerChain?: {
+    [chainId: string]: bigint
+  }
 }
 
 enum UriStatus {
@@ -50,6 +53,7 @@ const TokenIcon: React.FC<Props> = ({
   onGasTank = false,
   networkSize = 14,
   skeletonAppearance = 'primaryBackground',
+  amountPerChain,
   ...props
 }) => {
   const { styles } = useTheme(getStyles)
@@ -118,6 +122,25 @@ const TokenIcon: React.FC<Props> = ({
 
   const shouldDisplayNetworkIcon = withNetworkIcon && !!network && !onGasTank
 
+  // Get first 4 chains with amounts, sorted by amount (highest first)
+  const chainsWithAmounts = useMemo(() => {
+    if (!amountPerChain) return []
+
+    return Object.entries(amountPerChain)
+      .filter(([, amount]) => (amount as bigint) > 0n)
+      .sort(([, a], [, b]) =>
+        (b as bigint) > (a as bigint) ? 1 : (b as bigint) < (a as bigint) ? -1 : 0
+      )
+      .slice(0, 4)
+      .map(([chainIdString]) => {
+        const networkForChain = networks.find((n) => n.chainId.toString() === chainIdString)
+        return { chainId: chainIdString, network: networkForChain }
+      })
+      .filter(({ network: networkForChain }) => !!networkForChain)
+  }, [amountPerChain, networks])
+
+  const hasMultipleChains = chainsWithAmounts.length > 1
+
   return (
     <View style={memoizedContainerStyle}>
       {uriStatus === UriStatus.UNKNOWN ? (
@@ -143,13 +166,47 @@ const TokenIcon: React.FC<Props> = ({
           {...props}
         />
       )}
-      {shouldDisplayNetworkIcon && (
+      {hasMultipleChains ? (
+        <View style={[styles.networkIconWrapper]}>
+          <View
+            style={{
+              flexDirection: 'row',
+              flexWrap: 'wrap',
+              width: networkSize * 2,
+              height: networkSize * 2
+            }}
+          >
+            {chainsWithAmounts.map(({ chainId: chainIdString, network: networkForChain }, index) =>
+              networkForChain ? (
+                <NetworkIcon
+                  key={chainIdString}
+                  id={networkForChain.chainId.toString()}
+                  size={networkSize * 0.8}
+                  style={
+                    [
+                      styles.networkIcon,
+                      {
+                        position: 'absolute',
+                        right: (index % 2) * (networkSize * 0.8),
+                        bottom: Math.floor(index / 2) * (networkSize * 0.8)
+                      }
+                    ] as any
+                  }
+                  benzinNetwork={networkForChain}
+                />
+              ) : null
+            )}
+          </View>
+        </View>
+      ) : shouldDisplayNetworkIcon ? (
         <View
           style={[
             styles.networkIconWrapper,
             !withContainer && {
-              left: -3,
-              top: -3
+              right: -3,
+              bottom: -3,
+              left: 'auto',
+              top: 'auto'
             }
           ]}
         >
@@ -160,7 +217,7 @@ const TokenIcon: React.FC<Props> = ({
             benzinNetwork={network}
           />
         </View>
-      )}
+      ) : null}
     </View>
   )
 }

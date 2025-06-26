@@ -23,15 +23,18 @@ import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import usePortfolioControllerState from '@web/hooks/usePortfolioControllerState/usePortfolioControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 import { getTokenId } from '@web/utils/token'
-import { getUiType } from '@web/utils/uiType'
 
 import TokenDetails from '../TokenDetails'
 import PendingBadge from './PendingBadge'
 import getStyles from './styles'
 
-const { isPopup } = getUiType()
-
-const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) => {
+const TokenItem = ({
+  token,
+  testID
+}: {
+  token: TokenResult & { amountPerChain: { [chainId: string]: bigint }; uri: string }
+  testID?: string
+}) => {
   const { portfolio } = useSelectedAccountControllerState()
   const {
     symbol,
@@ -47,8 +50,8 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
     ({ address: addr, chainId: nChainId }) => addr === address && nChainId === chainId
   ) || { isHidden: false }
   const { styles, theme } = useTheme(getStyles)
-  const { ref: sheetRef, open: openBottomSheet, close: closeBottomSheet } = useModalize()
-  const [bindAnim, animStyle] = useCustomHover({
+  const { ref: sheetRef, close: closeBottomSheet } = useModalize()
+  const [bindAnim] = useCustomHover({
     property: 'backgroundColor',
     values: {
       from: theme.primaryBackground,
@@ -66,7 +69,6 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
     priceUSDFormatted,
     balanceUSDFormatted,
     isVesting,
-    networkData,
     isRewards,
     isPending: hasPendingBadges,
     pendingBalance,
@@ -121,8 +123,8 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
 
   return (
     <AnimatedPressable
-      onPress={() => openBottomSheet()}
-      style={[styles.container, animStyle]}
+      // onPress={() => openBottomSheet()}
+      style={[styles.container]}
       {...bindAnim}
       testID={testID}
     >
@@ -151,6 +153,8 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
                   containerWidth={40}
                   width={28}
                   height={28}
+                  amountPerChain={token.amountPerChain}
+                  uri={token.uri}
                 />
               )}
             </View>
@@ -169,13 +173,13 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
                       tooltipId: `${tokenId}-balance`
                     }}
                   >
-                    {isPending ? pendingBalanceFormatted : balanceFormatted} {symbol}{' '}
+                    {symbol}
                   </Text>
                   <Tooltip
                     content={String(isPending ? pendingBalance : balance)}
                     id={`${tokenId}-balance`}
                   />
-                  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+                  {/* <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
                     <Text weight="regular" shouldScale={false} fontSize={12}>
                       {isRewards && t('Claimable rewards')}
                       {isVesting && !isPopup && t('Claimable early supporters vestings')}
@@ -185,6 +189,11 @@ const TokenItem = ({ token, testID }: { token: TokenResult; testID?: string }) =
                     <Text weight="regular" style={[spacings.mrMi]} fontSize={12}>
                       {onGasTank && t('Gas Tank')}
                       {!onGasTank && !isRewards && !isVesting && networkData?.name}
+                    </Text>
+                  </View> */}
+                  <View style={[flexboxStyles.directionRow, flexboxStyles.alignCenter]}>
+                    <Text weight="regular" shouldScale={false} fontSize={12}>
+                      {isPending ? pendingBalanceFormatted : balanceFormatted}
                     </Text>
                   </View>
                 </View>
