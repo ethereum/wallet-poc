@@ -1,0 +1,3 @@
+import SignAccountOpHardwareWalletSigningModal from './SignAccountOpHardwareWalletSigningModal'
+
+export default SignAccountOpHardwareWalletSigningModal

@@ -88,6 +88,27 @@ export const handleActions = async (
       const hdPathTemplate = BIP44_STANDARD_DERIVATION_TEMPLATE
       const keyIterator = new KeyIterator(params.privKeyOrSeed, params.seedPassphrase)
       await mainCtrl.accountPicker.setInitParams({ keyIterator, hdPathTemplate })
+
+      // Add custom testnet tokens (USDC) to the portfolio
+      await mainCtrl.portfolio.addCustomToken({
+        address: '0x75faf114eafb1BDbe2F0316DF893fd58CE46AA4d',
+        chainId: 421614n,
+        standard: 'ERC20'
+      })
+      await mainCtrl.portfolio.addCustomToken({
+        address: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+        chainId: 84532n,
+        standard: 'ERC20'
+      })
+      await mainCtrl.portfolio.addCustomToken(
+        {
+          address: '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238',
+          chainId: 11155111n,
+          standard: 'ERC20'
+        },
+        mainCtrl.selectedAccount.account?.addr,
+        true
+      )
       break
     }
     case 'MAIN_CONTROLLER_ACCOUNT_PICKER_INIT_FROM_SAVED_SEED_PHRASE': {

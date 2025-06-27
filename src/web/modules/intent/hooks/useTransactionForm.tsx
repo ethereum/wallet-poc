@@ -16,6 +16,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import { isEqual } from 'lodash'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 
+import { useModalize } from 'react-native-modalize'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 
@@ -49,6 +50,12 @@ const useTransactionForm = () => {
     sessionIds,
     quote
   } = formState
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
+  const [isEstimationOpen, setIsEstimationOpen] = useState(false)
 
   // Temporary log
   console.log({ state })
@@ -90,6 +97,7 @@ const useTransactionForm = () => {
         toSelectedToken
       }
     })
+    setIsEstimationOpen(true)
   }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
@@ -255,8 +263,17 @@ const useTransactionForm = () => {
         type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
         params: { quote: [], transactions: [] }
       })
+      setIsEstimationOpen(false)
     }
-  }, [dispatch, sessionId])
+  }, [dispatch, sessionId, setIsEstimationOpen])
+
+  useEffect(() => {
+    if (isEstimationOpen) {
+      openEstimationModal()
+    } else {
+      closeEstimationModal()
+    }
+  }, [isEstimationOpen, openEstimationModal, closeEstimationModal])
 
   return {
     handleSubmitForm,
@@ -284,7 +301,10 @@ const useTransactionForm = () => {
     updateToTokenListStatus,
     recipientAddress,
     quote,
-    transactionType
+    transactionType,
+    estimationModalRef,
+    openEstimationModal,
+    closeEstimationModal
   }
 }
 
