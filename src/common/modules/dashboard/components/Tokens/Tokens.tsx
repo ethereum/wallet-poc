@@ -25,17 +25,18 @@ import AddTokenBottomSheet from '@web/modules/settings/screens/ManageTokensSetti
 import { getTokenId } from '@web/utils/token'
 import { getUiType } from '@web/utils/uiType'
 
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import DashboardBanners from '../DashboardBanners'
 import DashboardPageScrollContainer from '../DashboardPageScrollContainer'
-import TabsAndSearch from '../TabsAndSearch'
+// import TabsAndSearch from '../TabsAndSearch'
 import { TabType } from '../TabsAndSearch/Tabs/Tab/Tab'
 import TokenItem from './TokenItem'
 import Skeleton from './TokensSkeleton'
 
 interface Props {
   openTab: TabType
-  setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
-  sessionId: string
+  // setOpenTab: React.Dispatch<React.SetStateAction<TabType>>
+  // sessionId: string
   initTab?: {
     [key: string]: boolean
   }
@@ -58,9 +59,9 @@ const { isPopup } = getUiType()
 
 const Tokens = ({
   openTab,
-  setOpenTab,
+  // setOpenTab,
   initTab,
-  sessionId,
+  // sessionId,
   onScroll,
   dashboardNetworkFilterName
 }: Props) => {
@@ -75,7 +76,7 @@ const Tokens = ({
     open: openAddTokenBottomSheet,
     close: closeAddTokenBottomSheet
   } = useModalize()
-  const { control, watch, setValue } = useForm({
+  const { watch, setValue } = useForm({
     mode: 'all',
     defaultValues: {
       search: ''
@@ -110,76 +111,192 @@ const Tokens = ({
     [tokens]
   )
 
-  const sortedTokens = useMemo(
-    () =>
-      tokens
-        .filter((token) => {
-          if (isGasTankTokenOnCustomNetwork(token, networks)) return false
-          if (token?.flags.isHidden) return false
+  const sortedTokens = useMemo(() => {
+    const filteredTokens = tokens
+      .filter((token) => {
+        if (isGasTankTokenOnCustomNetwork(token, networks)) return false
+        if (token?.flags.isHidden) return false
 
-          const hasTokenAmount = hasAmount(token)
-          const isCustom = customTokens.find(
-            ({ address, chainId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
-          )
-          const isPinned = PINNED_TOKENS.find(
-            ({ address, chainId }) =>
-              token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
-          )
+        const hasTokenAmount = hasAmount(token)
+        const isCustom = customTokens.find(
+          ({ address, chainId }) =>
+            token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
+        )
+        const isPinned = PINNED_TOKENS.find(
+          ({ address, chainId }) =>
+            token.address.toLowerCase() === address.toLowerCase() && token.chainId === chainId
+        )
 
-          return (
-            hasTokenAmount ||
-            isCustom ||
-            // Don't display pinned tokens until we are sure the user has no balance
-            (isPinned && userHasNoBalance && portfolio?.isAllReady)
-          )
-        })
-        .sort((a, b) => {
-          // pending tokens go on top
-          if (
-            typeof a.amountPostSimulation === 'bigint' &&
-            a.amountPostSimulation !== BigInt(a.amount)
-          ) {
-            return -1
+        return (
+          hasTokenAmount ||
+          isCustom ||
+          // Don't display pinned tokens until we are sure the user has no balance
+          (isPinned && userHasNoBalance && portfolio?.isAllReady)
+        )
+      })
+      .sort((a, b) => {
+        // pending tokens go on top
+        if (
+          typeof a.amountPostSimulation === 'bigint' &&
+          a.amountPostSimulation !== BigInt(a.amount)
+        ) {
+          return -1
+        }
+        if (
+          typeof b.amountPostSimulation === 'bigint' &&
+          b.amountPostSimulation !== BigInt(b.amount)
+        ) {
+          return 1
+        }
+
+        // If a is a rewards token and b is not, a should come before b.
+        if (a.flags.rewardsType && !b.flags.rewardsType) {
+          return -1
+        }
+        if (!a.flags.rewardsType && b.flags.rewardsType) {
+          // If b is a rewards token and a is not, b should come before a.
+          return 1
+        }
+
+        const aBalance = getTokenBalanceInUSD(a)
+        const bBalance = getTokenBalanceInUSD(b)
+
+        if (a.flags.rewardsType === b.flags.rewardsType) {
+          if (aBalance === bBalance) {
+            return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
           }
-          if (
-            typeof b.amountPostSimulation === 'bigint' &&
-            b.amountPostSimulation !== BigInt(b.amount)
-          ) {
-            return 1
+
+          return bBalance - aBalance
+        }
+
+        if (a.flags.onGasTank && !b.flags.onGasTank) {
+          return -1
+        }
+        if (!a.flags.onGasTank && b.flags.onGasTank) {
+          return 1
+        }
+
+        return 0
+      })
+
+    // Group tokens by symbol and aggregate balances
+    const groupedTokensMap = new Map()
+
+    filteredTokens
+      // Filter out mainnet tokens
+      .filter((token) => testnetNetworks.find((n) => n.chainId === token.chainId))
+      .forEach((token) => {
+        const key = token.symbol
+
+        if (groupedTokensMap.has(key)) {
+          const existingToken = groupedTokensMap.get(key)
+
+          // Aggregate amounts
+          const newAmount = existingToken.amount + token.amount
+
+          // Track amount per chain
+          const amountPerChain = {
+            ...existingToken.amountPerChain,
+            [token.chainId.toString()]:
+              (existingToken.amountPerChain[token.chainId.toString()] || 0n) + token.amount
           }
 
-          // If a is a rewards token and b is not, a should come before b.
-          if (a.flags.rewardsType && !b.flags.rewardsType) {
-            return -1
-          }
-          if (!a.flags.rewardsType && b.flags.rewardsType) {
-            // If b is a rewards token and a is not, b should come before a.
-            return 1
+          // Merge flags (prioritize certain flags)
+          const mergedFlags = {
+            ...existingToken.flags,
+            onGasTank: existingToken.flags.onGasTank || token.flags.onGasTank,
+            rewardsType: existingToken.flags.rewardsType || token.flags.rewardsType,
+            canTopUpGasTank: existingToken.flags.canTopUpGasTank || token.flags.canTopUpGasTank,
+            isFeeToken: existingToken.flags.isFeeToken || token.flags.isFeeToken,
+            isCustom: existingToken.flags.isCustom || token.flags.isCustom
           }
 
-          const aBalance = getTokenBalanceInUSD(a)
-          const bBalance = getTokenBalanceInUSD(b)
+          // Hardcoded price for testnet tokens
+          const newPriceIn =
+            existingToken.symbol === 'ETH'
+              ? [{ baseCurrency: 'usd', price: 2300 }]
+              : [{ baseCurrency: 'usd', price: 1 }]
 
-          if (a.flags.rewardsType === b.flags.rewardsType) {
-            if (aBalance === bBalance) {
-              return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
+          // Hardcoded uri for testnet tokens
+          const newUri =
+            existingToken.symbol === 'ETH'
+              ? 'https://cena.ambire.com/iconProxy/base/0x0000000000000000000000000000000000000000'
+              : 'https://cena.ambire.com/iconProxy/polygon-pos/0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359'
+
+          // Remove if we dont want to show the simulation amount
+          const newPostSimulationAmount = newAmount + (existingToken.simulationAmount || 0n)
+
+          groupedTokensMap.set(key, {
+            ...existingToken,
+            amount: newAmount,
+            uri: newUri,
+            latestAmount: newAmount,
+            pendingAmount: newAmount,
+            amountPostSimulation: newPostSimulationAmount,
+            amountPerChain,
+            priceIn: newPriceIn,
+            flags: mergedFlags,
+            // Keep the chainId of the token with the highest balance for this symbol
+            chainId:
+              getTokenBalanceInUSD(token) > getTokenBalanceInUSD(existingToken)
+                ? token.chainId
+                : existingToken.chainId
+          })
+        } else {
+          groupedTokensMap.set(key, {
+            ...token,
+            amountPerChain: {
+              [token.chainId.toString()]: token.amount
             }
+          })
+        }
+      })
 
-            return bBalance - aBalance
-          }
+    // Convert back to array and maintain the original sorting order
+    const groupedTokens = Array.from(groupedTokensMap.values()).sort((a, b) => {
+      // Apply the same sorting logic as before to maintain consistency
+      if (
+        typeof a.amountPostSimulation === 'bigint' &&
+        a.amountPostSimulation !== BigInt(a.amount)
+      ) {
+        return -1
+      }
+      if (
+        typeof b.amountPostSimulation === 'bigint' &&
+        b.amountPostSimulation !== BigInt(b.amount)
+      ) {
+        return 1
+      }
 
-          if (a.flags.onGasTank && !b.flags.onGasTank) {
-            return -1
-          }
-          if (!a.flags.onGasTank && b.flags.onGasTank) {
-            return 1
-          }
+      if (a.flags.rewardsType && !b.flags.rewardsType) {
+        return -1
+      }
+      if (!a.flags.rewardsType && b.flags.rewardsType) {
+        return 1
+      }
 
-          return 0
-        }),
-    [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady]
-  )
+      const aBalance = getTokenBalanceInUSD(a)
+      const bBalance = getTokenBalanceInUSD(b)
+
+      if (a.flags.rewardsType === b.flags.rewardsType) {
+        if (aBalance === bBalance) {
+          return Number(getTokenAmount(b)) - Number(getTokenAmount(a))
+        }
+        return bBalance - aBalance
+      }
+
+      if (a.flags.onGasTank && !b.flags.onGasTank) {
+        return -1
+      }
+      if (!a.flags.onGasTank && b.flags.onGasTank) {
+        return 1
+      }
+
+      return 0
+    })
+
+    return groupedTokens
+  }, [tokens, networks, customTokens, userHasNoBalance, portfolio?.isAllReady])
 
   const hiddenTokensCount = useMemo(
     () => tokens.filter((token) => token.flags.isHidden).length,
@@ -195,12 +312,12 @@ const Tokens = ({
       if (item === 'header') {
         return (
           <View style={{ backgroundColor: theme.primaryBackground }}>
-            <TabsAndSearch
+            {/* <TabsAndSearch
               openTab={openTab}
               setOpenTab={setOpenTab}
               searchControl={control}
               sessionId={sessionId}
-            />
+            /> */}
             <View style={[flexbox.directionRow, spacings.mbTy, spacings.phTy]}>
               <Text appearance="secondaryText" fontSize={14} weight="medium" style={{ flex: 1.5 }}>
                 {t('ASSET/AMOUNT')}
@@ -278,7 +395,7 @@ const Tokens = ({
                     count: hiddenTokensCount,
                     tokensLabel: hiddenTokensCount > 1 ? t('tokens') : t('token')
                   })}{' '}
-                  {dashboardNetworkFilter && t('on this network')}
+                  {!!dashboardNetworkFilter && t('on this network')}
                 </Text>
                 <RightArrowIcon height={12} color={theme.secondaryText} />
               </Pressable>
@@ -312,10 +429,6 @@ const Tokens = ({
       theme.primaryBackground,
       theme.secondaryBackground,
       theme.secondaryText,
-      openTab,
-      setOpenTab,
-      control,
-      sessionId,
       t,
       searchValue,
       dashboardNetworkFilterName,

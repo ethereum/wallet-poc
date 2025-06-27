@@ -19,7 +19,8 @@ const getStyles = (theme: ThemeProps) =>
       ...flexbox.justifySpaceBetween,
       ...spacings.pvTy,
       ...spacings.phTy,
-      ...common.borderRadiusPrimary
+      ...common.borderRadiusPrimary,
+      ...{ cursor: 'default' }
     },
     containerHovered: {
       backgroundColor: theme.secondaryBackground

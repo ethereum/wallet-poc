@@ -1,7 +1,7 @@
 import { StyleSheet, ViewStyle } from 'react-native'
 
 import { ThemeProps } from '@common/styles/themeConfig'
-import common, { BORDER_RADIUS_PRIMARY } from '@common/styles/utils/common'
+import common from '@common/styles/utils/common'
 import flexbox from '@common/styles/utils/flexbox'
 
 interface Style {
@@ -21,12 +21,9 @@ const getStyles = (theme: ThemeProps) =>
     },
     networkIconWrapper: {
       position: 'absolute',
-      left: 0,
-      top: 0,
-      zIndex: 3,
-      borderWidth: 1,
-      borderColor: theme.secondaryBorder,
-      borderRadius: 12
+      right: -3,
+      bottom: -3,
+      zIndex: 3
     },
     networkIcon: {
       backgroundColor: theme.primaryBackground
