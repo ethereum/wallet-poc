@@ -4,7 +4,7 @@ import { View } from 'react-native'
 import { isSmartAccount } from '@ambire-common/libs/account/account'
 import AccountAddress from '@common/components/AccountAddress'
 import AccountBadges from '@common/components/AccountBadges'
-import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
+// import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
 import Avatar from '@common/components/Avatar'
 import DomainBadge from '@common/components/Avatar/DomainBadge'
 import Text from '@common/components/Text'
@@ -92,7 +92,8 @@ const Wrapper: FC<WrapperProps> = ({ children, title, handleGoBack, buttons }) =
               {title}
             </Text>
             <View style={[styles.headerSideContainer, { alignItems: 'flex-end' }]}>
-              <AmbireLogoHorizontalWithOG />
+              {/* TODO: Replace this once we have the new logo */}
+              {/* <AmbireLogoHorizontalWithOG /> */}
             </View>
           </View>
         </Header>

@@ -2,13 +2,14 @@ import React, { FC, memo, useCallback } from 'react'
 
 import { TokenResult } from '@ambire-common/libs/portfolio'
 import { SelectValue } from '@common/components/Select/types'
-import SendToken from '@common/components/SendToken'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useNetworksControllerState from '@web/hooks/useNetworksControllerState'
 import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import useSwapAndBridgeForm from '@web/modules/intent/hooks/useSwapAndBridgeForm'
 import { getTokenId } from '@web/utils/token'
+import useTransactionControllerState from '@web/hooks/useTransactionStatecontroller'
 import useTransactionForm from '../hooks/useTransactionForm'
+import SendToken from './SendToken'
 
 type Props = Pick<
   ReturnType<typeof useSwapAndBridgeForm>,
@@ -17,7 +18,6 @@ type Props = Pick<
   | 'fromAmountValue'
   | 'fromTokenAmountSelectDisabled'
   | 'onFromAmountChange'
-  | 'setIsAutoSelectRouteDisabled'
 >
 
 const FromToken: FC<Props> = ({
@@ -25,43 +25,30 @@ const FromToken: FC<Props> = ({
   fromTokenValue,
   fromAmountValue,
   fromTokenAmountSelectDisabled,
-  setIsAutoSelectRouteDisabled,
+  // setIsAutoSelectRouteDisabled,
   onFromAmountChange
 }) => {
   const { networks } = useNetworksControllerState()
   const { dispatch } = useBackgroundService()
-  const { fromAmount, fromAmountInFiat, fromSelectedToken, toSelectedToken, maxFromAmount } =
-    useTransactionForm()
-  const { portfolioTokenList, fromAmountFieldMode, validateFromAmount } =
-    useSwapAndBridgeControllerState()
+  const { fromAmount, fromAmountInFiat, fromSelectedToken, maxFromAmount } = useTransactionForm()
+  const {
+    formState: { portfolioTokenList }
+  } = useTransactionControllerState()
+  const { fromAmountFieldMode, validateFromAmount } = useSwapAndBridgeControllerState()
 
   const handleChangeFromToken = useCallback(
     ({ value }: SelectValue) => {
       const tokenToSelect = portfolioTokenList.find(
         (tokenRes: TokenResult) => getTokenId(tokenRes, networks) === value
       )
-
-      setIsAutoSelectRouteDisabled(false)
-
-      // Switch the tokens if the selected token is the same as the "to" token
-      if (
-        tokenToSelect &&
-        toSelectedToken &&
-        tokenToSelect.address === toSelectedToken.address &&
-        tokenToSelect.chainId === BigInt(toSelectedToken.chainId || 0)
-      ) {
-        dispatch({
-          type: 'SWAP_AND_BRIDGE_CONTROLLER_SWITCH_FROM_AND_TO_TOKENS'
-        })
-        return
-      }
+      // setIsAutoSelectRouteDisabled(false)
 
       dispatch({
         type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
         params: { fromSelectedToken: tokenToSelect }
       })
     },
-    [portfolioTokenList, setIsAutoSelectRouteDisabled, toSelectedToken, dispatch, networks]
+    [portfolioTokenList, dispatch, networks]
   )
 
   const handleSetMaxFromAmount = useCallback(() => {

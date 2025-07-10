@@ -16,6 +16,7 @@ import useActionsControllerState from '@web/hooks/useActionsControllerState'
 import { isEqual } from 'lodash'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 
+import { useModalize } from 'react-native-modalize'
 import useAddressInput from './useAddressInput'
 import { toTokenList } from '../utils/toTokenList'
 
@@ -25,10 +26,11 @@ const { isPopup, isActionWindow } = getUiType()
 
 const useTransactionForm = () => {
   const { addToast } = useToast()
+  const { dispatch } = useBackgroundService()
   const { visibleActionsQueue } = useActionsControllerState()
-  const state = useTransactionControllerState()
   const { setSearchParams } = useNavigation()
-  const { formState, transactionType } = state
+  const state = useTransactionControllerState()
+  const { formState, transactionType, intent } = state
   const {
     fromAmount,
     fromAmountFieldMode,
@@ -46,18 +48,30 @@ const useTransactionForm = () => {
     switchTokensStatus,
     updateToTokenListStatus,
     recipientAddress,
-    sessionIds,
-    quote
+    sessionIds
   } = formState
+
+  const {
+    ref: estimationModalRef,
+    open: openEstimationModal,
+    close: closeEstimationModal
+  } = useModalize()
+
+  const [isEstimationOpen, setIsEstimationOpen] = useState(false)
+
+  const { quote } = intent
 
   // Temporary log
   console.log({ state })
 
-  const { dispatch } = useBackgroundService()
+  const [hasBroadcasted, setHasBroadcasted] = useState(false)
+  const [showAddedToBatch, setShowAddedToBatch] = useState(false)
   const [fromAmountValue, setFromAmountValue] = useState<string>(fromAmount)
+
   const prevFromAmount = usePrevious(fromAmount)
   const prevFromAmountInFiat = usePrevious(fromAmountInFiat)
   const sessionIdsRequestedToBeInit = useRef<SessionId[]>([])
+
   const sessionId = useMemo(() => {
     if (isPopup) return 'popup'
     if (isActionWindow) return 'action-window'
@@ -90,6 +104,7 @@ const useTransactionForm = () => {
         toSelectedToken
       }
     })
+    setIsEstimationOpen(true)
   }, [dispatch, fromAmount, fromSelectedToken, recipientAddress, toChainId, toSelectedToken])
 
   const onFromAmountChange = useCallback(
@@ -100,7 +115,7 @@ const useTransactionForm = () => {
         params: { fromAmount: value }
       })
     },
-    [dispatch, setFromAmountValue]
+    [dispatch]
   )
 
   const onRecipientAddressChange = useCallback(
@@ -170,23 +185,37 @@ const useTransactionForm = () => {
     handleCacheResolvedDomain
   })
 
+  const displayedView: 'estimate' | 'batch' | 'track' = useMemo(() => {
+    if (showAddedToBatch) return 'batch'
+
+    if (hasBroadcasted) return 'track'
+
+    return 'estimate'
+  }, [hasBroadcasted, showAddedToBatch])
+
+  const isBridge = useMemo(() => {
+    if (!fromSelectedToken || !toSelectedToken) return false
+    return fromSelectedToken.chainId !== BigInt(toSelectedToken.chainId)
+  }, [fromSelectedToken, toSelectedToken])
+
   // This is a temporary fix meanwhile the intent logic is implemented
   useEffect(() => {
     const toToken = toTokenList.find(
       (token) => token.chainId === toChainId && token.symbol === fromSelectedToken?.symbol
     )
+
     if (!toToken) return
 
     dispatch({
       type: 'TRANSACTION_CONTROLLER_UPDATE_FORM',
       params: { toSelectedToken: toToken }
     })
-  }, [dispatch, fromChainId, fromSelectedToken?.symbol, toChainId])
+  }, [dispatch, fromSelectedToken?.symbol, toChainId])
 
   useEffect(() => {
     if (fromAmountFieldMode === 'token') setFromAmountValue(fromAmount)
     if (fromAmountFieldMode === 'fiat') setFromAmountValue(fromAmountInFiat)
-  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat, setFromAmountValue])
+  }, [fromAmountFieldMode, fromAmount, fromAmountInFiat])
 
   useEffect(() => {
     if (
@@ -255,13 +284,19 @@ const useTransactionForm = () => {
         type: 'TRANSACTION_CONTROLLER_SET_QUOTE',
         params: { quote: [], transactions: [] }
       })
+      setIsEstimationOpen(false)
     }
-  }, [dispatch, sessionId])
+  }, [dispatch, sessionId, setIsEstimationOpen])
+
+  useEffect(() => {
+    if (isEstimationOpen) {
+      openEstimationModal()
+    } else {
+      closeEstimationModal()
+    }
+  }, [isEstimationOpen, openEstimationModal, closeEstimationModal])
 
   return {
-    handleSubmitForm,
-    onFromAmountChange,
-    onRecipientAddressChange,
     fromSelectedToken,
     toSelectedToken,
     fromAmountValue,
@@ -274,6 +309,7 @@ const useTransactionForm = () => {
     fromTokenOptions,
     fromTokenValue,
     addressState,
+    sessionId,
     isRecipientAddressUnknown,
     isRecipientAddressUnknownAgreed,
     addressInputState,
@@ -284,7 +320,17 @@ const useTransactionForm = () => {
     updateToTokenListStatus,
     recipientAddress,
     quote,
-    transactionType
+    isBridge,
+    transactionType,
+    estimationModalRef,
+    displayedView,
+    openEstimationModal,
+    closeEstimationModal,
+    handleSubmitForm,
+    onFromAmountChange,
+    onRecipientAddressChange,
+    setHasBroadcasted,
+    setShowAddedToBatch
   }
 }
 

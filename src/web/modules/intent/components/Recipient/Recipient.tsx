@@ -56,14 +56,14 @@ const SelectedMenuOption: React.FC<{
       containerStyle={styles.inputContainer}
       ensAddress={ensAddress}
       isRecipientDomainResolving={isRecipientDomainResolving}
-      label="Recipient"
+      label="Add recipient"
       value={address}
       onChangeText={setAddress}
       disabled={disabled}
-      onFocus={toggleMenu}
-      buttonProps={{
-        onPress: toggleMenu
-      }}
+      // onFocus={toggleMenu}
+      // buttonProps={{
+      //   onPress: toggleMenu
+      // }}
       buttonStyle={{ ...spacings.pv0, ...spacings.ph, ...spacings.mr0, ...spacings.ml0 }}
     />
   )

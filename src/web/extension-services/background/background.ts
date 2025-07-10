@@ -813,11 +813,11 @@ function getIntervalRefreshTime(constUpdateInterval: number, newestOpTimestamp: 
             if (ctrlName === 'providers') {
               initFrequentLatestAccountStateContinuousUpdateIfNeeded()
             }
-            if (ctrlName === 'swapAndBridge') {
-              initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
-              initSwapAndBridgeQuoteContinuousUpdate()
-              backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
-            }
+            // if (ctrlName === 'swapAndBridge') {
+            //   initActiveRoutesContinuousUpdate(controller?.activeRoutesInProgress)
+            //   initSwapAndBridgeQuoteContinuousUpdate()
+            //   backgroundState.swapAndBridgeQuoteStatus = controller.updateQuoteStatus
+            // }
           }, 'background')
         }
       }

@@ -24,7 +24,7 @@ type Props = {
 const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge }) => {
   const { t } = useTranslation()
   const {
-    formState: { fromAmount, fromSelectedToken, recipientAddress, maxFromAmount }
+    formState: { fromAmount, fromSelectedToken, recipientAddress, maxFromAmount, addressState }
   } = useTransactionControllerState()
 
   const { swapSignErrors } = useSwapAndBridgeControllerState()
@@ -38,7 +38,8 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
     !fromSelectedToken ||
     !recipientAddress ||
     !Number(fromAmount) ||
-    Number(fromAmount) > Number(maxFromAmount)
+    Number(fromAmount) > Number(maxFromAmount) ||
+    !addressState.interopAddress
 
   const networkUserRequests = fromChainId
     ? userRequests?.filter(
@@ -96,9 +97,7 @@ const Buttons: FC<Props> = ({ isNotReadyToProceed, handleSubmitForm, isBridge })
       {/* @ts-ignore */}
       <View dataSet={{ tooltipId: 'proceed-btn-tooltip' }}>
         <Button
-          text={t('Proceed')}
-          // TODO: remove the disabled once the intent is implemented
-          // disabled={isNotReadyToProceed || !!oneClickDisabledReason}
+          text={t('Send')}
           disabled={disabled}
           style={{ minWidth: 160, ...spacings.mlLg }}
           hasBottomSpacing={false}

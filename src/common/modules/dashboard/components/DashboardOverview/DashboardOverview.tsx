@@ -1,4 +1,4 @@
-import React, { FC, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { FC, useCallback, useEffect, useState } from 'react'
 import { Animated, Pressable, View } from 'react-native'
 
 import formatDecimals from '@ambire-common/utils/formatDecimals/formatDecimals'
@@ -20,8 +20,9 @@ import useHover, { AnimatedPressable } from '@web/hooks/useHover'
 import useMainControllerState from '@web/hooks/useMainControllerState'
 import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountControllerState'
 
-import useHasGasTank from '@web/hooks/useHasGasTank'
-import GasTankButton from '../DashboardHeader/GasTankButton'
+// import useHasGasTank from '@web/hooks/useHasGasTank'
+// import GasTankButton from '../DashboardHeader/GasTankButton'
+import { useTestnetPortfolio } from '@common/hooks/useTestnetPortfolio'
 import BalanceAffectingErrors from './BalanceAffectingErrors'
 import RefreshIcon from './RefreshIcon'
 import getStyles from './styles'
@@ -49,7 +50,7 @@ const BALANCE_HEIGHT = 34
 
 const DashboardOverview: FC<Props> = ({
   openReceiveModal,
-  openGasTankModal,
+  // openGasTankModal,
   animatedOverviewHeight,
   dashboardOverviewSize,
   setDashboardOverviewSize,
@@ -60,7 +61,8 @@ const DashboardOverview: FC<Props> = ({
   const { theme, styles } = useTheme(getStyles)
   const { isOffline } = useMainControllerState()
   const { account, dashboardNetworkFilter, portfolio } = useSelectedAccountControllerState()
-  const { hasGasTank } = useHasGasTank({ account })
+  const { totalBalance } = useTestnetPortfolio()
+  // const { hasGasTank } = useHasGasTank({ account })
 
   const [bindRefreshButtonAnim, refreshButtonAnimStyle] = useHover({
     preset: 'opacity'
@@ -75,16 +77,8 @@ const DashboardOverview: FC<Props> = ({
     networksWithErrors
   } = useBalanceAffectingErrors()
 
-  const totalPortfolioAmount = useMemo(() => {
-    if (!dashboardNetworkFilter) return portfolio?.totalBalance || 0
-
-    if (!account) return 0
-
-    return Number(portfolio?.latest?.[dashboardNetworkFilter.toString()]?.result?.total?.usd) || 0
-  }, [portfolio, dashboardNetworkFilter, account])
-
   const [totalPortfolioAmountInteger, totalPortfolioAmountDecimal] = formatDecimals(
-    totalPortfolioAmount,
+    totalBalance,
     'value'
   ).split('.')
 
@@ -162,7 +156,7 @@ const DashboardOverview: FC<Props> = ({
                 overflow: 'hidden'
               }}
             >
-              <View>
+              <View style={{ marginTop: 'auto' }}>
                 <View style={[flexbox.directionRow, flexbox.alignCenter, spacings.mbTy]}>
                   {!portfolio?.isAllReady ? (
                     <SkeletonLoader
@@ -230,7 +224,7 @@ const DashboardOverview: FC<Props> = ({
                 </View>
 
                 <View style={[flexbox.directionRow, flexbox.alignCenter]}>
-                  {!portfolio?.isAllReady && hasGasTank ? (
+                  {/* {!portfolio?.isAllReady && hasGasTank ? (
                     <SkeletonLoader lowOpacity width={170} height={32} borderRadius={8} />
                   ) : (
                     <GasTankButton
@@ -240,7 +234,7 @@ const DashboardOverview: FC<Props> = ({
                       account={account}
                       hasGasTank={hasGasTank}
                     />
-                  )}
+                  )} */}
                   <BalanceAffectingErrors
                     reloadAccount={reloadAccount}
                     networksWithErrors={networksWithErrors}

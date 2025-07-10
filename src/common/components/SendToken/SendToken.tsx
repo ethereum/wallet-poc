@@ -80,7 +80,7 @@ const SendToken: FC<Props> = ({
   }, [fromAmountFieldMode, fromAmountInFiat])
   return (
     <View style={spacings.mbXl}>
-      <Text appearance="secondaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
+      <Text appearance="quaternaryText" fontSize={16} weight="medium" style={spacings.mbTy}>
         {heading}
       </Text>
       <View

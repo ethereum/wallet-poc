@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
-import AmbireLogo from '@common/assets/svg/AmbireLogo'
 import ViewModeIcon from '@common/assets/svg/ViewModeIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
@@ -74,7 +73,7 @@ const GetStartedScreen = () => {
   return (
     <TabLayoutContainer
       backgroundColor={theme.secondaryBackground}
-      header={<Header mode="custom-inner-content" withAmbireLogo />}
+      header={<Header mode="custom-inner-content" />}
     >
       <TabLayoutWrapperMainContent>
         <Panel spacingsSize="small" type="onboarding">
@@ -82,7 +81,10 @@ const GetStartedScreen = () => {
             <View
               style={[flexbox.justifyCenter, flexbox.alignCenter, flexbox.flex1, spacings.mbSm]}
             >
-              <AmbireLogo height={96} />
+              {/* TODO: Add Kohaku logo here */}
+              <Text fontSize={40} weight="medium" style={[text.center, spacings.mbXl]}>
+                Kohaku
+              </Text>
               <Text style={[spacings.mtLg, text.center]} weight="medium" appearance="secondaryText">
                 {t('The Web3 wallet that makes self-custody easy and secure.')}
               </Text>

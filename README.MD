@@ -9,30 +9,7 @@
 
 ---
 
-# Ambire Wallet
-
-<div align="center">
-  <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
-    <img src="./mockups/mockup-dashboard.png" alt="Ambire Wallet Dashboard" />
-  </a>
-
-  <p>
-    The secure & easy-to-use Web3 wallet. EIP-7702 ready.<br />
-    <a href="https://chromewebstore.google.com/detail/ambire-wallet/ehgjhhccekdedpbkifaojjaefeohnoea" target="_blank">
-      <strong>Download Extension for Webkit Browsers 🔥</strong>
-    </a>
-    <br />
-    <em>(Chrome, Brave, Opera, Edge, Arc)</em>
-    <br /><br />
-    💌 Request Invite Code:
-    <a href="https://discord.com/invite/Ambire" target="_blank">Discord</a> |
-    <a href="https://t.me/AmbireOfficial" target="_blank">Telegram</a>
-    <br />
-    🐞
-    <a href="https://github.com/AmbireTech/extension/issues">Report a Bug</a> ·
-    <a href="https://forum.ambire.com/" target="_blank">Request Features</a>
-  </p>
-</div>
+# Hokaku Wallet
 
 ## Environment Setup
 
@@ -50,7 +27,7 @@ Install all dependencies:
 yarn install
 ```
 
-Install the [ambire-common](https://github.com/AmbireTech/ambire-common) submodule, a common ground for the Ambire apps, run:
+Install the [common](https://github.com/defi-wonderland/ambire-common) submodule, a common ground for the Ambire apps, run:
 
 ```bash
 git submodule init
@@ -184,100 +161,3 @@ yarn build:extensions
 ```
 
 And find the resulting zips in the "build" folder as `ambire-extension-<VERSION>-<TYPE>.zip`
-
-## Mobile Apps
-
-The Ambire v2 compatible mobile apps are yet to be developed. Coming sometime in the near future 🤞
-
-## Benzin
-
-Ambire's transaction explorer, that makes human readable ERC-4337 transactions and contract interactions.
-
-Comes not only as integrated module in the Ambire extension(s), but as a standalone web app also.
-
-### Development-optimized Build
-
-```bash
-yarn web:benzin
-```
-
-And find the resulting build in the "build/benzin-dev" folder.
-
-### Production-optimized Build
-
-```bash
-yarn build:web:benzin
-```
-
-And find the resulting build in the "build/benzin-prod" folder.
-
-## Ambire Rewards
-
-Ambire Rewards is a gamified testing web3 app for the Ambire browser extensions. It is designed to users you discover the power of Smart Accounts via an epic onchain adventure. [Read more](https://rewards.ambire.com/).
-
-### Development-optimized Build
-
-```bash
-yarn web:legends
-```
-
-And find the resulting build in the "build/legends-dev" folder.
-
-```bash
-yarn build:web:legends
-```
-
-And find the resulting build in the "build/legends-prod" folder.
-
-## Others
-
-### Browser Extensions E2E Tests
-
-#### Configuration
-
-The best approach here is to follow `.github/workflows/tests.yml`. It contains all the necessary instructions for CI, which are also applicable locally. Make sure to:
-
-- Set all necessary .env variables (marked as end-to-end tests configuration).
-- See [#1409](https://github.com/AmbireTech/ambire-app/pull/1409) for more details.
-
-#### Running against production
-
-To build the webkit production version of the extension and run the E2E tests against the /webkit-prod folder, run:
-
-```bash
-yarn run test:e2e:web
-```
-
-#### Running against development
-
-For debugging, to use the hot-reloaded webpack dev webkit build and to allow running individual tests easily run:
-
-```bash
-yarn test:e2e:web:dev
-```
-
-When debugging or writing a new test, it is easier to use this command, as the project is hot-reloaded with every change you make to the codebase (e.g., adding a new selector or debugging a state), eliminating the need for a complete production build (as before). Additionally, you can run tests for a single or multiple test files.
-
-Here's how to run the tests for a single test file:
-
-```json
-{
-  "test:e2e:web:dev": "WEBPACK_BUILD_OUTPUT_PATH=webkit-dev jest --config=./tests/jest.config.js -- ./tests/basic_account/ba_transactions.test.js"
-}
-```
-
-If you are fixing a failing CI test and want to mimic CI at 100%, you should configure the display server:
-
-First, run `Xvfb -ac :99 -screen 0 1280x1024x16 > /dev/null 2>&1 &`, then set the `DISPLAY` variable with `export DISPLAY=:99.0`. By doing this, when Jest & Puppeteer are running, they will use the newly created virtual display instead of your local display. If you want to switch back to your local display, you should run export `DISPLAY=:0`.
-
-See [#2438](https://github.com/AmbireTech/ambire-app/pull/2438) for more details.
-
-### Translations (Beta)
-
-To scan the project for translation labels and to update translations JSON files, run:
-
-```bash
-yarn translations:scan
-```
-
-PS: Secondary languages not implemented / translated / fully tested yet.

@@ -36,10 +36,18 @@ const Header: FC<Props> = ({ activeStep, network, stepsState }) => {
         ]}
       >
         <View style={styles.logoWrapper}>
-          <AmbireLogo
+          <Text
+            fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 40 : 30}
+            weight="medium"
+            color="black"
+            // style={[text.center, spacings.mbXl]}
+          >
+            Kohaku
+          </Text>
+          {/* <AmbireLogo
             width={180 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
             height={59 / (IS_MOBILE_UP_BENZIN_BREAKPOINT ? 1 : 1.8)}
-          />
+          /> */}
         </View>
         <Text
           fontSize={IS_MOBILE_UP_BENZIN_BREAKPOINT ? 20 : 18}

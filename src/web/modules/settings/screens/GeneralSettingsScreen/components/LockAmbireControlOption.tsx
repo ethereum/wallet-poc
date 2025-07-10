@@ -31,11 +31,11 @@ const LockAmbireControlOption = () => {
   return (
     <ControlOption
       style={spacings.mbTy}
-      title={t('Lock Ambire')}
+      title={t('Lock Wallet')}
       description={
         hasPasswordSecret
-          ? t('Lock the Ambire Wallet extension, requiring your password the next time you use it.')
-          : t('To lock the Ambire Wallet extension, please create a extension password first.')
+          ? t('Lock the Wallet extension, requiring your password the next time you use it.')
+          : t('To lock the Wallet extension, please create a extension password first.')
       }
       renderIcon={<LockIcon color={theme.primaryText} />}
     >

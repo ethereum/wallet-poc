@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect } from 'react'
 import { View } from 'react-native'
 
-import AmbireLogo from '@common/assets/svg/AmbireLogo'
-import PinExtensionIcon from '@common/assets/svg/PinExtensionIcon'
 import Button from '@common/components/Button'
 import Panel from '@common/components/Panel'
 import Text from '@common/components/Text'
@@ -30,7 +28,7 @@ const OnboardingCompletedScreen = () => {
   const { dispatch } = useBackgroundService()
   const { isPinned } = useWalletStateController()
 
-  const { theme, styles } = useTheme(getStyles)
+  const { theme } = useTheme(getStyles)
 
   useEffect(() => {
     dispatch({ type: 'SET_IS_SETUP_COMPLETE', params: { isSetupComplete: true } })
@@ -41,49 +39,37 @@ const OnboardingCompletedScreen = () => {
   }, [dispatch])
 
   return (
-    <>
-      {!isPinned && (
-        <View style={styles.pinExtensionIcon}>
-          <PinExtensionIcon />
-        </View>
-      )}
-      <TabLayoutContainer
-        backgroundColor={theme.secondaryBackground}
-        header={<Header customTitle={' '} />}
-      >
-        <TabLayoutWrapperMainContent>
-          <Panel type="onboarding" spacingsSize="small" style={{ overflow: 'visible' }}>
-            <View style={[flexbox.flex1, flexbox.alignCenter, spacings.pt2Xl]}>
-              <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
-                <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={380} autoPlay={false} />
-                <AmbireLogo height={96} />
-              </View>
-              <Text
-                style={[spacings.mtLg, spacings.mb, text.center]}
-                weight="semiBold"
-                fontSize={20}
-              >
-                {t('Ambire Wallet is ready to use')}
-              </Text>
-              {!isPinned && (
-                <Text appearance="secondaryText" weight="medium" style={[text.center]}>
-                  {t('Pin the Ambire Extension to your toolbar for easy access.')}
-                </Text>
-              )}
-
-              <View style={[flexbox.flex1, flexbox.justifyEnd]}>
-                <Button
-                  testID="onboarding-completed-open-dashboard-btn"
-                  text={t('Open dashboard')}
-                  hasBottomSpacing={false}
-                  onPress={handleOpenDashboardPress}
-                />
-              </View>
+    <TabLayoutContainer
+      backgroundColor={theme.secondaryBackground}
+      header={<Header customTitle={' '} />}
+    >
+      <TabLayoutWrapperMainContent>
+        <Panel type="onboarding" spacingsSize="small" style={{ overflow: 'visible' }}>
+          <View style={[flexbox.flex1, flexbox.alignCenter, spacings.pt2Xl]}>
+            <View style={[flexbox.alignCenter, flexbox.justifyCenter]}>
+              <ConfettiAnimation width={TAB_CONTENT_WIDTH} height={380} autoPlay={false} />
             </View>
-          </Panel>
-        </TabLayoutWrapperMainContent>
-      </TabLayoutContainer>
-    </>
+            <Text style={[spacings.mtLg, spacings.mb, text.center]} weight="semiBold" fontSize={20}>
+              {t('Kohaku Wallet is ready to use')}
+            </Text>
+            {!isPinned && (
+              <Text appearance="secondaryText" weight="medium" style={[text.center]}>
+                {t('Pin the Kohaku Extension to your toolbar for easy access.')}
+              </Text>
+            )}
+
+            <View style={[flexbox.flex1, flexbox.justifyEnd]}>
+              <Button
+                testID="onboarding-completed-open-dashboard-btn"
+                text={t('Open dashboard')}
+                hasBottomSpacing={false}
+                onPress={handleOpenDashboardPress}
+              />
+            </View>
+          </View>
+        </Panel>
+      </TabLayoutWrapperMainContent>
+    </TabLayoutContainer>
   )
 }
 

@@ -54,8 +54,8 @@ const AutoLockDeviceControlOption = () => {
     <ControlOption
       style={spacings.mbTy}
       title={t('Auto-lock device')}
-      description={t('Set a timer, after which the Ambire Wallet will be automatically locked.')}
-      readMoreLink="https://help.ambire.com/hc/en-us/articles/15915341165852"
+      description={t('Set a timer, after which the Kohaku Wallet will be automatically locked.')}
+      // readMoreLink="https://help.ambire.com/hc/en-us/articles/15915341165852"
       renderIcon={<LockWithTimerIcon color={theme.primaryText} />}
     >
       <Select

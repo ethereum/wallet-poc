@@ -85,7 +85,7 @@ const AddressInput: React.FC<Props> = ({
   return (
     <>
       {label && (
-        <Text appearance="secondaryText" fontSize={16} weight="medium" style={styles.label}>
+        <Text appearance="quaternaryText" fontSize={16} weight="medium" style={styles.label}>
           {label}
         </Text>
       )}
@@ -98,7 +98,7 @@ const AddressInput: React.FC<Props> = ({
         validLabel={!isError && !isValidationInDomainResolvingState ? message : ''}
         error={isError ? message : ''}
         isValid={!isError && !isValidationInDomainResolvingState}
-        placeholder={placeholder || t('Address / ENS')}
+        placeholder={placeholder || t('Interop Address')}
         bottomLabelStyle={styles.bottomLabel}
         info={isValidationInDomainResolvingState ? t('Resolving domain...') : ''}
         childrenBeforeButtons={

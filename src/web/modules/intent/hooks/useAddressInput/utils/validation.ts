@@ -1,12 +1,12 @@
-import { getAddress } from 'ethers'
-import { isValidAddress } from '@ambire-common/services/address'
+// import { getAddress } from 'ethers'
+// import { isValidAddress } from '@ambire-common/services/address'
 import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import { getInteropAddressChainId } from '@web/modules/intent/utils/interopSdkService'
 
 type AddressInputValidation = {
   address: string
   isRecipientDomainResolving: boolean
-  isValidEns: boolean
+  // isValidEns: boolean
   isInteropAddress: boolean
   overwriteError?: string | boolean
   overwriteValidLabel?: string
@@ -15,7 +15,7 @@ type AddressInputValidation = {
 const getAddressInputValidation = async ({
   address,
   isRecipientDomainResolving,
-  isValidEns,
+  // isValidEns,
   isInteropAddress,
   overwriteError,
   overwriteValidLabel
@@ -77,33 +77,40 @@ const getAddressInputValidation = async ({
     }
   }
 
-  if (isValidEns) {
+  if (!isInteropAddress) {
     return {
-      message: 'Valid ENS domain',
-      isError: false
-    }
-  }
-
-  if (address && isValidAddress(address)) {
-    try {
-      getAddress(address)
-      return {
-        message: 'Valid address',
-        isError: false
-      }
-    } catch {
-      return {
-        message: 'Invalid checksum. Verify the address and try again.',
-        isError: true
-      }
-    }
-  }
-  if (address && !isValidAddress(address)) {
-    return {
-      message: 'Please enter a valid address, ENS domain, or interop address.',
+      message: 'Please enter a valid interop address.',
       isError: true
     }
   }
+
+  // if (isValidEns) {
+  //   return {
+  //     message: 'Valid ENS domain',
+  //     isError: false
+  //   }
+  // }
+
+  // if (address && isValidAddress(address)) {
+  //   try {
+  //     getAddress(address)
+  //     return {
+  //       message: 'Valid address',
+  //       isError: false
+  //     }
+  //   } catch {
+  //     return {
+  //       message: 'Invalid checksum. Verify the address and try again.',
+  //       isError: true
+  //     }
+  //   }
+  // }
+  // if (address && !isValidAddress(address)) {
+  //   return {
+  //     message: 'Please enter a valid address, ENS domain, or interop address.',
+  //     isError: true
+  //   }
+  // }
 
   return {
     message: '',

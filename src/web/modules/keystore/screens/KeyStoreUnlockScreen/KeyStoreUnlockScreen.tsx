@@ -3,7 +3,6 @@ import { Controller, useForm } from 'react-hook-form'
 import { TouchableOpacity, View } from 'react-native'
 
 import { isValidPassword } from '@ambire-common/services/validations'
-import AmbireLogoWithTextMonochrome from '@common/assets/svg/AmbireLogoWithTextMonochrome'
 import LockIcon from '@common/assets/svg/LockIcon'
 import UnlockScreenBackground from '@common/assets/svg/UnlockScreenBackground'
 import Button from '@common/components/Button'
@@ -165,10 +164,15 @@ const KeyStoreUnlockScreen = () => {
               </View>
             )}
             <View style={[flexbox.flex1, flexbox.alignCenter, flexbox.justifyCenter]}>
-              <AmbireLogoWithTextMonochrome
-                width={122}
-                height={height < 530 && !isPopup ? 90 : 128}
-              />
+              {/* TODO: Add Kohaku logo here */}
+              <Text
+                fontSize={40}
+                weight="medium"
+                color="white"
+                style={[text.center, spacings.mbXl]}
+              >
+                Kohaku
+              </Text>
             </View>
             <View>
               <Text

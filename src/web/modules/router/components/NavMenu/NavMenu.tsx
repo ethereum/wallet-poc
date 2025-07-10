@@ -17,9 +17,7 @@ import Header from '@common/modules/header/components/Header'
 import getHeaderStyles from '@common/modules/header/components/Header/styles'
 import HeaderBackButton from '@common/modules/header/components/HeaderBackButton'
 import { WEB_ROUTES } from '@common/modules/router/constants/common'
-import spacings, { SPACING_TY } from '@common/styles/spacings'
-import { iconColors } from '@common/styles/themeConfig'
-import common from '@common/styles/utils/common'
+import spacings from '@common/styles/spacings'
 import flexbox from '@common/styles/utils/flexbox'
 import text from '@common/styles/utils/text'
 import {
@@ -28,7 +26,7 @@ import {
 } from '@web/components/TabLayoutWrapper/TabLayoutWrapper'
 import { DISCORD_URL, TELEGRAM_URL, TWITTER_URL } from '@web/constants/social'
 import { getAutoLockLabel } from '@web/extension-services/background/controllers/auto-lock'
-import { createTab, openInTab } from '@web/extension-services/background/webapi/tab'
+import { openInTab } from '@web/extension-services/background/webapi/tab'
 import useAutoLockStateController from '@web/hooks/useAutoLockStateController'
 import useBackgroundService from '@web/hooks/useBackgroundService'
 import useHover from '@web/hooks/useHover'
@@ -97,7 +95,7 @@ const NavMenu = () => {
               {hasPasswordSecret && (
                 <View style={[flexbox.justifyCenter, flexbox.alignCenter]}>
                   <Button
-                    text="Lock Ambire"
+                    text="Lock Wallet"
                     type="secondary"
                     size="small"
                     childrenPosition="left"
@@ -173,41 +171,6 @@ const NavMenu = () => {
                 ))}
               </View>
             </ScrollView>
-          </View>
-          <View style={styles.separatorWrapper}>
-            <View style={styles.separator} />
-          </View>
-          <View style={[flexbox.directionRow, spacings.ph, spacings.pb]}>
-            {SOCIAL.map(({ Icon, url, label }) => (
-              <Pressable
-                style={() => [
-                  flexbox.directionRow,
-                  flexbox.alignCenter,
-                  flexbox.flex1,
-                  spacings.ph,
-                  spacings.pvTy,
-                  common.borderRadiusPrimary
-                ]}
-                key={url}
-                onPress={() => createTab(url)}
-              >
-                {({ hovered }: any) => (
-                  <>
-                    <Icon
-                      style={spacings.mrSm}
-                      color={hovered ? iconColors.secondary : iconColors.primary}
-                    />
-                    <Text
-                      fontSize={14}
-                      weight="medium"
-                      appearance={hovered ? 'primaryText' : 'secondaryText'}
-                    >
-                      {label}
-                    </Text>
-                  </>
-                )}
-              </Pressable>
-            ))}
           </View>
         </View>
       </View>

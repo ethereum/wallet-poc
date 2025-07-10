@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import {
   ExtendedAddressState,
@@ -35,74 +35,34 @@ const useAddressInput = ({
 }: Props) => {
   const fieldValueRef = useRef(addressState.fieldValue)
   const fieldValue = addressState.fieldValue
-  const [debouncedValidation, setDebouncedValidation] = useState({
-    isError: true,
-    message: ''
-  })
   const [validation, setValidation] = useState({
     isError: true,
     message: ''
   })
 
   useEffect(() => {
-    const validateAddress = async () => {
+    const timeout = setTimeout(async () => {
       const result = await getAddressInputValidation({
         address: addressState.fieldValue,
         isRecipientDomainResolving: addressState.isDomainResolving,
-        isValidEns: !!addressState.ensAddress,
+        // isValidEns: !!addressState.ensAddress,
         isInteropAddress: !!addressState.interopAddress,
         overwriteError,
         overwriteValidLabel
       })
 
+      console.log('setting validation', result)
       setValidation(result)
-    }
+    }, 500)
 
-    validateAddress()
+    return () => clearTimeout(timeout)
   }, [
     addressState.fieldValue,
     addressState.isDomainResolving,
-    addressState.ensAddress,
+    // addressState.ensAddress,
     addressState.interopAddress,
     overwriteError,
     overwriteValidLabel
-  ])
-
-  useEffect(() => {
-    const { isError, message: latestMessage } = validation
-    const { isError: debouncedIsError, message: debouncedMessage } = debouncedValidation
-
-    if (latestMessage === debouncedMessage) return
-
-    const shouldDebounce =
-      // Both validations are errors
-      isError === debouncedIsError &&
-      // There is no ENS or Interop address
-      !addressState.ensAddress &&
-      !addressState.interopAddress &&
-      // The message is not empty
-      latestMessage
-
-    // If debouncing is not required, instantly update
-    if (!shouldDebounce) {
-      setDebouncedValidation(validation)
-      return
-    }
-
-    const timeout = setTimeout(() => {
-      setDebouncedValidation(validation)
-    }, 500)
-
-    return () => {
-      clearTimeout(timeout)
-    }
-  }, [
-    addressState.ensAddress,
-    addressState.interopAddress,
-    debouncedValidation,
-    debouncedValidation.isError,
-    debouncedValidation.message,
-    validation
   ])
 
   useEffect(() => {
@@ -110,7 +70,7 @@ const useAddressInput = ({
 
     if (!trimmedAddress) {
       setAddressState({
-        ensAddress: '',
+        // ensAddress: '',
         interopAddress: '',
         isDomainResolving: false
       })
@@ -140,39 +100,31 @@ const useAddressInput = ({
     if (!handleRevalidate) return
 
     handleRevalidate()
-  }, [handleRevalidate, debouncedValidation])
+  }, [handleRevalidate])
 
   const reset = useCallback(() => {
     setAddressState({
       fieldValue: '',
-      ensAddress: '',
+      // ensAddress: '',
       interopAddress: '',
       isDomainResolving: false
     })
   }, [setAddressState])
 
   const RHFValidate = useCallback(() => {
-    // Disable the form if the address is not the same as the debounced address
-    // This disables the submit button in the delay window
-    if (validation.message !== debouncedValidation?.message) return false
     // Disable the form if there is an error
-    if (debouncedValidation?.isError) return debouncedValidation.message
+    if (validation.isError) return validation.message
 
     if (addressState.isDomainResolving) return false
 
     return true
-  }, [
-    addressState.isDomainResolving,
-    debouncedValidation?.isError,
-    debouncedValidation.message,
-    validation.message
-  ])
+  }, [addressState.isDomainResolving, validation.isError, validation.message])
 
   return {
-    validation: debouncedValidation,
+    validation,
     RHFValidate,
     resetAddressInput: reset,
-    address: addressState.ensAddress || addressState.interopAddress || fieldValue
+    address: /* addressState.ensAddress || */ addressState.interopAddress || fieldValue
   }
 }
 

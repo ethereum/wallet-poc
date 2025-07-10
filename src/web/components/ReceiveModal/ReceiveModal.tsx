@@ -6,7 +6,6 @@ import QRCode from 'react-native-qrcode-svg'
 
 import { getIsViewOnly } from '@ambire-common/utils/accounts'
 import Alert from '@common/components/Alert'
-import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
 import BottomSheet from '@common/components/BottomSheet'
 import ModalHeader from '@common/components/BottomSheet/ModalHeader/ModalHeader'
 import NetworkIcon from '@common/components/NetworkIcon'
@@ -22,12 +21,10 @@ import useSelectedAccountControllerState from '@web/hooks/useSelectedAccountCont
 import { getUiType } from '@web/utils/uiType'
 
 import { SelectValue } from '@common/components/Select/types'
-import { getIsNetworkSupported } from '@ambire-common/libs/swapAndBridge/swapAndBridge'
-import NotSupportedNetworkTooltip from '@web/modules/swap-and-bridge/components/NotSupportedNetworkTooltip'
 import Select from '@common/components/Select'
 import { buildFromPayload, binaryToHumanReadable } from '@defi-wonderland/interop'
-import useSwapAndBridgeControllerState from '@web/hooks/useSwapAndBridgeControllerState'
 import SkeletonLoader from '@common/components/SkeletonLoader'
+import { testnetNetworks } from '@ambire-common/consts/testnetNetworks'
 import getStyles from './styles'
 
 interface Props {
@@ -48,11 +45,10 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   const { addToast } = useToast()
   const [qrCodeError, setQrCodeError] = useState<string | boolean | null>(null)
   const isViewOnly = getIsViewOnly(keys, account?.associatedKeys || [])
-  const { supportedChainIds } = useSwapAndBridgeControllerState()
   const [selectedChain, setSelectedChain] = useState<{
     chainNamespace: 'eip155'
     chainId: number
-  }>({ chainNamespace: 'eip155', chainId: 1 })
+  }>({ chainNamespace: 'eip155', chainId: 11155111 })
   const [isInteropAddressAgreed] = useState(true)
   const [humanReadableAddress, setHumanReadableAddress] = useState('')
 
@@ -80,23 +76,17 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
   }, [payloadAddress])
 
   const fromNetworkOptions: SelectValue[] = useMemo(() => {
-    const availableOptions: SelectValue[] = networks.map((n) => {
+    const availableOptions: SelectValue[] = testnetNetworks.map((n) => {
       const tooltipId = `network-${n.chainId}-not-supported-tooltip`
-      const isNetworkSupported = getIsNetworkSupported(supportedChainIds, n)
 
       return {
         value: String(n.chainId),
         extraSearchProps: [n.name],
-        disabled: !isNetworkSupported,
+        disabled: false,
         label: (
-          <>
-            <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
-              {n.name}
-            </Text>
-            {!isNetworkSupported && (
-              <NotSupportedNetworkTooltip tooltipId={tooltipId} network={n} />
-            )}
-          </>
+          <Text weight="medium" dataSet={{ tooltipId }} style={flexbox.flex1} numberOfLines={1}>
+            {n.name}
+          </Text>
         ),
         icon: (
           <NetworkIcon
@@ -110,7 +100,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
     })
 
     return availableOptions
-  }, [networks, supportedChainIds, theme.primaryBackground])
+  }, [theme.primaryBackground])
 
   const handleCopyAddress = () => {
     if (!humanReadableAddress) return
@@ -209,6 +199,7 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
                 fontSize={12}
                 ellipsizeMode="middle"
                 weight="medium"
+                color={theme.tertiaryText}
               >
                 {humanReadableAddress}
               </Text>
@@ -226,8 +217,6 @@ const ReceiveModal: FC<Props> = ({ modalRef, handleClose }) => {
           ) : null}
         </View>
       </View>
-
-      <AmbireLogoHorizontal />
     </BottomSheet>
   )
 }

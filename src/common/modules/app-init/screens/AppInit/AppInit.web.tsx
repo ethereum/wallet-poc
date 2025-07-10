@@ -46,6 +46,7 @@ import { StorageControllerStateProvider } from '@web/contexts/storageControllerS
 import { SwapAndBridgeControllerStateProvider } from '@web/contexts/swapAndBridgeControllerStateContext'
 import { TransactionControllerStateProvider } from '@web/contexts/transactionControllerStateContext'
 import { WalletStateControllerProvider } from '@web/contexts/walletStateControllerContext'
+import { SignAccountOpControllerStateProvider } from '@web/contexts/signAccountOpControllerStateContext'
 
 const Router = isExtension ? HashRouter : BrowserRouter
 
@@ -86,26 +87,28 @@ const AppInit = () => {
                                                             <AddressBookControllerStateProvider>
                                                               <SwapAndBridgeControllerStateProvider>
                                                                 <TransactionControllerStateProvider>
-                                                                  <ControllersStateLoadedProvider>
-                                                                    <LoaderProvider>
-                                                                      <StorageProvider>
-                                                                        <KeyboardProvider>
-                                                                          <NetInfoProvider>
-                                                                            <AuthProvider>
-                                                                              <OnboardingNavigationProvider>
-                                                                                <BiometricsProvider>
-                                                                                  <PrivateModeProvider>
-                                                                                    <AppRouter />
-                                                                                  </PrivateModeProvider>
-                                                                                  <PortalHost name="global" />
-                                                                                </BiometricsProvider>
-                                                                              </OnboardingNavigationProvider>
-                                                                            </AuthProvider>
-                                                                          </NetInfoProvider>
-                                                                        </KeyboardProvider>
-                                                                      </StorageProvider>
-                                                                    </LoaderProvider>
-                                                                  </ControllersStateLoadedProvider>
+                                                                  <SignAccountOpControllerStateProvider>
+                                                                    <ControllersStateLoadedProvider>
+                                                                      <LoaderProvider>
+                                                                        <StorageProvider>
+                                                                          <KeyboardProvider>
+                                                                            <NetInfoProvider>
+                                                                              <AuthProvider>
+                                                                                <OnboardingNavigationProvider>
+                                                                                  <BiometricsProvider>
+                                                                                    <PrivateModeProvider>
+                                                                                      <AppRouter />
+                                                                                    </PrivateModeProvider>
+                                                                                    <PortalHost name="global" />
+                                                                                  </BiometricsProvider>
+                                                                                </OnboardingNavigationProvider>
+                                                                              </AuthProvider>
+                                                                            </NetInfoProvider>
+                                                                          </KeyboardProvider>
+                                                                        </StorageProvider>
+                                                                      </LoaderProvider>
+                                                                    </ControllersStateLoadedProvider>
+                                                                  </SignAccountOpControllerStateProvider>
                                                                 </TransactionControllerStateProvider>
                                                               </SwapAndBridgeControllerStateProvider>
                                                             </AddressBookControllerStateProvider>

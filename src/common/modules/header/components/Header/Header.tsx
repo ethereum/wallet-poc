@@ -1,8 +1,7 @@
+/* eslint-disable react/no-unused-prop-types */
 import React, { ReactNode, useEffect, useMemo, useState } from 'react'
 import { Image, View, ViewStyle } from 'react-native'
 
-import AmbireLogoHorizontal from '@common/components/AmbireLogoHorizontal'
-import AmbireLogoHorizontalWithOG from '@common/components/AmbireLogoHorizontalWithOG'
 import Text from '@common/components/Text'
 import { titleChangeEventStream } from '@common/hooks/useNavigation'
 import useRoute from '@common/hooks/useRoute'
@@ -11,7 +10,6 @@ import useWindowSize from '@common/hooks/useWindowSize'
 import BackButton, { DisplayIn } from '@common/modules/header/components/HeaderBackButton'
 import routesConfig from '@common/modules/router/config/routesConfig'
 import spacings, { SPACING_3XL, SPACING_XL } from '@common/styles/spacings'
-import flexbox from '@common/styles/utils/flexbox'
 import { tabLayoutWidths } from '@web/components/TabLayoutWrapper'
 import { getUiType } from '@web/utils/uiType'
 
@@ -38,8 +36,6 @@ const Header = ({
   mode = 'title',
   customTitle,
   displayBackButtonIn,
-  withAmbireLogo,
-  withOG,
   children,
   backgroundColor,
   forceBack,
@@ -117,16 +113,6 @@ const Header = ({
             </View>
           )}
           {mode === 'custom-inner-content' && <View style={styles.containerInner}>{children}</View>}
-          {/* Middle content end */}
-          {!!withAmbireLogo && (
-            <View style={[styles.sideContainer, flexbox.alignEnd]}>
-              {withOG ? (
-                <AmbireLogoHorizontalWithOG width={72} />
-              ) : (
-                <AmbireLogoHorizontal width={72} />
-              )}
-            </View>
-          )}
         </View>
       ) : (
         children
